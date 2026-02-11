@@ -1,0 +1,26 @@
+{
+  "name": "@nodepack/runtime",
+  "version": "0.1.0",
+  "description": "QuickJS WASM runtime and Node.js module implementations",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "@jitl/quickjs-wasmfile-release-sync": "^0.31.0",
+    "memfs": "^4.56.10",
+    "quickjs-emscripten": "^0.31.0"
+  }
+}

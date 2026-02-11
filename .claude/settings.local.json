@@ -1,0 +1,18 @@
+{
+  "permissions": {
+    "allow": [
+      "WebFetch(domain:webcontainers.io)",
+      "WebFetch(domain:github.com)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm --filter @nodepack/runtime build:*)",
+      "Bash(node:*)",
+      "WebFetch(domain:raw.githubusercontent.com)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm install:*)",
+      "Bash(curl:*)",
+      "Bash(pnpm why:*)"
+    ]
+  }
+}

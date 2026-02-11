@@ -1,0 +1,27 @@
+{
+  "name": "@nodepack/client",
+  "version": "0.1.0",
+  "description": "Public API for Nodepack browser runtime",
+  "type": "module",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "scripts": {
+    "build": "tsc --build",
+    "dev": "tsc --build --watch"
+  },
+  "dependencies": {
+    "@nodepack/runtime": "workspace:*",
+    "@nodepack/filesystem": "workspace:*",
+    "@nodepack/worker": "workspace:*",
+    "comlink": "^4.4.1"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
