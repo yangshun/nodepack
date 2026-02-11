@@ -24,6 +24,7 @@ export interface RuntimeOptions {
   allowFs?: boolean;
   env?: Record<string, string>;
   timeout?: number;
+  onLog?: (message: string) => void; // Callback for streaming log updates
 }
 
 export interface NodeModule {

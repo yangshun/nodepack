@@ -321,18 +321,20 @@ export function App() {
         }
       }
 
-      // Execute the main file
-      const result: ExecutionResult = await nodepack.execute(files[currentFile]);
+      // Execute the main file with streaming logs
+      const result: ExecutionResult = await nodepack.execute(files[currentFile], {
+        onLog: (message) => {
+          // Stream logs to terminal in real-time
+          if (terminalRef.current) {
+            terminalRef.current.writeOutput(message);
+          }
+        },
+      });
       const duration = Math.round(performance.now() - startTime);
 
       if (result.ok) {
-        // Display console logs to terminal
+        // Add spacing after logs (if any were output)
         if (result.logs && result.logs.length > 0) {
-          result.logs.forEach((log) => {
-            if (terminalRef.current) {
-              terminalRef.current.writeOutput(log);
-            }
-          });
           if (terminalRef.current) {
             terminalRef.current.writeOutput("");
           }

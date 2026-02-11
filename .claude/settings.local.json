@@ -15,7 +15,8 @@
       "Bash(pnpm why:*)",
       "Bash(pnpm --filter @nodepack/worker build:*)",
       "Bash(npm run build:*)",
-      "Bash(npm run dev:*)"
+      "Bash(npm run dev:*)",
+      "Bash(grep:*)"
     ]
   }
 }

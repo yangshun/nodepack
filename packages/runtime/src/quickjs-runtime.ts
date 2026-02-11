@@ -62,6 +62,11 @@ export class QuickJSRuntime {
         const logMessage = messages.join(' ');
         console.log(logMessage);
         this.consoleLogs.push(logMessage);
+
+        // Stream log update to callback if provided
+        if (options.onLog) {
+          options.onLog(logMessage);
+        }
       });
 
       vm.setProp(consoleObj, 'log', logFn);
