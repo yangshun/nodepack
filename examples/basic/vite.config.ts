@@ -30,6 +30,7 @@ export default defineConfig({
   optimizeDeps: {
     exclude: ['@jitl/quickjs-wasmfile-release-sync', 'quickjs-emscripten'],
     esbuildOptions: {
+      target: 'esnext',
       define: {
         global: 'globalThis',
       },

@@ -40,4 +40,12 @@
   .status-error {
     @apply bg-red-900/30 text-accent-red;
   }
+
+  .terminal-wrapper {
+    @apply flex flex-col h-full;
+  }
+
+  .terminal-container {
+    @apply flex-1 overflow-hidden p-2;
+  }
 }

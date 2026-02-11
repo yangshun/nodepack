@@ -17,11 +17,6 @@ export class CDNFetcher {
    * @returns ES module code as string
    */
   async fetchPackage(packageName: string, version?: string): Promise<string> {
-    // Special case: lodash → lodash-es (ES module version)
-    if (packageName === 'lodash') {
-      packageName = 'lodash-es';
-    }
-
     // jsDelivr with +esm provides bundled ES modules
     const packageSpec = version ? `${packageName}@${version}` : packageName;
     const url = `${this.baseUrl}/${packageSpec}/+esm`;

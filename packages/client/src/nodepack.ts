@@ -124,4 +124,17 @@ export class Nodepack {
   isUsingWorker(): boolean {
     return this.useWorker && this.worker !== null;
   }
+
+  /**
+   * Get the virtual filesystem instance
+   * Only available when NOT using worker mode
+   * @returns filesystem instance or null if using worker mode
+   */
+  getFilesystem(): any {
+    if (this.useWorker || !this.runtime) {
+      console.warn('[Nodepack] Filesystem access not available in worker mode');
+      return null;
+    }
+    return (this.runtime as QuickJSRuntime).getFilesystem();
+  }
 }

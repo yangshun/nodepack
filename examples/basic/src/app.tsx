@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { Buffer } from "buffer";
 import process from "process";
 import { Nodepack } from "@nodepack/client";
@@ -8,7 +8,7 @@ import { ExampleButtons } from "./components/example-buttons";
 import { StatusBar } from "./components/status-bar";
 import { FileList } from "./components/file-list";
 import { CodeEditor } from "./components/code-editor";
-import { ConsoleOutput } from "./components/console-output";
+import { Terminal, type TerminalHandle } from "./components/terminal";
 import { examples } from "./examples";
 import { FileMap, RuntimeStatus } from "./types";
 
@@ -35,7 +35,61 @@ export function App() {
 
   const [files, setFiles] = useState<FileMap>({ "main.js": defaultCode });
   const [currentFile, setCurrentFile] = useState("main.js");
-  const [logs, setLogs] = useState<string[]>([]);
+
+  const terminalRef = useRef<TerminalHandle>(null);
+
+  // Sync React files state with memfs filesystem
+  const syncFilesystemWithState = useCallback((filesToSync: FileMap) => {
+    const fs = nodepack?.getFilesystem();
+    if (!fs) {
+      console.log('[Sync] Filesystem not available yet');
+      return;
+    }
+
+    try {
+      console.log('[Sync] Syncing files:', Object.keys(filesToSync));
+
+      // Get current files in filesystem
+      const existingFiles = new Set<string>();
+      try {
+        const entries = fs.readdirSync('/');
+        entries.forEach((entry: string) => {
+          existingFiles.add(entry);
+        });
+        console.log('[Sync] Existing files in filesystem:', Array.from(existingFiles));
+      } catch (error) {
+        // Filesystem might not be ready yet
+        console.log('[Sync] Could not read filesystem');
+        return;
+      }
+
+      // Remove files that are no longer in state
+      existingFiles.forEach((filename) => {
+        if (!filesToSync[filename]) {
+          try {
+            console.log('[Sync] Removing file:', filename);
+            fs.unlinkSync(`/${filename}`);
+          } catch (error) {
+            console.error(`Failed to delete ${filename}:`, error);
+          }
+        }
+      });
+
+      // Write all files from state to filesystem
+      Object.entries(filesToSync).forEach(([filename, content]) => {
+        try {
+          console.log('[Sync] Writing file:', filename);
+          fs.writeFileSync(`/${filename}`, content);
+        } catch (error) {
+          console.error(`Failed to write ${filename}:`, error);
+        }
+      });
+
+      console.log('[Sync] Sync complete');
+    } catch (error) {
+      console.error("Failed to sync filesystem:", error);
+    }
+  }, [nodepack]);
 
   // Initialize Nodepack
   useEffect(() => {
@@ -44,67 +98,36 @@ export function App() {
     async function init() {
       try {
         setStatus("initializing");
-        addLog("system", "⏳ Initializing Nodepack...");
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput("⏳ Initializing Nodepack...");
+        }
 
         const runtime = await Nodepack.boot({
-          useWorker: true,
+          useWorker: false, // Use direct mode for terminal filesystem access
           workerUrl: nodepackWorkerUrl,
         });
 
         if (cancelled) return;
-
-        // Pre-populate filesystem with utility modules
-        await runtime.execute(`
-          import { writeFileSync } from 'fs';
-
-          writeFileSync('/utils.js', \`
-export function greet(name) {
-  return 'Hello, ' + name + '!';
-}
-
-export function add(a, b) {
-  return a + b;
-}
-
-export function multiply(a, b) {
-  return a * b;
-}
-
-export const PI = 3.14159;
-export const version = '1.0.0';
-\`);
-
-          writeFileSync('/math-helpers.js', \`
-export function square(x) {
-  return x * x;
-}
-
-export function cube(x) {
-  return x * x * x;
-}
-
-export function factorial(n) {
-  if (n <= 1) return 1;
-  return n * factorial(n - 1);
-}
-\`);
-        `);
 
         const isWorker = runtime.isUsingWorker();
         setNodepack(runtime);
         setUsingWorker(isWorker);
         setStatus("ready");
 
-        clearLogs();
-        addLog("system", "✅ Nodepack initialized successfully!");
-        addLog("system", `🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`);
-        addLog("system", "🚀 You can now run Node.js code in your browser");
-        addLog("system", "");
-        addLog("system", "Try the examples or write your own code!");
+        // Write welcome message to terminal
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput("✅ Nodepack initialized successfully!");
+          terminalRef.current.writeOutput(`🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`);
+          terminalRef.current.writeOutput("🚀 You can now run Node.js code in your browser");
+          terminalRef.current.writeOutput("");
+          terminalRef.current.writeOutput("Try the examples or write your own code!");
+        }
       } catch (error: any) {
         if (cancelled) return;
         setStatus("error");
-        addLog("error", `Failed to initialize: ${error.message}`);
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`Failed to initialize: ${error.message}`);
+        }
         console.error("Init error:", error);
       }
     }
@@ -116,24 +139,27 @@ export function factorial(n) {
     };
   }, []);
 
-  const addLog = (type: "stdout" | "error" | "system", message: string) => {
-    setLogs((prev) => [...prev, message]);
-  };
-
-  const clearLogs = () => {
-    setLogs([]);
-  };
+  // Sync filesystem when nodepack becomes available (initial sync only)
+  useEffect(() => {
+    if (nodepack) {
+      syncFilesystemWithState(files);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [nodepack]);
 
   const handleSelectExample = (exampleId: string) => {
     const example = examples.find((ex) => ex.id === exampleId);
     if (!example) return;
 
-    if (example.files) {
-      setFiles({ "main.js": example.code, ...example.files });
-    } else {
-      setFiles({ "main.js": example.code });
-    }
+    const newFiles = example.files
+      ? { "main.js": example.code, ...example.files }
+      : { "main.js": example.code };
+
+    setFiles(newFiles);
     setCurrentFile("main.js");
+
+    // Sync filesystem with new files
+    syncFilesystemWithState(newFiles);
   };
 
   const handleSelectFile = (filename: string) => {
@@ -149,11 +175,24 @@ export function factorial(n) {
       return;
     }
 
-    setFiles((prev) => ({
-      ...prev,
-      [filename]: `// ${filename}\n\nexport default {};\n`,
-    }));
+    const content = `// ${filename}\n\nexport default {};\n`;
+    const newFiles = {
+      ...files,
+      [filename]: content,
+    };
+
+    setFiles(newFiles);
     setCurrentFile(filename);
+
+    // Write new file to filesystem
+    const fs = nodepack?.getFilesystem();
+    if (fs) {
+      try {
+        fs.writeFileSync(`/${filename}`, content);
+      } catch (error) {
+        console.error("Failed to write file to filesystem:", error);
+      }
+    }
   };
 
   const handleDeleteFile = (filename: string) => {
@@ -171,6 +210,19 @@ export function factorial(n) {
     if (currentFile === filename) {
       setCurrentFile("main.js");
     }
+
+    // Delete file from filesystem
+    const fs = nodepack?.getFilesystem();
+    if (fs) {
+      try {
+        const path = `/${filename}`;
+        if (fs.existsSync(path)) {
+          fs.unlinkSync(path);
+        }
+      } catch (error) {
+        console.error("Failed to delete file from filesystem:", error);
+      }
+    }
   };
 
   const handleCodeChange = (code: string) => {
@@ -184,7 +236,6 @@ export function factorial(n) {
 
     setIsRunning(true);
     setStatus("running");
-    clearLogs();
 
     const startTime = performance.now();
 
@@ -223,32 +274,52 @@ export function factorial(n) {
       const duration = Math.round(performance.now() - startTime);
 
       if (result.ok) {
-        // Display console logs
+        // Display console logs to terminal
         if (result.logs && result.logs.length > 0) {
-          result.logs.forEach((log) => addLog("stdout", log));
-          addLog("stdout", "");
+          result.logs.forEach((log) => {
+            if (terminalRef.current) {
+              terminalRef.current.writeOutput(log);
+            }
+          });
+          if (terminalRef.current) {
+            terminalRef.current.writeOutput("");
+          }
         }
 
-        addLog("system", `✅ Execution completed in ${duration}ms`);
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`✅ Execution completed in ${duration}ms`);
+        }
 
         // Display returned value
         if (result.data !== undefined) {
-          addLog("system", "");
-          addLog("system", "Returned value:");
-          addLog("stdout", JSON.stringify(result.data, null, 2));
+          if (terminalRef.current) {
+            terminalRef.current.writeOutput("");
+            terminalRef.current.writeOutput("Returned value:");
+            terminalRef.current.writeOutput(JSON.stringify(result.data, null, 2));
+          }
         }
       } else {
-        addLog("error", `❌ Error: ${result.error}`);
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`❌ Error: ${result.error}`);
+        }
 
         // Display any logs that occurred before the error
         if (result.logs && result.logs.length > 0) {
-          addLog("system", "");
-          addLog("system", "Output before error:");
-          result.logs.forEach((log) => addLog("stdout", log));
+          if (terminalRef.current) {
+            terminalRef.current.writeOutput("");
+            terminalRef.current.writeOutput("Output before error:");
+          }
+          result.logs.forEach((log) => {
+            if (terminalRef.current) {
+              terminalRef.current.writeOutput(log);
+            }
+          });
         }
       }
     } catch (error: any) {
-      addLog("error", `❌ Execution failed: ${error.message}`);
+      if (terminalRef.current) {
+        terminalRef.current.writeOutput(`❌ Execution failed: ${error.message}`);
+      }
       console.error("Execution error:", error);
     } finally {
       setIsRunning(false);
@@ -289,9 +360,12 @@ export function factorial(n) {
               isRunning={isRunning}
             />
           </div>
-          {/* Console Output */}
+          {/* Terminal */}
           <div className="col-span-5">
-            <ConsoleOutput logs={logs} onClear={clearLogs} />
+            <Terminal
+              ref={terminalRef}
+              filesystem={nodepack?.getFilesystem() || undefined}
+            />
           </div>
         </div>
       </div>

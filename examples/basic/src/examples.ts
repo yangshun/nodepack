@@ -111,7 +111,7 @@ export function factorial(n) {
     id: 'packages',
     label: 'NPM Packages',
     code: `// NPM packages from jsDelivr CDN! 🎉
-import _ from 'lodash';
+import _ from 'lodash-es';
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 

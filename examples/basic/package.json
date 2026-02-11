@@ -12,14 +12,19 @@
   "dependencies": {
     "@monaco-editor/react": "^4.7.0",
     "@nodepack/client": "workspace:*",
+    "@xterm/addon-fit": "^0.10.0",
+    "@xterm/addon-web-links": "^0.11.0",
     "buffer": "^6.0.3",
     "events": "^3.3.0",
+    "express": "^5.2.1",
+    "just-bash": "^2.9.8",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
     "react": "^18.2.0",
     "react-dom": "^18.2.0",
     "stream-browserify": "^3.0.0",
-    "util": "^0.12.5"
+    "util": "^0.12.5",
+    "xterm": "^5.3.0"
   },
   "devDependencies": {
     "@types/react": "^18.2.48",

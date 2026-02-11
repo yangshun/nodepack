@@ -158,4 +158,12 @@ export class QuickJSRuntime {
   getConsoleLogs(): string[] {
     return [...this.consoleLogs];
   }
+
+  /**
+   * Get the virtual filesystem instance
+   * Useful for integrating with terminal or other filesystem tools
+   */
+  getFilesystem() {
+    return this.filesystem;
+  }
 }
