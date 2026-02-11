@@ -1,19 +1,19 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Buffer } from 'buffer';
-import process from 'process';
-import { Nodepack } from '@nodepack/client';
-import type { ExecutionResult } from '@nodepack/client';
+import { useState, useEffect, useCallback } from "react";
+import { Buffer } from "buffer";
+import process from "process";
+import { Nodepack } from "@nodepack/client";
+import type { ExecutionResult } from "@nodepack/client";
 
-import { ExampleButtons } from './components/example-buttons';
-import { StatusBar } from './components/status-bar';
-import { FileList } from './components/file-list';
-import { CodeEditor } from './components/code-editor';
-import { ConsoleOutput } from './components/console-output';
-import { examples } from './examples';
-import { FileMap, RuntimeStatus } from './types';
+import { ExampleButtons } from "./components/example-buttons";
+import { StatusBar } from "./components/status-bar";
+import { FileList } from "./components/file-list";
+import { CodeEditor } from "./components/code-editor";
+import { ConsoleOutput } from "./components/console-output";
+import { examples } from "./examples";
+import { FileMap, RuntimeStatus } from "./types";
 
 // Import worker
-import nodepackWorkerUrl from '../../../packages/worker/dist/runtime-worker.js?worker&url';
+import nodepackWorkerUrl from "../../../packages/worker/dist/runtime-worker.js?worker&url";
 
 // Set up Node.js globals
 (globalThis as any).Buffer = Buffer;
@@ -29,12 +29,12 @@ export default { status: 'ok' };`;
 
 export function App() {
   const [nodepack, setNodepack] = useState<Nodepack | null>(null);
-  const [status, setStatus] = useState<RuntimeStatus>('initializing');
+  const [status, setStatus] = useState<RuntimeStatus>("initializing");
   const [isRunning, setIsRunning] = useState(false);
   const [usingWorker, setUsingWorker] = useState(false);
 
-  const [files, setFiles] = useState<FileMap>({ 'main.js': defaultCode });
-  const [currentFile, setCurrentFile] = useState('main.js');
+  const [files, setFiles] = useState<FileMap>({ "main.js": defaultCode });
+  const [currentFile, setCurrentFile] = useState("main.js");
   const [logs, setLogs] = useState<string[]>([]);
 
   // Initialize Nodepack
@@ -43,8 +43,8 @@ export function App() {
 
     async function init() {
       try {
-        setStatus('initializing');
-        addLog('system', '⏳ Initializing Nodepack...');
+        setStatus("initializing");
+        addLog("system", "⏳ Initializing Nodepack...");
 
         const runtime = await Nodepack.boot({
           useWorker: true,
@@ -93,19 +93,19 @@ export function factorial(n) {
         const isWorker = runtime.isUsingWorker();
         setNodepack(runtime);
         setUsingWorker(isWorker);
-        setStatus('ready');
+        setStatus("ready");
 
         clearLogs();
-        addLog('system', '✅ Nodepack initialized successfully!');
-        addLog('system', `🔧 Mode: ${isWorker ? 'Web Worker (isolated)' : 'Direct runtime'}`);
-        addLog('system', '🚀 You can now run Node.js code in your browser');
-        addLog('system', '');
-        addLog('system', 'Try the examples or write your own code!');
+        addLog("system", "✅ Nodepack initialized successfully!");
+        addLog("system", `🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`);
+        addLog("system", "🚀 You can now run Node.js code in your browser");
+        addLog("system", "");
+        addLog("system", "Try the examples or write your own code!");
       } catch (error: any) {
         if (cancelled) return;
-        setStatus('error');
-        addLog('error', `Failed to initialize: ${error.message}`);
-        console.error('Init error:', error);
+        setStatus("error");
+        addLog("error", `Failed to initialize: ${error.message}`);
+        console.error("Init error:", error);
       }
     }
 
@@ -116,7 +116,7 @@ export function factorial(n) {
     };
   }, []);
 
-  const addLog = (type: 'stdout' | 'error' | 'system', message: string) => {
+  const addLog = (type: "stdout" | "error" | "system", message: string) => {
     setLogs((prev) => [...prev, message]);
   };
 
@@ -129,11 +129,11 @@ export function factorial(n) {
     if (!example) return;
 
     if (example.files) {
-      setFiles({ 'main.js': example.code, ...example.files });
+      setFiles({ "main.js": example.code, ...example.files });
     } else {
-      setFiles({ 'main.js': example.code });
+      setFiles({ "main.js": example.code });
     }
-    setCurrentFile('main.js');
+    setCurrentFile("main.js");
   };
 
   const handleSelectFile = (filename: string) => {
@@ -141,11 +141,11 @@ export function factorial(n) {
   };
 
   const handleAddFile = () => {
-    const filename = prompt('Enter filename (e.g., utils.js):');
+    const filename = prompt("Enter filename (e.g., utils.js):");
     if (!filename) return;
 
     if (files[filename]) {
-      alert('File already exists!');
+      alert("File already exists!");
       return;
     }
 
@@ -157,8 +157,8 @@ export function factorial(n) {
   };
 
   const handleDeleteFile = (filename: string) => {
-    if (filename === 'main.js') {
-      alert('Cannot delete main.js');
+    if (filename === "main.js") {
+      alert("Cannot delete main.js");
       return;
     }
 
@@ -169,7 +169,7 @@ export function factorial(n) {
     setFiles(newFiles);
 
     if (currentFile === filename) {
-      setCurrentFile('main.js');
+      setCurrentFile("main.js");
     }
   };
 
@@ -183,14 +183,14 @@ export function factorial(n) {
     }
 
     setIsRunning(true);
-    setStatus('running');
+    setStatus("running");
     clearLogs();
 
     const startTime = performance.now();
 
     try {
       // Write all files except main.js to virtual filesystem
-      const otherFiles = Object.entries(files).filter(([name]) => name !== 'main.js');
+      const otherFiles = Object.entries(files).filter(([name]) => name !== "main.js");
 
       if (otherFiles.length > 0) {
         const writeFilesCode = `
@@ -209,7 +209,7 @@ export function factorial(n) {
           }
         `,
             )
-            .join('\n')}
+            .join("\n")}
         `;
 
         const writeResult = await nodepack.execute(writeFilesCode);
@@ -225,47 +225,49 @@ export function factorial(n) {
       if (result.ok) {
         // Display console logs
         if (result.logs && result.logs.length > 0) {
-          result.logs.forEach((log) => addLog('stdout', log));
-          addLog('stdout', '');
+          result.logs.forEach((log) => addLog("stdout", log));
+          addLog("stdout", "");
         }
 
-        addLog('system', `✅ Execution completed in ${duration}ms`);
+        addLog("system", `✅ Execution completed in ${duration}ms`);
 
         // Display returned value
         if (result.data !== undefined) {
-          addLog('system', '');
-          addLog('system', 'Returned value:');
-          addLog('stdout', JSON.stringify(result.data, null, 2));
+          addLog("system", "");
+          addLog("system", "Returned value:");
+          addLog("stdout", JSON.stringify(result.data, null, 2));
         }
       } else {
-        addLog('error', `❌ Error: ${result.error}`);
+        addLog("error", `❌ Error: ${result.error}`);
 
         // Display any logs that occurred before the error
         if (result.logs && result.logs.length > 0) {
-          addLog('system', '');
-          addLog('system', 'Output before error:');
-          result.logs.forEach((log) => addLog('stdout', log));
+          addLog("system", "");
+          addLog("system", "Output before error:");
+          result.logs.forEach((log) => addLog("stdout", log));
         }
       }
     } catch (error: any) {
-      addLog('error', `❌ Execution failed: ${error.message}`);
-      console.error('Execution error:', error);
+      addLog("error", `❌ Execution failed: ${error.message}`);
+      console.error("Execution error:", error);
     } finally {
       setIsRunning(false);
-      setStatus('ready');
+      setStatus("ready");
     }
   }, [nodepack, isRunning, files, currentFile]);
 
   return (
     <div className="min-h-screen p-6">
-      <div className="max-w-[1400px] mx-auto">
-        <ExampleButtons onSelectExample={handleSelectExample} />
-        <StatusBar
-          status={status}
-          isRunning={isRunning}
-          usingWorker={usingWorker}
-          onRun={handleRun}
-        />
+      <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
+        <div className="flex items-center justify-between">
+          <ExampleButtons onSelectExample={handleSelectExample} />
+          <StatusBar
+            status={status}
+            isRunning={isRunning}
+            usingWorker={usingWorker}
+            onRun={handleRun}
+          />
+        </div>
         <div className="grid grid-cols-12 gap-6 mb-6 h-[600px]">
           {/* File List */}
           <div className="col-span-2">
@@ -280,7 +282,7 @@ export function factorial(n) {
           {/* Code Editor */}
           <div className="col-span-5">
             <CodeEditor
-              code={files[currentFile] || ''}
+              code={files[currentFile] || ""}
               currentFile={currentFile}
               onChange={handleCodeChange}
               onRun={handleRun}
