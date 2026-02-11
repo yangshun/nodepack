@@ -7,6 +7,12 @@ import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import { vol } from 'memfs';
 import type { ExecutionResult, RuntimeOptions, FileSystemTree, ConsoleOutput } from './types.js';
+import {
+  createFsModule,
+  createPathModule,
+  createProcessModule,
+  createGlobalModule
+} from './modules/index.js';
 
 export class QuickJSRuntime {
   private QuickJS: any;
@@ -63,8 +69,56 @@ export class QuickJSRuntime {
       logFn.dispose();
       consoleObj.dispose();
 
-      // Execute the code
-      const result = vm.evalCode(code);
+      // Inject Node.js modules
+      createGlobalModule(vm, 'fs', (vm) => createFsModule(vm, this.filesystem));
+      createGlobalModule(vm, 'path', (vm) => createPathModule(vm));
+      createGlobalModule(vm, 'process', (vm) => createProcessModule(vm, options));
+
+      // Transform ES module syntax to work with QuickJS
+      let transformedCode = code;
+      let hasExport = false;
+      let exportedValue;
+
+      // Transform import statements to use global modules
+      // import { readFileSync, writeFileSync } from 'fs' -> const { readFileSync, writeFileSync } = fs;
+      transformedCode = transformedCode.replace(
+        /import\s+{([^}]+)}\s+from\s+['"](\w+)['"]\s*;?/g,
+        (_match, imports, moduleName) => `const {${imports}} = ${moduleName};`
+      );
+
+      // import * as fs from 'fs' -> const fs = fs; (works since fs is global)
+      transformedCode = transformedCode.replace(
+        /import\s+\*\s+as\s+(\w+)\s+from\s+['"](\w+)['"]\s*;?/g,
+        (_match, alias, moduleName) => `const ${alias} = ${moduleName};`
+      );
+
+      // import fs from 'fs' -> const fs = fs; (default import as global)
+      transformedCode = transformedCode.replace(
+        /import\s+(\w+)\s+from\s+['"](\w+)['"]\s*;?/g,
+        (_match, varName, moduleName) => `const ${varName} = ${moduleName};`
+      );
+
+      // Check if code uses export syntax
+      const hasExportSyntax = /\bexport\s+(default\s+|{|const|let|var|function|class)/i.test(transformedCode);
+
+      if (hasExportSyntax) {
+        // Transform export default to use a global variable
+        transformedCode = transformedCode.replace(
+          /export\s+default\s+(.*);?\s*$/m,
+          'globalThis.__moduleExport = $1;'
+        );
+        hasExport = true;
+      }
+
+      // Execute the transformed code
+      const result = vm.evalCode(transformedCode);
+
+      if (!result.error && hasExport) {
+        // Get the exported value from global
+        const exportHandle = vm.getProp(vm.global, '__moduleExport');
+        exportedValue = vm.dump(exportHandle);
+        exportHandle.dispose();
+      }
 
       if (result.error) {
         const error = vm.dump(result.error);
@@ -78,7 +132,7 @@ export class QuickJSRuntime {
         };
       }
 
-      const data = vm.dump(result.value);
+      const data = hasExport ? exportedValue : vm.dump(result.value);
       result.value.dispose();
       vm.dispose();
 

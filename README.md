@@ -1,135 +1,301 @@
 # Nodepack
 
-A browser-based Node.js runtime for educational purposes. Run Node.js code directly in the browser without any server infrastructure.
+> **Status:** ⚠️ Early Development (Week 3) - Basic PoC working, not production-ready
 
-## 🎯 Project Goals
+A browser-based Node.js runtime for educational purposes. Run Node.js code directly in the browser without server infrastructure.
 
-- **Educational Focus**: Optimized for teaching Node.js programming
-- **Cost-Free**: Avoid licensing costs from proprietary solutions
-- **Browser-Native**: Runs entirely in modern browsers using WebAssembly
-- **Package Support**: Install and use npm packages from CDN
-- **Dev Servers**: Eventually support Express, Vite, and other dev servers
+## 🎯 Why Nodepack?
 
-## 🏗️ Architecture
+**Problem:** Teaching Node.js requires expensive cloud infrastructure or licensing fees for solutions like WebContainers.
 
-Nodepack consists of several packages working together:
+**Solution:** Run Node.js code entirely in the browser using WebAssembly (QuickJS) with virtual filesystem and Node.js API polyfills.
 
-- **`@nodepack/runtime`** - QuickJS WASM engine and Node.js module implementations (fs, path, console, process)
-- **`@nodepack/filesystem`** - Virtual file system using OPFS (Origin Private File System) with IndexedDB fallback
-- **`@nodepack/worker`** - Web Worker process management for isolating Node.js execution
-- **`@nodepack/client`** - Public API for embedding Nodepack in web applications
-- **`@nodepack/package-manager`** - CDN-based npm package installation (esm.sh)
+**Target Use Case:** Online coding platforms for teaching Node.js fundamentals - file operations, modules, and eventually npm packages.
 
-## 🚀 Quickstart
+## ✨ What Works Now (Week 3)
+
+- ✅ **JavaScript Execution** - QuickJS WASM engine running in browser
+- ✅ **Virtual File System** - In-memory filesystem (memfs) with full CRUD operations
+- ✅ **Node.js Modules** - `fs`, `path`, `process` modules working
+- ✅ **ES Module Syntax** - `import`/`export` support
+- ✅ **Console Output** - Capture and display console.log in UI
+- ✅ **Interactive Demo** - Live code editor at http://localhost:3000
+
+## 🚀 Quick Start
 
 ```bash
 # Install dependencies
 pnpm install
 
-# Run the basic PoC example
-pnpm example:basic
-
 # Build all packages
 pnpm build
+
+# Start demo (from examples/basic-poc/)
+cd examples/basic-poc
+pnpm dev
+# Open http://localhost:3000
 ```
 
-## 📖 Usage Example
+## 💻 Usage Example
 
 ```typescript
 import { Nodepack } from '@nodepack/client';
 
-// Boot the runtime
-const runtime = await Nodepack.boot();
+// Initialize runtime
+const runtime = await Nodepack.boot({ useWorker: false });
 
-// Write a Node.js script to the virtual filesystem
-await runtime.fs.writeFile('/hello.js', `
-  console.log('Hello from Node.js in the browser!');
-`);
+// Write and execute Node.js code
+const code = `
+  import { writeFileSync, readFileSync } from 'fs';
+  import { join } from 'path';
 
-// Execute the script
-const process = await runtime.spawn('node', ['hello.js']);
+  const filepath = join('/data', 'hello.txt');
+  writeFileSync(filepath, 'Hello from browser!');
+  const content = readFileSync(filepath, 'utf8');
 
-// Listen to output
-process.output.getReader().read().then(({ value }) => {
-  console.log(value); // "Hello from Node.js in the browser!"
-});
+  console.log('File content:', content);
 
-// Wait for completion
-const exitCode = await process.exit;
+  export default { content };
+`;
+
+const result = await runtime.execute(code);
+
+if (result.ok) {
+  console.log('Logs:', result.logs);      // ["File content: Hello from browser!"]
+  console.log('Returned:', result.data);  // { content: "Hello from browser!" }
+} else {
+  console.error('Error:', result.error);
+}
 ```
 
-## 🗂️ Project Structure
+### Working Code Examples
+
+**File Operations:**
+```javascript
+fs.writeFileSync('/hello.txt', 'Hello World');
+fs.mkdirSync('/data', { recursive: true });
+const files = fs.readdirSync('/');
+const content = fs.readFileSync('/hello.txt', 'utf8');
+console.log(files, content);
+```
+
+**Path Utilities:**
+```javascript
+const fullPath = path.join('/home', 'user', 'file.txt');
+const dir = path.dirname(fullPath);          // /home/user
+const file = path.basename(fullPath);        // file.txt
+const ext = path.extname(fullPath);          // .txt
+```
+
+**Process Info:**
+```javascript
+console.log(process.platform);  // 'browser'
+console.log(process.version);   // 'v18.0.0-browser'
+console.log(process.cwd());     // '/'
+```
+
+## 🏗️ Architecture
+
+### Current Package Structure
 
 ```
 nodepack/
 ├── packages/
-│   ├── runtime/          # QuickJS WASM + Node.js modules
-│   ├── filesystem/       # OPFS-based virtual FS
-│   ├── worker/           # Web Worker processes
-│   ├── client/           # Public API
-│   └── package-manager/  # CDN package installer
-├── examples/
-│   └── basic-poc/        # Basic proof of concept demo
-└── docs/                 # Documentation
+│   ├── client/          # Public API wrapper (Nodepack.boot())
+│   ├── runtime/         # QuickJS engine + Node.js modules
+│   ├── package-manager/ # Placeholder for npm CDN support (Week 4)
+│   └── worker/          # Placeholder for Web Worker support
+└── examples/
+    └── basic-poc/       # Live demo at localhost:3000
 ```
 
-## 📋 Development Phases
+### How It Works
 
-### ✅ Phase 1 (Week 1): Foundation
+1. **QuickJS WASM** - Lightweight JavaScript engine (~1MB) runs user code
+2. **memfs** - Virtual in-memory filesystem for file operations
+3. **Module Injection** - `fs`, `path`, `process` injected as globals before execution
+4. **Transform Layer** - Converts ES module syntax to QuickJS-compatible code
+5. **Console Capture** - Intercepts console.log and sends to UI
+
+## 📋 Development Progress
+
+### ✅ Completed (Week 1-3)
+
+**Week 1: Foundation**
 - [x] Monorepo setup with pnpm workspaces
-- [ ] Study Nodebox source code
-- [ ] OPFS file system implementation
-- [ ] QuickJS integration
+- [x] TypeScript configuration
+- [x] Build system working
+- [x] Basic project structure
 
-### 🚧 Phase 2 (Week 2): Core Runtime
-- [ ] Web Worker process manager
-- [ ] Basic `console` module
-- [ ] Basic `fs` module (readFile, writeFile)
-- [ ] Execute simple scripts
+**Week 2: QuickJS Integration**
+- [x] QuickJS WASM runtime initialized
+- [x] Virtual filesystem (memfs) working
+- [x] Console output capture
+- [x] Basic demo UI
 
-### ⏳ Phase 3 (Week 3): Module System
-- [ ] CommonJS `require()` implementation
-- [ ] `path` module
-- [ ] `process` module
+**Week 3: Node.js Modules**
+- [x] `fs` module (readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync)
+- [x] `path` module (join, dirname, basename, extname, resolve, normalize)
+- [x] `process` module (env, cwd, argv, version, platform)
+- [x] ES module import/export syntax support
+- [x] Working demo with examples
+
+### 🚧 In Progress / Planned
+
+**Week 3+ (Current): Module System**
+- [ ] CommonJS `require()` for local files
 - [ ] Multi-file project support
+- [ ] Module caching
+- [ ] Relative path resolution
 
-### ⏳ Phase 4 (Week 4): Package Installation
-- [ ] CDN-based package fetching (esm.sh)
-- [ ] Dependency resolution
-- [ ] Package caching
-- [ ] Test with popular packages (lodash, axios)
+**Week 4: NPM Packages**
+- [ ] Fetch packages from CDN (esm.sh)
+- [ ] Basic dependency resolution
+- [ ] Package caching (IndexedDB)
+- [ ] Test with lodash, axios, date-fns
 
-### ⏳ Phase 5 (Month 2): HTTP Servers
-- [ ] Basic `http` module
-- [ ] Service Worker networking
-- [ ] Express.js support
-- [ ] Preview iframe
+**Future (Month 2+):**
+- [ ] HTTP server support (Express.js)
+- [ ] Web Worker isolation
+- [ ] File persistence (OPFS)
+- [ ] Better error messages
+- [ ] Monaco code editor integration
 
-## 🛠️ Technologies Used
+## 🛠️ Technology Stack
 
-- **[QuickJS](https://bellard.org/quickjs/)** - Lightweight JavaScript engine compiled to WebAssembly
-- **[OPFS](https://developer.mozilla.org/en-US/docs/Web/API/File_System_API/Origin_private_file_system)** - Origin Private File System for fast file operations
-- **[Web Workers](https://developer.mozilla.org/en-US/docs/Web/API/Web_Workers_API)** - Isolate Node.js execution from main thread
-- **[Comlink](https://github.com/GoogleChromeLabs/comlink)** - Simplify Web Worker communication
-- **[esm.sh](https://esm.sh)** - CDN that converts npm packages to ES modules
+| Component | Technology | Purpose |
+|-----------|-----------|---------|
+| **JavaScript Engine** | [QuickJS](https://bellard.org/quickjs/) via [quickjs-emscripten](https://github.com/justjake/quickjs-emscripten) | ES2023 support, WASM compiled, ~1MB |
+| **Virtual Filesystem** | [memfs](https://github.com/streamich/memfs) | In-memory file operations |
+| **Path Utilities** | [path-browserify](https://www.npmjs.com/package/path-browserify) | Browser-compatible path module |
+| **Build System** | pnpm workspaces + TypeScript | Monorepo management |
+| **Demo UI** | Vite + Vanilla JS | Development server |
+| **Future: Package CDN** | [esm.sh](https://esm.sh) | npm packages as ES modules |
+| **Future: Workers** | [Comlink](https://github.com/GoogleChromeLabs/comlink) | Web Worker communication |
 
-## 🎓 Educational Features
+## 📊 Current Limitations
 
-- **Safety Limits**: File size limits, storage quotas, execution timeouts
-- **Clear Errors**: Better error messages than Node.js for learning
-- **Progressive**: Start simple (console.log) → Advanced (dev servers)
-- **Offline-First**: Works without internet after initial load
+### What Doesn't Work Yet
 
-## 📚 Resources
+- ❌ **Multi-file projects** - Cannot `require('./utils.js')`
+- ❌ **CommonJS require()** - Only ES modules work via transform
+- ❌ **NPM packages** - Cannot install lodash, axios, etc.
+- ❌ **HTTP servers** - Express.js not supported
+- ❌ **Async file operations** - Only sync methods work
+- ❌ **Binary files** - Only UTF-8 text files
+- ❌ **File persistence** - Files reset on page refresh
+- ❌ **Child processes** - No `child_process` module
+- ❌ **Network requests** - No `http.request()` or `fetch` polyfill
 
-- **Plan Document**: [Implementation Plan](/.claude/plans/cheerful-riding-lark.md)
-- **WebContainers**: https://webcontainers.io
-- **Nodebox**: https://github.com/Sandpack/nodebox-runtime
-- **QuickJS Emscripten**: https://github.com/justjake/quickjs-emscripten
+### Known Issues
+
+1. **Import transforms are regex-based** - Won't handle complex syntax
+2. **Only `export default` works** - Named exports not supported
+3. **No module resolution** - Can't look up node_modules
+4. **Poor error messages** - QuickJS errors are cryptic
+5. **Memory not tested** - Potential leaks with heavy usage
+
+## 🎓 Educational Focus
+
+**Designed for teaching Node.js basics:**
+
+✅ **Good for:**
+- Console.log fundamentals
+- File system operations (fs)
+- Path manipulation (path)
+- Process environment (process)
+- Basic JavaScript concepts
+- Single-file scripts
+
+❌ **Not good for (yet):**
+- Real-world Node.js applications
+- Multi-file projects with imports
+- Using npm packages
+- Running web servers
+- Production use cases
+
+## 📚 Documentation
+
+- **[PROGRESS.md](./PROGRESS.md)** - Detailed development log and next steps
+- **[Plan Document](/.claude/plans/cheerful-riding-lark.md)** - Original implementation plan
+- **API Types** - See `packages/runtime/src/types.ts` for TypeScript definitions
+
+## 🔧 Development
+
+### Building
+
+```bash
+# Build all packages
+pnpm build
+
+# Watch mode for runtime package
+cd packages/runtime
+pnpm dev
+
+# Watch mode for client package
+cd packages/client
+pnpm dev
+```
+
+### Testing
+
+```bash
+# Start demo server
+cd examples/basic-poc
+pnpm dev
+
+# Open http://localhost:3000
+# Click example buttons to test features
+```
+
+### Project Commands
+
+```bash
+pnpm install        # Install all dependencies
+pnpm build          # Build all packages
+pnpm -r build       # Build packages recursively
+pnpm example:basic  # Start basic-poc demo (defined in root package.json)
+```
+
+## 🚦 Project Status
+
+**Current Phase:** Week 3 - Basic Node.js modules working
+
+**Stability:** ⚠️ Proof of Concept
+- Good for experimentation
+- Not production-ready
+- API may change significantly
+- Limited testing
+
+**Next Milestone:** Implement `require()` for multi-file projects
 
 ## 🤝 Contributing
 
-This project is currently in early development (PoC phase). Contributions welcome!
+This project is in early development. Contributions welcome, but expect breaking changes!
+
+**To contribute:**
+1. Read [PROGRESS.md](./PROGRESS.md) to understand current state
+2. Pick a feature from "In Progress / Planned" section
+3. Open an issue to discuss approach
+4. Submit PR with tests
+
+## 💡 Inspiration & Alternatives
+
+### Inspiration
+- **[StackBlitz WebContainers](https://webcontainers.io)** - Commercial, full Node.js in browser
+- **[CodeSandbox Nodebox](https://github.com/codesandbox/nodebox-runtime)** - Open source, similar approach
+- **[RunKit](https://runkit.com)** - Server-side Node.js execution
+
+### Why Build This?
+- **Cost** - WebContainers requires licensing for commercial use
+- **Learning** - Educational project to understand browser runtimes
+- **Control** - Full control over features and implementation
+- **Open Source** - Can be freely used and modified
+
+### When to Use Alternatives?
+- **Production apps** → Use WebContainers (more mature)
+- **Full Node.js compatibility** → Use server-side execution
+- **Complex projects** → Use CodeSandbox Nodebox (more complete)
 
 ## 📄 License
 
@@ -137,7 +303,11 @@ MIT
 
 ## 🙏 Acknowledgments
 
-Inspired by:
-- **StackBlitz WebContainers** - Pioneer in browser-based Node.js
-- **CodeSandbox Nodebox** - Open-source browser runtime
-- **QuickJS** - Excellent lightweight JavaScript engine
+- **Fabrice Bellard** - Creator of QuickJS
+- **StackBlitz Team** - Pioneering WebContainers
+- **CodeSandbox Team** - Open source Nodebox runtime
+- **quickjs-emscripten contributors** - Making QuickJS easy to use
+
+---
+
+**Note:** This project is a proof of concept for educational platforms. For production use, consider mature alternatives like WebContainers or server-side Node.js execution.

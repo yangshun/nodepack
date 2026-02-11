@@ -55,28 +55,38 @@ fruits.forEach((fruit, index) => {
 
 export default fruits;`,
 
-  fs: `// File system operations
-import { writeFileSync, readFileSync } from 'fs';
-
-writeFileSync('/hello.txt', 'Hello from virtual filesystem!');
-const content = readFileSync('/hello.txt', 'utf8');
+  fs: `// File system operations using the global fs module
+fs.writeFileSync('/hello.txt', 'Hello from virtual filesystem!');
+const content = fs.readFileSync('/hello.txt', 'utf8');
 
 console.log('File content:', content);
 
-export default { content };`,
+// Create a directory and list files
+fs.mkdirSync('/data', { recursive: true });
+fs.writeFileSync('/data/test.txt', 'Test file');
 
-  modules: `// Using path module
-import { join, dirname, basename } from 'path';
+const files = fs.readdirSync('/');
+console.log('Root directory files:', files);
 
-const fullPath = join('/home', 'user', 'documents', 'file.txt');
-const dir = dirname(fullPath);
-const file = basename(fullPath);
+export default { content, files };`,
+
+  modules: `// Using path module (available as global)
+const fullPath = path.join('/home', 'user', 'documents', 'file.txt');
+const dir = path.dirname(fullPath);
+const file = path.basename(fullPath);
+const ext = path.extname(fullPath);
 
 console.log('Full path:', fullPath);
 console.log('Directory:', dir);
 console.log('Filename:', file);
+console.log('Extension:', ext);
 
-export default { fullPath, dir, file };`,
+// Using process module
+console.log('Platform:', process.platform);
+console.log('Version:', process.version);
+console.log('Working dir:', process.cwd());
+
+export default { fullPath, dir, file, ext };`,
 };
 
 // Initialize Nodepack

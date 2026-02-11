@@ -17,7 +17,6 @@
   },
   "dependencies": {
     "@nodepack/runtime": "workspace:*",
-    "@nodepack/filesystem": "workspace:*",
     "@nodepack/worker": "workspace:*",
     "comlink": "^4.4.1"
   },

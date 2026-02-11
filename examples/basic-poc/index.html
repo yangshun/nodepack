@@ -251,24 +251,26 @@ console.log('Current time:', new Date().toISOString());
         <button data-example="hello">Hello World</button>
         <button data-example="math">Math Operations</button>
         <button data-example="loops">Loops</button>
-        <button data-example="fs" disabled>File Operations (Week 2)</button>
-        <button data-example="modules" disabled>Modules (Week 3)</button>
+        <button data-example="fs">File Operations (Week 2)</button>
+        <button data-example="modules">Modules (Week 3)</button>
         <button data-example="packages" disabled>NPM Packages (Week 4)</button>
       </div>
     </div>
 
     <div class="panel" style="margin-top: 20px;">
-      <div class="panel-header">ℹ️ Current Status - Week 1: Foundation</div>
+      <div class="panel-header">ℹ️ Current Status - Week 3: Node.js Modules</div>
       <div class="panel-content">
         <div style="line-height: 1.8; color: #cccccc;">
-          ✅ Monorepo structure created with pnpm workspaces<br>
-          ✅ TypeScript configuration setup<br>
-          ✅ Package structure defined (runtime, filesystem, worker, client)<br>
-          ⏳ OPFS file system implementation (next step)<br>
-          ⏳ QuickJS WASM integration (next step)<br>
-          ⏳ Web Worker process management (Week 2)<br>
+          ✅ Monorepo structure with pnpm workspaces<br>
+          ✅ TypeScript configuration<br>
+          ✅ QuickJS WASM runtime integrated<br>
+          ✅ Virtual file system (memfs)<br>
+          ✅ Console output working<br>
+          ✅ Node.js modules: fs, path, process<br>
+          ⏳ CommonJS require() support (Week 3 continued)<br>
+          ⏳ NPM package installation from CDN (Week 4)<br>
           <br>
-          <strong>Next Steps:</strong> Implement OPFS file system and integrate QuickJS WASM engine
+          <strong>Next Steps:</strong> Implement module loader for require() support
         </div>
       </div>
     </div>

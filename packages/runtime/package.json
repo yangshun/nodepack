@@ -21,6 +21,7 @@
   "dependencies": {
     "@jitl/quickjs-wasmfile-release-sync": "^0.31.0",
     "memfs": "^4.56.10",
+    "path-browserify": "^1.0.1",
     "quickjs-emscripten": "^0.31.0"
   }
 }
