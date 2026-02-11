@@ -229,6 +229,58 @@ export function App() {
     setFiles((prev) => ({ ...prev, [currentFile]: code }));
   };
 
+  const handleExecuteFile = useCallback(async (filepath: string) => {
+    if (!nodepack) {
+      return {
+        ok: false,
+        output: '',
+        error: 'Runtime not initialized',
+      };
+    }
+
+    try {
+      // Read file content from filesystem
+      const fs = nodepack.getFilesystem();
+      if (!fs) {
+        return {
+          ok: false,
+          output: '',
+          error: 'Filesystem not available',
+        };
+      }
+
+      const content = fs.readFileSync(filepath, 'utf8');
+
+      // Execute the file content
+      const result = await nodepack.execute(content);
+
+      // Format output
+      let output = '';
+      if (result.logs && result.logs.length > 0) {
+        output = result.logs.join('\n') + '\n';
+      }
+
+      if (result.ok) {
+        return {
+          ok: true,
+          output,
+        };
+      } else {
+        return {
+          ok: false,
+          output,
+          error: result.error || 'Execution failed',
+        };
+      }
+    } catch (error: any) {
+      return {
+        ok: false,
+        output: '',
+        error: error.message,
+      };
+    }
+  }, [nodepack]);
+
   const handleRun = useCallback(async () => {
     if (!nodepack || isRunning) {
       return;
@@ -365,6 +417,7 @@ export function App() {
             <Terminal
               ref={terminalRef}
               filesystem={nodepack?.getFilesystem() || undefined}
+              onExecuteFile={handleExecuteFile}
             />
           </div>
         </div>

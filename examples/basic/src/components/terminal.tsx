@@ -19,6 +19,7 @@ import "xterm/css/xterm.css";
 export interface TerminalProps {
   filesystem?: IFs;
   onReady?: () => void;
+  onExecuteFile?: (filepath: string) => Promise<{ ok: boolean; output: string; error?: string }>;
 }
 
 export interface TerminalHandle {
@@ -27,7 +28,7 @@ export interface TerminalHandle {
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
-  ({ filesystem, onReady }, ref) => {
+  ({ filesystem, onReady, onExecuteFile }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerm | null>(null);
     const bashRef = useRef<Bash | null>(null);
@@ -97,6 +98,80 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         fs: bridgedFs,
         cwd: '/', // Start at root directory
         ...bashSecurityConfig,
+        customCommands: [
+          {
+            name: 'node',
+            execute: async (args: string[], context: any) => {
+              if (!onExecuteFile) {
+                return {
+                  stdout: '',
+                  stderr: 'Error: node command not available\n',
+                  exitCode: 1,
+                };
+              }
+
+              // Parse arguments
+              if (args.length === 0) {
+                return {
+                  stdout: '',
+                  stderr: 'Usage: node <filename>\n',
+                  exitCode: 1,
+                };
+              }
+
+              const filename = args[0];
+
+              // Normalize path
+              let filepath = filename;
+              if (!filepath.startsWith('/')) {
+                filepath = `/${filepath}`;
+              }
+
+              // Check if file exists
+              try {
+                const exists = await context.fs.exists(filepath);
+                if (!exists) {
+                  return {
+                    stdout: '',
+                    stderr: `Error: Cannot find module '${filename}'\n`,
+                    exitCode: 1,
+                  };
+                }
+              } catch (error) {
+                return {
+                  stdout: '',
+                  stderr: `Error: ${error}\n`,
+                  exitCode: 1,
+                };
+              }
+
+              // Execute the file
+              try {
+                const result = await onExecuteFile(filepath);
+
+                if (result.ok) {
+                  return {
+                    stdout: result.output || '',
+                    stderr: '',
+                    exitCode: 0,
+                  };
+                } else {
+                  return {
+                    stdout: result.output || '',
+                    stderr: result.error || 'Execution failed\n',
+                    exitCode: 1,
+                  };
+                }
+              } catch (error: any) {
+                return {
+                  stdout: '',
+                  stderr: `Error executing file: ${error.message}\n`,
+                  exitCode: 1,
+                };
+              }
+            },
+          },
+        ],
       });
 
       // Create terminal controller
