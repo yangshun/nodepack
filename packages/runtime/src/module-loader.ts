@@ -164,6 +164,18 @@ export class NodepackModuleLoader {
     `,
     );
 
+    // timers module
+    modules.set(
+      'timers',
+      `
+      export const setTimeout = globalThis.setTimeout;
+      export const setInterval = globalThis.setInterval;
+      export const clearTimeout = globalThis.clearTimeout;
+      export const clearInterval = globalThis.clearInterval;
+      export default globalThis.__nodepack_timers;
+    `,
+    );
+
     return modules;
   }
 
