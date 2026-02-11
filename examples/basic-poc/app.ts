@@ -14,6 +14,10 @@ import process from 'process';
 // Now safe to import Nodepack (which uses memfs internally)
 import { Nodepack } from '@nodepack/client';
 
+// Import worker with Vite's ?worker&url syntax
+// This tells Vite to bundle the worker and provide its URL
+import nodepackWorkerUrl from '../../packages/worker/dist/runtime-worker.js?worker&url';
+
 const statusEl = document.getElementById('status') as HTMLElement;
 const runBtn = document.getElementById('runBtn') as HTMLButtonElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
@@ -50,30 +54,6 @@ console.log('This is a proof of concept');
 console.log('Date:', new Date().toISOString());
 
 export default { status: 'success', message: 'Hello World!' };`,
-
-  math: `// Math operations
-const numbers = [1, 2, 3, 4, 5];
-const sum = numbers.reduce((a, b) => a + b, 0);
-const average = sum / numbers.length;
-
-console.log('Numbers:', numbers);
-console.log('Sum:', sum);
-console.log('Average:', average);
-console.log('Squared:', numbers.map(n => n * n));
-
-export default { sum, average };`,
-
-  loops: `// Loops and iteration
-for (let i = 0; i < 5; i++) {
-  console.log('Iteration:', i);
-}
-
-const fruits = ['apple', 'banana', 'orange'];
-fruits.forEach((fruit, index) => {
-  console.log(\`\${index + 1}. \${fruit}\`);
-});
-
-export default fruits;`,
 
   fs: `// File system operations using ES module imports
 import { writeFileSync, readFileSync, mkdirSync, readdirSync } from 'fs';
@@ -173,6 +153,42 @@ export default {
   average: _.mean(numbers),
   doubled: _.map(numbers, n => n * 2)
 };`,
+
+  advanced: `// Advanced: Multi-file + NPM packages! 🚀
+// Using local modules that import npm packages
+
+// These modules were pre-created during initialization:
+// - /data-processor.js: Uses lodash for data analysis
+// - /formatter.js: Uses lodash for formatting
+
+import { analyzeNumbers, filterEven, groupByRange } from './data-processor.js';
+import { formatStats, formatList } from './formatter.js';
+
+const data = [5, 12, 8, 130, 44, 3, 67, 21, 89, 15];
+
+console.log('Original data:', data);
+console.log('');
+
+// Analyze using lodash in local module
+const stats = analyzeNumbers(data);
+console.log(formatStats(stats));
+
+console.log('');
+const evens = filterEven(data);
+console.log(formatList('Even numbers', evens));
+
+console.log('');
+const grouped = groupByRange(data);
+console.log('Grouped by range:', grouped);
+
+console.log('');
+console.log('🎉 Combined local modules + npm packages working perfectly!');
+
+export default {
+  stats,
+  evens,
+  grouped
+};`,
 };
 
 // Initialize Nodepack
@@ -181,10 +197,11 @@ async function initNodepack() {
   statusEl.className = 'status';
 
   try {
-    // Boot Nodepack - using direct runtime for now
-    // TODO: Worker support needs proper bundling setup
+    // Boot Nodepack with Web Worker support
+    // This prevents long-running code from blocking the main thread
     nodepack = await Nodepack.boot({
-      useWorker: false,
+      useWorker: true,
+      workerUrl: nodepackWorkerUrl,
     });
 
     // Pre-populate filesystem with utility modules for multi-file demo
@@ -224,7 +241,57 @@ export function factorial(n) {
   return n * factorial(n - 1);
 }
 \`);
+
+      // Create advanced modules that use lodash (for advanced example)
+      writeFileSync('/data-processor.js', \`
+import _ from 'lodash';
+
+export function analyzeNumbers(numbers) {
+  return {
+    count: numbers.length,
+    sum: _.sum(numbers),
+    average: _.mean(numbers),
+    min: _.min(numbers),
+    max: _.max(numbers),
+    sorted: _.sortBy(numbers),
+  };
+}
+
+export function filterEven(numbers) {
+  return _.filter(numbers, n => n % 2 === 0);
+}
+
+export function groupByRange(numbers) {
+  return _.groupBy(numbers, n => {
+    if (n < 10) return 'small';
+    if (n < 50) return 'medium';
+    return 'large';
+  });
+}
+\`);
+
+      writeFileSync('/formatter.js', \`
+import _ from 'lodash';
+
+export function formatStats(stats) {
+  return [
+    \\\`📊 Statistics:\\\`,
+    \\\`  Count: \\\${stats.count}\\\`,
+    \\\`  Sum: \\\${stats.sum}\\\`,
+    \\\`  Average: \\\${stats.average.toFixed(2)}\\\`,
+    \\\`  Range: \\\${stats.min} - \\\${stats.max}\\\`,
+    \\\`  Sorted: [\\\${stats.sorted.join(', ')}]\\\`
+  ].join('\\\\n');
+}
+
+export function formatList(title, items) {
+  return \\\`\\\${title}:\\\\n\\\${_.map(items, (item, i) => \\\`  \\\${i + 1}. \\\${item}\\\`).join('\\\\n')}\\\`;
+}
+\`);
     `);
+
+    // Note: Files are created in virtual filesystem but NOT added to UI yet
+    // They will be added when the user clicks the relevant example button
 
     const usingWorker = nodepack.isUsingWorker();
 
@@ -482,6 +549,51 @@ export function cube(x) {
 export function factorial(n) {
   if (n <= 1) return 1;
   return n * factorial(n - 1);
+}`
+        };
+      } else if (example === 'advanced') {
+        // Advanced example - include lodash-powered modules
+        files = {
+          'main.js': examples[example],
+          'data-processor.js': `import _ from 'lodash';
+
+export function analyzeNumbers(numbers) {
+  return {
+    count: numbers.length,
+    sum: _.sum(numbers),
+    average: _.mean(numbers),
+    min: _.min(numbers),
+    max: _.max(numbers),
+    sorted: _.sortBy(numbers),
+  };
+}
+
+export function filterEven(numbers) {
+  return _.filter(numbers, n => n % 2 === 0);
+}
+
+export function groupByRange(numbers) {
+  return _.groupBy(numbers, n => {
+    if (n < 10) return 'small';
+    if (n < 50) return 'medium';
+    return 'large';
+  });
+}`,
+          'formatter.js': `import _ from 'lodash';
+
+export function formatStats(stats) {
+  return [
+    \`📊 Statistics:\`,
+    \`  Count: \${stats.count}\`,
+    \`  Sum: \${stats.sum}\`,
+    \`  Average: \${stats.average.toFixed(2)}\`,
+    \`  Range: \${stats.min} - \${stats.max}\`,
+    \`  Sorted: [\${stats.sorted.join(', ')}]\`
+  ].join('\\n');
+}
+
+export function formatList(title, items) {
+  return \`\${title}:\\n\${_.map(items, (item, i) => \`  \${i + 1}. \${item}\`).join('\\n')}\`;
 }`
         };
       } else {

@@ -12,7 +12,8 @@
       "Bash(pnpm dev)",
       "Bash(pnpm install:*)",
       "Bash(curl:*)",
-      "Bash(pnpm why:*)"
+      "Bash(pnpm why:*)",
+      "Bash(pnpm --filter @nodepack/worker build:*)"
     ]
   }
 }
