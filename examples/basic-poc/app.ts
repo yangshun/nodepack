@@ -146,6 +146,33 @@ export default {
   square: square(7),
   version
 };`,
+
+  packages: `// NPM packages from esm.sh CDN! 🎉
+import _ from 'lodash';
+
+const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+
+console.log('Numbers:', numbers);
+console.log('Sum:', _.sum(numbers));
+console.log('Average:', _.mean(numbers));
+console.log('Max:', _.max(numbers));
+console.log('Min:', _.min(numbers));
+
+console.log('');
+console.log('Doubled:', _.map(numbers, n => n * 2));
+console.log('Evens:', _.filter(numbers, n => n % 2 === 0));
+console.log('First 3:', _.take(numbers, 3));
+console.log('Last 3:', _.takeRight(numbers, 3));
+
+console.log('');
+console.log('Unique:', _.uniq([1, 2, 2, 3, 3, 4, 4, 5]));
+console.log('Shuffle:', _.shuffle([1, 2, 3, 4, 5]));
+
+export default {
+  sum: _.sum(numbers),
+  average: _.mean(numbers),
+  doubled: _.map(numbers, n => n * 2)
+};`,
 };
 
 // Initialize Nodepack

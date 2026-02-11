@@ -4,6 +4,7 @@
  */
 
 import * as pathBrowserify from 'path-browserify';
+import { CDNFetcher } from './cdn-fetcher.js';
 
 /**
  * NodepackModuleLoader
@@ -12,10 +13,44 @@ import * as pathBrowserify from 'path-browserify';
 export class NodepackModuleLoader {
   private filesystem: any; // memfs Volume instance
   private builtinModules: Map<string, string>;
+  private cdnFetcher: CDNFetcher;
 
   constructor(filesystem: any) {
     this.filesystem = filesystem;
     this.builtinModules = this.createBuiltinModules();
+    this.cdnFetcher = new CDNFetcher();
+  }
+
+  /**
+   * Pre-load npm packages from CDN
+   * Fetches packages and stores them in /node_modules in the virtual filesystem
+   *
+   * This must be called BEFORE execution since QuickJS's load() is synchronous
+   *
+   * @param packages - Array of package names to fetch
+   */
+  async preloadPackages(packages: string[]): Promise<void> {
+    if (packages.length === 0) {
+      return;
+    }
+
+    // Fetch all packages from CDN
+    const packagesMap = await this.cdnFetcher.fetchPackages(packages);
+
+    // Write each package to /node_modules in the virtual filesystem
+    for (const [packageName, code] of packagesMap) {
+      const modulePath = `/node_modules/${packageName}/index.js`;
+
+      // Create directory
+      const packageDir = `/node_modules/${packageName}`;
+      if (!this.filesystem.existsSync(packageDir)) {
+        this.filesystem.mkdirSync(packageDir, { recursive: true });
+      }
+
+      // Write module code
+      this.filesystem.writeFileSync(modulePath, code);
+      console.log(`[ModuleLoader] Cached ${packageName} at ${modulePath}`);
+    }
   }
 
   /**
@@ -31,14 +66,23 @@ export class NodepackModuleLoader {
       return this.builtinModules.get(moduleName)!;
     }
 
-    // 2. Try to load from virtual filesystem
+    // 2. Try to load from virtual filesystem (local files)
     const resolvedPath = this.resolveModulePath(moduleName);
     if (this.filesystem.existsSync(resolvedPath)) {
       return this.filesystem.readFileSync(resolvedPath, 'utf8');
     }
 
-    // 3. Not found
-    throw new Error(`Cannot find module '${moduleName}'`);
+    // 3. Try to load from /node_modules (CDN packages)
+    const npmPath = `/node_modules/${moduleName}/index.js`;
+    if (this.filesystem.existsSync(npmPath)) {
+      return this.filesystem.readFileSync(npmPath, 'utf8');
+    }
+
+    // 4. Not found
+    throw new Error(
+      `Cannot find module '${moduleName}'. ` +
+      `Make sure the package is imported or the file exists.`
+    );
   }
 
   /**
@@ -67,7 +111,8 @@ export class NodepackModuleLoader {
       return this.addExtension(resolved);
     }
 
-    // Otherwise, treat as builtin or node_modules (not supported yet)
+    // Otherwise, treat as npm package (e.g., 'lodash', '@babel/core')
+    // Return as-is - the load() method will look in /node_modules
     return requestedName;
   }
 

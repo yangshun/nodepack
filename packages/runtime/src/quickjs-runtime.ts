@@ -13,6 +13,7 @@ import {
   createProcessModule,
 } from './modules/index.js';
 import { NodepackModuleLoader } from './module-loader.js';
+import { detectImports } from './import-detector.js';
 
 export class QuickJSRuntime {
   private QuickJS: any;
@@ -83,6 +84,13 @@ export class QuickJSRuntime {
         (moduleName: string) => moduleLoader.load(moduleName),
         (baseName: string, requestedName: string) => moduleLoader.normalize(baseName, requestedName)
       );
+
+      // Detect and pre-load npm packages from CDN
+      const npmPackages = detectImports(code);
+      if (npmPackages.length > 0) {
+        console.log('[Runtime] Detected npm packages:', npmPackages);
+        await moduleLoader.preloadPackages(npmPackages);
+      }
 
       // Write the code to the virtual filesystem so the module loader can find it
       // Write to root so relative imports like './utils.js' work correctly
