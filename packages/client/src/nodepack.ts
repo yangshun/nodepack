@@ -29,7 +29,7 @@ export class Nodepack {
 
   constructor(private options: NodepackOptions = {}) {
     // Default to using worker in browser environment
-    this.useWorker = options.useWorker ?? (typeof Worker !== 'undefined');
+    this.useWorker = options.useWorker ?? typeof Worker !== 'undefined';
   }
 
   /**
@@ -66,7 +66,7 @@ export class Nodepack {
     if (!this.options.workerUrl) {
       throw new Error(
         'Worker URL is required when useWorker is true. ' +
-        'Pass workerUrl in options or use useWorker: false for direct runtime.'
+          'Pass workerUrl in options or use useWorker: false for direct runtime.',
       );
     }
 

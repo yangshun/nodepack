@@ -33,9 +33,7 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
         <span>Run Code</span>
       </button>
       <span className={`status-badge ${getStatusClass()}`}>{getStatusLabel()}</span>
-      <span className="text-xs text-gray-500">
-        Press Cmd/Ctrl+Enter to run
-      </span>
+      <span className="text-xs text-gray-500">Press Cmd/Ctrl+Enter to run</span>
     </div>
   );
 }

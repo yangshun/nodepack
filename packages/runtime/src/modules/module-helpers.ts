@@ -11,7 +11,7 @@ export type ModuleFactory = (vm: QuickJSContext) => QuickJSHandle;
 export function createGlobalModule(
   vm: QuickJSContext,
   moduleName: string,
-  factory: ModuleFactory
+  factory: ModuleFactory,
 ): void {
   const moduleObj = factory(vm);
   vm.setProp(vm.global, moduleName, moduleObj);
@@ -25,7 +25,7 @@ export function addModuleFunction(
   vm: QuickJSContext,
   moduleObj: QuickJSHandle,
   functionName: string,
-  implementation: (...args: any[]) => any
+  implementation: (...args: any[]) => any,
 ): void {
   const fnHandle = vm.newFunction(functionName, (...args: any[]) => {
     try {

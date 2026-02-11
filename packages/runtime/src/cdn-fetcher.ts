@@ -33,7 +33,7 @@ export class CDNFetcher {
 
       if (!response.ok) {
         throw new Error(
-          `Failed to fetch package "${packageName}": ${response.status} ${response.statusText}`
+          `Failed to fetch package "${packageName}": ${response.status} ${response.statusText}`,
         );
       }
 

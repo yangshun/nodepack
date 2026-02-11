@@ -24,14 +24,11 @@ export default defineConfig({
     },
   },
   define: {
-    'global': 'globalThis',
+    global: 'globalThis',
     'process.env': {},
   },
   optimizeDeps: {
-    exclude: [
-      '@jitl/quickjs-wasmfile-release-sync',
-      'quickjs-emscripten',
-    ],
+    exclude: ['@jitl/quickjs-wasmfile-release-sync', 'quickjs-emscripten'],
     esbuildOptions: {
       define: {
         global: 'globalThis',

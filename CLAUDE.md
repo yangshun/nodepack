@@ -21,6 +21,7 @@ Nodepack is a browser-based Node.js runtime that allows running Node.js code dir
   - ❌ `export default function Header() { ... }`
 
 - **Component file structure**:
+
   ```typescript
   // component-name.tsx
   interface ComponentNameProps {
@@ -38,4 +39,3 @@ Nodepack is a browser-based Node.js runtime that allows running Node.js code dir
 - Define interfaces for component props
 - Use type imports when importing only types: `import type { ExecutionResult } from '@nodepack/client'`
 - Prefer explicit typing over implicit `any`
-

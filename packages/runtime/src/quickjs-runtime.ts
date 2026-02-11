@@ -7,11 +7,7 @@ import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import { vol } from 'memfs';
 import type { ExecutionResult, RuntimeOptions } from './types.js';
-import {
-  createFsModule,
-  createPathModule,
-  createProcessModule,
-} from './modules/index.js';
+import { createFsModule, createPathModule, createProcessModule } from './modules/index.js';
 import { NodepackModuleLoader } from './module-loader.js';
 import { detectImports } from './import-detector.js';
 
@@ -82,7 +78,8 @@ export class QuickJSRuntime {
       const moduleLoader = new NodepackModuleLoader(this.filesystem);
       runtime.setModuleLoader(
         (moduleName: string) => moduleLoader.load(moduleName),
-        (baseName: string, requestedName: string) => moduleLoader.normalize(baseName, requestedName)
+        (baseName: string, requestedName: string) =>
+          moduleLoader.normalize(baseName, requestedName),
       );
 
       // Detect and pre-load npm packages from CDN
@@ -161,5 +158,4 @@ export class QuickJSRuntime {
   getConsoleLogs(): string[] {
     return [...this.consoleLogs];
   }
-
 }

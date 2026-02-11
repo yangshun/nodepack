@@ -6,8 +6,5 @@
     "noEmit": false
   },
   "include": ["src/**/*"],
-  "references": [
-    { "path": "../runtime" },
-    { "path": "../worker" }
-  ]
+  "references": [{ "path": "../runtime" }, { "path": "../worker" }]
 }

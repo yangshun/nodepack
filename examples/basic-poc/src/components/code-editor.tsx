@@ -10,12 +10,7 @@ interface CodeEditorProps {
   isRunning: boolean;
 }
 
-export function CodeEditor({
-  code,
-  currentFile,
-  onChange,
-  onRun,
-}: CodeEditorProps) {
+export function CodeEditor({ code, currentFile, onChange, onRun }: CodeEditorProps) {
   const onRunRef = useRef(onRun);
 
   // Keep the ref up to date with the latest onRun
@@ -26,12 +21,9 @@ export function CodeEditor({
   const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: any) => {
     // Register keyboard shortcut: Cmd/Ctrl + Enter to run
     // Use the ref so it always calls the latest onRun function
-    editor.addCommand(
-      monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter,
-      () => {
-        onRunRef.current();
-      }
-    );
+    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+      onRunRef.current();
+    });
   };
 
   const handleEditorChange = (value: string | undefined) => {

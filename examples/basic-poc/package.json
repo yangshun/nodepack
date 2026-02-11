@@ -1,8 +1,8 @@
 {
   "name": "basic-poc",
   "version": "0.1.0",
-  "description": "Basic proof of concept for Nodepack",
   "private": true,
+  "description": "Basic proof of concept for Nodepack",
   "type": "module",
   "scripts": {
     "dev": "vite",

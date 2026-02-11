@@ -61,8 +61,8 @@ const code = `
 const result = await runtime.execute(code);
 
 if (result.ok) {
-  console.log('Logs:', result.logs);      // ["File content: Hello from browser!"]
-  console.log('Returned:', result.data);  // { content: "Hello from browser!" }
+  console.log('Logs:', result.logs); // ["File content: Hello from browser!"]
+  console.log('Returned:', result.data); // { content: "Hello from browser!" }
 } else {
   console.error('Error:', result.error);
 }
@@ -71,6 +71,7 @@ if (result.ok) {
 ### Working Code Examples
 
 **File Operations:**
+
 ```javascript
 fs.writeFileSync('/hello.txt', 'Hello World');
 fs.mkdirSync('/data', { recursive: true });
@@ -80,18 +81,20 @@ console.log(files, content);
 ```
 
 **Path Utilities:**
+
 ```javascript
 const fullPath = path.join('/home', 'user', 'file.txt');
-const dir = path.dirname(fullPath);          // /home/user
-const file = path.basename(fullPath);        // file.txt
-const ext = path.extname(fullPath);          // .txt
+const dir = path.dirname(fullPath); // /home/user
+const file = path.basename(fullPath); // file.txt
+const ext = path.extname(fullPath); // .txt
 ```
 
 **Process Info:**
+
 ```javascript
-console.log(process.platform);  // 'browser'
-console.log(process.version);   // 'v18.0.0-browser'
-console.log(process.cwd());     // '/'
+console.log(process.platform); // 'browser'
+console.log(process.version); // 'v18.0.0-browser'
+console.log(process.cwd()); // '/'
 ```
 
 ## 🏗️ Architecture
@@ -122,18 +125,21 @@ nodepack/
 ### ✅ Completed (Week 1-3)
 
 **Week 1: Foundation**
+
 - [x] Monorepo setup with pnpm workspaces
 - [x] TypeScript configuration
 - [x] Build system working
 - [x] Basic project structure
 
 **Week 2: QuickJS Integration**
+
 - [x] QuickJS WASM runtime initialized
 - [x] Virtual filesystem (memfs) working
 - [x] Console output capture
 - [x] Basic demo UI
 
 **Week 3: Node.js Modules**
+
 - [x] `fs` module (readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync)
 - [x] `path` module (join, dirname, basename, extname, resolve, normalize)
 - [x] `process` module (env, cwd, argv, version, platform)
@@ -143,18 +149,21 @@ nodepack/
 ### 🚧 In Progress / Planned
 
 **Week 3+ (Current): Module System**
+
 - [ ] CommonJS `require()` for local files
 - [ ] Multi-file project support
 - [ ] Module caching
 - [ ] Relative path resolution
 
 **Week 4: NPM Packages**
+
 - [ ] Fetch packages from CDN (esm.sh)
 - [ ] Basic dependency resolution
 - [ ] Package caching (IndexedDB)
 - [ ] Test with lodash, axios, date-fns
 
 **Future (Month 2+):**
+
 - [ ] HTTP server support (Express.js)
 - [ ] Web Worker isolation
 - [ ] File persistence (OPFS)
@@ -163,15 +172,15 @@ nodepack/
 
 ## 🛠️ Technology Stack
 
-| Component | Technology | Purpose |
-|-----------|-----------|---------|
-| **JavaScript Engine** | [QuickJS](https://bellard.org/quickjs/) via [quickjs-emscripten](https://github.com/justjake/quickjs-emscripten) | ES2023 support, WASM compiled, ~1MB |
-| **Virtual Filesystem** | [memfs](https://github.com/streamich/memfs) | In-memory file operations |
-| **Path Utilities** | [path-browserify](https://www.npmjs.com/package/path-browserify) | Browser-compatible path module |
-| **Build System** | pnpm workspaces + TypeScript | Monorepo management |
-| **Demo UI** | Vite + Vanilla JS | Development server |
-| **Future: Package CDN** | [esm.sh](https://esm.sh) | npm packages as ES modules |
-| **Future: Workers** | [Comlink](https://github.com/GoogleChromeLabs/comlink) | Web Worker communication |
+| Component               | Technology                                                                                                       | Purpose                             |
+| ----------------------- | ---------------------------------------------------------------------------------------------------------------- | ----------------------------------- |
+| **JavaScript Engine**   | [QuickJS](https://bellard.org/quickjs/) via [quickjs-emscripten](https://github.com/justjake/quickjs-emscripten) | ES2023 support, WASM compiled, ~1MB |
+| **Virtual Filesystem**  | [memfs](https://github.com/streamich/memfs)                                                                      | In-memory file operations           |
+| **Path Utilities**      | [path-browserify](https://www.npmjs.com/package/path-browserify)                                                 | Browser-compatible path module      |
+| **Build System**        | pnpm workspaces + TypeScript                                                                                     | Monorepo management                 |
+| **Demo UI**             | Vite + Vanilla JS                                                                                                | Development server                  |
+| **Future: Package CDN** | [esm.sh](https://esm.sh)                                                                                         | npm packages as ES modules          |
+| **Future: Workers**     | [Comlink](https://github.com/GoogleChromeLabs/comlink)                                                           | Web Worker communication            |
 
 ## 📊 Current Limitations
 
@@ -200,6 +209,7 @@ nodepack/
 **Designed for teaching Node.js basics:**
 
 ✅ **Good for:**
+
 - Console.log fundamentals
 - File system operations (fs)
 - Path manipulation (path)
@@ -208,6 +218,7 @@ nodepack/
 - Single-file scripts
 
 ❌ **Not good for (yet):**
+
 - Real-world Node.js applications
 - Multi-file projects with imports
 - Using npm packages
@@ -262,6 +273,7 @@ pnpm example:basic  # Start basic-poc demo (defined in root package.json)
 **Current Phase:** Week 3 - Basic Node.js modules working
 
 **Stability:** ⚠️ Proof of Concept
+
 - Good for experimentation
 - Not production-ready
 - API may change significantly
@@ -274,6 +286,7 @@ pnpm example:basic  # Start basic-poc demo (defined in root package.json)
 This project is in early development. Contributions welcome, but expect breaking changes!
 
 **To contribute:**
+
 1. Read [PROGRESS.md](./PROGRESS.md) to understand current state
 2. Pick a feature from "In Progress / Planned" section
 3. Open an issue to discuss approach
@@ -282,17 +295,20 @@ This project is in early development. Contributions welcome, but expect breaking
 ## 💡 Inspiration & Alternatives
 
 ### Inspiration
+
 - **[StackBlitz WebContainers](https://webcontainers.io)** - Commercial, full Node.js in browser
 - **[CodeSandbox Nodebox](https://github.com/codesandbox/nodebox-runtime)** - Open source, similar approach
 - **[RunKit](https://runkit.com)** - Server-side Node.js execution
 
 ### Why Build This?
+
 - **Cost** - WebContainers requires licensing for commercial use
 - **Learning** - Educational project to understand browser runtimes
 - **Control** - Full control over features and implementation
 - **Open Source** - Can be freely used and modified
 
 ### When to Use Alternatives?
+
 - **Production apps** → Use WebContainers (more mature)
 - **Full Node.js compatibility** → Use server-side execution
 - **Complex projects** → Use CodeSandbox Nodebox (more complete)

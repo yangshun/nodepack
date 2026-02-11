@@ -81,7 +81,7 @@ export class NodepackModuleLoader {
     // 4. Not found
     throw new Error(
       `Cannot find module '${moduleName}'. ` +
-      `Make sure the package is imported or the file exists.`
+        `Make sure the package is imported or the file exists.`,
     );
   }
 
@@ -124,17 +124,22 @@ export class NodepackModuleLoader {
     const modules = new Map<string, string>();
 
     // fs module as ES module export
-    modules.set('fs', `
+    modules.set(
+      'fs',
+      `
       export const readFileSync = globalThis.__nodepack_fs.readFileSync;
       export const writeFileSync = globalThis.__nodepack_fs.writeFileSync;
       export const existsSync = globalThis.__nodepack_fs.existsSync;
       export const readdirSync = globalThis.__nodepack_fs.readdirSync;
       export const mkdirSync = globalThis.__nodepack_fs.mkdirSync;
       export default globalThis.__nodepack_fs;
-    `);
+    `,
+    );
 
     // path module
-    modules.set('path', `
+    modules.set(
+      'path',
+      `
       export const join = globalThis.__nodepack_path.join;
       export const dirname = globalThis.__nodepack_path.dirname;
       export const basename = globalThis.__nodepack_path.basename;
@@ -143,17 +148,21 @@ export class NodepackModuleLoader {
       export const normalize = globalThis.__nodepack_path.normalize;
       export const sep = globalThis.__nodepack_path.sep;
       export default globalThis.__nodepack_path;
-    `);
+    `,
+    );
 
     // process module
-    modules.set('process', `
+    modules.set(
+      'process',
+      `
       export default globalThis.__nodepack_process;
       export const env = globalThis.__nodepack_process.env;
       export const cwd = globalThis.__nodepack_process.cwd;
       export const argv = globalThis.__nodepack_process.argv;
       export const platform = globalThis.__nodepack_process.platform;
       export const version = globalThis.__nodepack_process.version;
-    `);
+    `,
+    );
 
     return modules;
   }

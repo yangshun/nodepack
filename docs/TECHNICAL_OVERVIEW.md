@@ -21,22 +21,27 @@
 ## Project Overview
 
 ### Goal
+
 Build a browser-based Node.js runtime for teaching programming. Students can run Node.js code directly in their browser without server infrastructure.
 
 ### Why Custom?
+
 - **Cost:** Avoid WebContainers licensing fees ($100+/month)
 - **Control:** Full control over implementation and features
 - **Learning:** Educational project to understand browser runtimes
 - **Open Source:** Can be freely used and modified
 
 ### Target Use Case
+
 Online coding platforms teaching Node.js fundamentals:
+
 - File system operations
 - Built-in modules (fs, path, process)
 - Multi-file projects with imports
 - NPM package usage
 
 ### Non-Goals
+
 - Full Node.js compatibility
 - Production application runtime
 - Native module support
@@ -49,18 +54,21 @@ Online coding platforms teaching Node.js fundamentals:
 ### ✅ Completed Features (Weeks 1-4)
 
 **Week 1: Foundation**
+
 - Monorepo structure with pnpm workspaces
 - TypeScript configuration
 - Build system (Vite + TypeScript)
 - Project scaffolding
 
 **Week 2: QuickJS Integration**
+
 - QuickJS WASM runtime initialization
 - Virtual filesystem using memfs
 - Console output capture
 - Basic demo UI at http://localhost:3000
 
 **Week 3: Native ES Module System**
+
 - Refactored from regex transforms to QuickJS native module loader
 - `fs` module: readFileSync, writeFileSync, mkdirSync, readdirSync, existsSync
 - `path` module: join, dirname, basename, extname, resolve, normalize
@@ -68,6 +76,7 @@ Online coding platforms teaching Node.js fundamentals:
 - Multi-file projects with local imports (`import utils from './utils.js'`)
 
 **Week 4: NPM Package Support ✨**
+
 - Automatic npm import detection
 - CDN package fetching from jsDelivr (+esm feature)
 - Package caching in virtual filesystem (memfs)
@@ -88,11 +97,14 @@ const content = readFileSync('/data.txt', 'utf8');
 
 // ✅ Multi-file Projects
 import { writeFileSync } from 'fs';
-writeFileSync('/utils.js', `
+writeFileSync(
+  '/utils.js',
+  `
   export function greet(name) {
     return 'Hello, ' + name + '!';
   }
-`);
+`,
+);
 import { greet } from './utils.js';
 console.log(greet('World')); // Hello, World!
 
@@ -103,7 +115,7 @@ const fullPath = join('/home', 'user', 'file.txt');
 // ✅ Process Info
 import process from 'process';
 console.log(process.platform); // 'browser'
-console.log(process.cwd());     // '/'
+console.log(process.cwd()); // '/'
 ```
 
 ---
@@ -227,6 +239,7 @@ nodepack/
 ### 1. QuickJS as JavaScript Engine
 
 **Why QuickJS?**
+
 - ✅ Small size (~1MB WASM)
 - ✅ Fast startup time
 - ✅ Full ES2023 support including native modules
@@ -234,6 +247,7 @@ nodepack/
 - ✅ Lightweight for teaching use case
 
 **Why NOT V8/JavaScriptCore?**
+
 - ❌ Much larger bundle size (tens of MB)
 - ❌ Overkill for teaching platform
 - ❌ Harder to integrate in browser
@@ -245,12 +259,14 @@ nodepack/
 ### 2. memfs for Virtual Filesystem
 
 **Why memfs?**
+
 - ✅ Pure JavaScript, works immediately
 - ✅ Synchronous API matches Node.js fs module
 - ✅ No persistence needed for teaching (short sessions)
 - ✅ Simple to integrate
 
 **Why NOT OPFS (Origin Private File System)?**
+
 - ❌ Asynchronous API complicates integration
 - ❌ Not needed for teaching (sessions are short)
 - ❌ Can add later if persistence becomes important
@@ -262,26 +278,30 @@ nodepack/
 ### 3. Native ES Modules (Week 3 Refactor)
 
 **Original Approach (Week 2):** Regex-based transforms
+
 ```javascript
 // Transform: import {x} from 'fs' → const {x} = fs;
 code = code.replace(/import\s+{([^}]+)}\s+from\s+['"]fs['"]/g, ...);
 ```
 
 **Problems:**
+
 - ❌ Fragile (breaks on complex syntax)
 - ❌ Doesn't handle relative imports
 - ❌ Can't support multi-file projects
 - ❌ Ignores QuickJS's native module support
 
 **New Approach (Week 3):** QuickJS native module system
+
 ```javascript
 runtime.setModuleLoader(
   (moduleName) => moduleLoader.load(moduleName),
-  (baseName, requestedName) => moduleLoader.normalize(baseName, requestedName)
+  (baseName, requestedName) => moduleLoader.normalize(baseName, requestedName),
 );
 ```
 
 **Benefits:**
+
 - ✅ Uses QuickJS as intended
 - ✅ Proper module resolution
 - ✅ Supports relative imports (`./utils.js`)
@@ -295,6 +315,7 @@ runtime.setModuleLoader(
 ### 4. jsDelivr CDN for NPM Packages
 
 **Why jsDelivr?**
+
 - ✅ `+esm` feature returns fully bundled ES modules
 - ✅ All dependencies inlined (single file)
 - ✅ CORS-enabled
@@ -302,14 +323,17 @@ runtime.setModuleLoader(
 - ✅ No external dependencies in returned code
 
 **Why NOT esm.sh?**
+
 - ❌ Returns "pointer" files with external imports
 - ❌ Requires recursive fetching
 - ❌ Bundle parameters don't work reliably
 
 **Why NOT Skypack?**
+
 - User explicitly rejected: "Don't use skypack"
 
 **Special Handling:**
+
 - `lodash` → `lodash-es` (ES module version)
 - jsDelivr URL format: `https://cdn.jsdelivr.net/npm/{package}/+esm`
 
@@ -320,12 +344,14 @@ runtime.setModuleLoader(
 **Problem:** QuickJS's `setModuleLoader()` expects synchronous `load()` function, but CDN fetches are async.
 
 **Solution:**
+
 1. **Detect imports** before execution (regex scan)
 2. **Pre-fetch all packages** asynchronously
 3. **Cache in memfs** at `/node_modules/{package}/index.js`
 4. **Synchronous load()** just reads from cache
 
 **Alternative Considered:** Fetch on-demand during module resolution
+
 - ❌ Can't make `load()` async in QuickJS
 - ❌ Would need Web Workers or other workaround
 - ✅ Pre-loading is simpler and works well for teaching
@@ -341,6 +367,7 @@ runtime.setModuleLoader(
 **Implementation:** Packages fetched fresh each execution, cached only in memfs for that session.
 
 **Why NOT IndexedDB persistence?**
+
 - ✅ Simpler implementation
 - ✅ Always get latest package versions
 - ✅ No stale cache issues
@@ -355,11 +382,13 @@ runtime.setModuleLoader(
 **Current:** Everything runs on main thread.
 
 **Why?**
+
 - ✅ Simpler to debug
 - ✅ Faster development
 - ✅ Adequate for PoC
 
 **Future Consideration:** Add Web Workers for:
+
 - Non-blocking execution
 - Better isolation
 - Timeout handling
@@ -375,6 +404,7 @@ runtime.setModuleLoader(
 **Purpose:** Scan user code to find npm packages before execution.
 
 **Algorithm:**
+
 ```typescript
 export function detectImports(code: string): string[] {
   const imports = new Set<string>();
@@ -412,6 +442,7 @@ export function detectImports(code: string): string[] {
 ```
 
 **Limitations:**
+
 - Regex-based (doesn't use AST parser)
 - Won't detect dynamic imports (`import('lodash')`)
 - Won't detect imports in strings/comments
@@ -424,6 +455,7 @@ export function detectImports(code: string): string[] {
 **Purpose:** Fetch packages from jsDelivr CDN.
 
 **Key Features:**
+
 ```typescript
 export class CDNFetcher {
   private baseUrl = 'https://cdn.jsdelivr.net/npm';
@@ -441,7 +473,7 @@ export class CDNFetcher {
     const response = await fetch(url);
     if (!response.ok) {
       throw new Error(
-        `Failed to fetch package "${packageName}": ${response.status} ${response.statusText}`
+        `Failed to fetch package "${packageName}": ${response.status} ${response.statusText}`,
       );
     }
 
@@ -462,6 +494,7 @@ export class CDNFetcher {
 ```
 
 **Error Handling:**
+
 - 404: Package not found → clear error message
 - Network failure → throw with context
 - Parallel fetching with proper error aggregation
@@ -473,6 +506,7 @@ export class CDNFetcher {
 **Purpose:** Resolve and load modules for QuickJS.
 
 **Resolution Strategy:**
+
 ```typescript
 load(moduleName: string): string {
   // 1. Check if builtin module (fs, path, process)
@@ -501,6 +535,7 @@ load(moduleName: string): string {
 ```
 
 **Builtin Modules:** Defined as ES module code strings
+
 ```typescript
 private createBuiltinModules(): Map<string, string> {
   const modules = new Map<string, string>();
@@ -520,6 +555,7 @@ private createBuiltinModules(): Map<string, string> {
 ```
 
 **Why Hidden Globals?**
+
 - QuickJS module loader needs to return strings
 - Can't pass JavaScript objects directly
 - Solution: Inject as `globalThis.__nodepack_*`, reference in ES module code
@@ -597,6 +633,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ```
 
 **Critical Memory Management:**
+
 - Every `vm.newObject()`, `vm.newFunction()` must be `.dispose()`d
 - Failure to dispose causes memory leaks
 - Dispose after `setProp()`, not before
@@ -608,6 +645,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ### Current Limitations
 
 **1. Pure JavaScript Packages Only**
+
 - ❌ Native modules don't work (e.g., `sqlite3`, `sharp`)
 - ❌ Binary dependencies fail
 - ❌ C++ addons impossible in browser
@@ -618,6 +656,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **2. No File Persistence Across Sessions**
+
 - ❌ Files reset on page refresh
 - ❌ No persistent storage
 - ✅ Good for teaching (clean slate each lesson)
@@ -627,6 +666,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **3. Import Detection is Regex-Based**
+
 - ❌ Won't detect dynamic imports: `import('lodash')`
 - ❌ Won't detect computed imports: `import(packageName)`
 - ❌ Could miss complex syntax
@@ -639,6 +679,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **4. No Version Pinning**
+
 - ❌ Always fetches latest version from CDN
 - ❌ Can't specify `lodash@4.17.21`
 - ❌ Potential breaking changes
@@ -650,12 +691,14 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **5. First Load Latency**
+
 - ❌ Fetching packages takes 1-3 seconds
 - ❌ Blocks execution until packages loaded
 
 **Why:** Network requests are slow. Pre-loading is necessary.
 
 **Mitigation:**
+
 - Browser caches HTTP responses (subsequent loads faster)
 - Could add loading indicator UI
 - Could pre-load common packages on page load
@@ -663,6 +706,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **6. No CommonJS require()**
+
 - ❌ Can't use `const fs = require('fs')`
 - ✅ ES modules work: `import fs from 'fs'`
 
@@ -673,6 +717,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **7. Main Thread Blocking**
+
 - ❌ Code execution blocks UI
 - ❌ Long-running code freezes page
 
@@ -683,6 +728,7 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ---
 
 **8. No HTTP Server Support**
+
 - ❌ Can't run Express.js apps
 - ❌ No `http.createServer()`
 
@@ -695,16 +741,19 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ### Tradeoffs & Design Choices
 
 **Simplicity vs. Completeness**
+
 - ✅ Chose simplicity for PoC
 - ✅ Focus on teaching use cases (80/20 rule)
 - ✅ Can add complexity later if needed
 
 **Speed vs. Perfect Architecture**
+
 - ✅ Week 3: Refactored to proper architecture (native modules)
 - ✅ Week 4: Pragmatic approach (regex import detection)
 - Balance between "correct" and "working"
 
 **Browser Limitations**
+
 - Can't change: No native modules, no threads, no filesystem
 - Work with: WASM, virtual FS, CDN packages
 - Accept: Won't be full Node.js, but good for teaching
@@ -716,9 +765,11 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ### Short-Term (Week 5+)
 
 **1. Version Support for NPM Packages**
+
 ```javascript
 import _ from 'lodash@4.17.21';
 ```
+
 - Modify import-detector.ts to parse versions
 - Pass version to CDNFetcher
 - Update module loader to handle versioned paths
@@ -728,10 +779,12 @@ import _ from 'lodash@4.17.21';
 ---
 
 **2. Better Error Messages**
+
 ```javascript
 // Current: "Cannot find module 'lod ash'"
 // Better:  "Cannot find module 'lod ash'. Did you mean 'lodash'?"
 ```
+
 - Add fuzzy matching for package names
 - Suggest alternatives
 - Better error context
@@ -741,11 +794,13 @@ import _ from 'lodash@4.17.21';
 ---
 
 **3. Loading Indicator UI**
+
 ```
 🔄 Downloading packages: lodash, axios...
 ⏳ Loading lodash (524 KB)...
 ✅ Ready to execute!
 ```
+
 - Progress events from CDNFetcher
 - UI updates during package fetch
 - Better user experience
@@ -755,6 +810,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **4. Package Caching with IndexedDB**
+
 - Persist packages across browser sessions
 - Fast subsequent page loads
 - Cache invalidation strategy
@@ -764,6 +820,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **5. AST-Based Import Detection**
+
 - Replace regex with `acorn` or `babel-parser`
 - Handle complex import syntax
 - Support dynamic imports
@@ -775,6 +832,7 @@ import _ from 'lodash@4.17.21';
 ### Medium-Term (Month 2)
 
 **6. HTTP Server Support (Express.js)**
+
 - Implement basic `http` module
 - Add Service Worker for request routing
 - Enable student code to create servers
@@ -787,6 +845,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **7. Web Worker Isolation**
+
 - Run code in Web Workers
 - Non-blocking execution
 - Timeout handling
@@ -797,6 +856,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **8. CommonJS require() Support**
+
 - Add `require()` function that wraps ES module loader
 - Support `module.exports`
 - Compatibility with older tutorials
@@ -806,6 +866,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **9. Better Code Editor**
+
 - Integrate Monaco Editor (VS Code's editor)
 - Syntax highlighting
 - Autocomplete
@@ -816,6 +877,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **10. Terminal Emulator**
+
 - Use `xterm.js`
 - REPL mode
 - Command history
@@ -828,6 +890,7 @@ import _ from 'lodash@4.17.21';
 ### Long-Term (Month 3+)
 
 **11. Package.json Support**
+
 ```json
 {
   "dependencies": {
@@ -836,6 +899,7 @@ import _ from 'lodash@4.17.21';
   }
 }
 ```
+
 - Parse package.json
 - Install all dependencies
 - Semver resolution
@@ -845,6 +909,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **12. File Persistence (OPFS)**
+
 - Save files across sessions
 - Project management
 - Import/export projects
@@ -854,6 +919,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **13. Debugger Integration**
+
 - Breakpoints
 - Step through code
 - Inspect variables
@@ -866,6 +932,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **14. Test Runner**
+
 - Run tests (Jest-like API)
 - Test results UI
 - Coverage reports
@@ -875,6 +942,7 @@ import _ from 'lodash@4.17.21';
 ---
 
 **15. Multiple CDN Fallbacks**
+
 - Try unpkg if jsDelivr fails
 - Try esm.sh as third option
 - Retry logic
@@ -908,6 +976,7 @@ pnpm dev
 ### Development Workflow
 
 **1. Making Changes to Runtime**
+
 ```bash
 cd packages/runtime
 pnpm dev  # Watch mode
@@ -918,12 +987,14 @@ pnpm dev  # Will use latest runtime build
 ```
 
 **2. Making Changes to Client**
+
 ```bash
 cd packages/client
 pnpm dev  # Watch mode
 ```
 
 **3. Testing Changes**
+
 - Open http://localhost:3000
 - Click example buttons to test features
 - Check browser console for errors
@@ -964,6 +1035,7 @@ pnpm clean
 **Example: Adding `os` module**
 
 **Step 1:** Create module file
+
 ```typescript
 // packages/runtime/src/modules/os-module.ts
 import type { QuickJSContext, QuickJSHandle } from 'quickjs-emscripten';
@@ -995,12 +1067,14 @@ export function createOsModule(vm: QuickJSContext): QuickJSHandle {
 ```
 
 **Step 2:** Export from index
+
 ```typescript
 // packages/runtime/src/modules/index.ts
 export { createOsModule } from './os-module.js';
 ```
 
 **Step 3:** Register in module loader
+
 ```typescript
 // packages/runtime/src/module-loader.ts
 private createBuiltinModules(): Map<string, string> {
@@ -1020,6 +1094,7 @@ private createBuiltinModules(): Map<string, string> {
 ```
 
 **Step 4:** Inject in runtime
+
 ```typescript
 // packages/runtime/src/quickjs-runtime.ts
 import { createOsModule } from './modules/index.js';
@@ -1036,10 +1111,11 @@ async execute(code: string, options: RuntimeOptions = {}): Promise<ExecutionResu
 ```
 
 **Step 5:** Test
+
 ```javascript
 import os from 'os';
 console.log(os.platform()); // 'browser'
-console.log(os.arch());     // 'x64'
+console.log(os.arch()); // 'x64'
 ```
 
 ---
@@ -1047,6 +1123,7 @@ console.log(os.arch());     // 'x64'
 ### Debugging Tips
 
 **1. QuickJS Errors**
+
 ```javascript
 // If you see: "ReferenceError: fs is not defined"
 // Check: Is module injected as globalThis.__nodepack_fs?
@@ -1054,6 +1131,7 @@ console.log(os.arch());     // 'x64'
 ```
 
 **2. Module Not Found**
+
 ```javascript
 // If you see: "Cannot find module 'lodash'"
 // Check: Did import detector find it?
@@ -1062,14 +1140,16 @@ console.log(os.arch());     // 'x64'
 ```
 
 **3. Memory Leaks**
+
 ```javascript
 // Always dispose QuickJS handles!
 const handle = vm.newString('test');
 vm.setProp(obj, 'key', handle);
-handle.dispose();  // CRITICAL - must dispose
+handle.dispose(); // CRITICAL - must dispose
 ```
 
 **4. Build Issues**
+
 ```bash
 # Clean and rebuild
 pnpm clean
@@ -1078,6 +1158,7 @@ pnpm build
 ```
 
 **5. Browser Compatibility**
+
 ```javascript
 // Test in multiple browsers
 // Check console for WASM errors
@@ -1089,6 +1170,7 @@ pnpm build
 ### Testing Checklist
 
 **Core Features:**
+
 - [ ] Hello World runs
 - [ ] Math operations work
 - [ ] Loops work
@@ -1100,18 +1182,21 @@ pnpm build
 - [ ] export default works
 
 **ES Modules:**
+
 - [ ] import { } from 'fs' works
 - [ ] import fs from 'fs' works
 - [ ] import utils from './utils.js' works
 - [ ] Relative paths resolve correctly
 
 **NPM Packages:**
-- [ ] import _ from 'lodash' works
+
+- [ ] import \_ from 'lodash' works
 - [ ] Multiple packages work
 - [ ] Packages are cached
 - [ ] Error on 404 is clear
 
 **Error Handling:**
+
 - [ ] Syntax errors show clearly
 - [ ] Module not found errors are helpful
 - [ ] Runtime errors don't crash UI
@@ -1121,12 +1206,14 @@ pnpm build
 ### Performance Optimization
 
 **Current Performance:**
+
 - **Initialization:** ~200ms (QuickJS WASM load)
 - **Simple script:** 10-50ms
 - **With NPM package (first time):** 1-3 seconds (network)
 - **With NPM package (cached):** 50-100ms
 
 **Optimization Opportunities:**
+
 1. Pre-load common packages on page load
 2. IndexedDB persistence
 3. Lazy load QuickJS WASM
@@ -1138,12 +1225,14 @@ pnpm build
 ### Contributing
 
 **Before Contributing:**
+
 1. Read this document
 2. Review existing code in `packages/runtime/src/`
 3. Test the demo at http://localhost:3000
 4. Check open issues
 
 **Contribution Process:**
+
 1. Open issue to discuss feature/fix
 2. Fork repository
 3. Create feature branch
@@ -1152,6 +1241,7 @@ pnpm build
 6. Submit pull request
 
 **Code Style:**
+
 - TypeScript for all code
 - ESM imports (not CommonJS)
 - Dispose QuickJS handles

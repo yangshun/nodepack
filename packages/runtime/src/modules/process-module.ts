@@ -7,7 +7,7 @@ import { addModuleFunction } from './module-helpers.js';
 
 export function createProcessModule(
   vm: QuickJSContext,
-  options: RuntimeOptions = {}
+  options: RuntimeOptions = {},
 ): QuickJSHandle {
   const processObj = vm.newObject();
 

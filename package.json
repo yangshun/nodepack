@@ -1,30 +1,35 @@
 {
   "name": "nodepack",
   "version": "1.0.0",
-  "description": "A browser-based Node.js runtime for educational purposes",
   "private": true,
+  "description": "A browser-based Node.js runtime for educational purposes",
+  "keywords": [
+    "browser",
+    "education",
+    "nodejs",
+    "runtime",
+    "webassembly"
+  ],
+  "license": "MIT",
+  "author": "",
   "type": "module",
-  "packageManager": "pnpm@10.24.0",
   "scripts": {
     "dev": "pnpm --filter @nodepack/client dev",
     "build": "pnpm -r --filter './packages/*' build",
     "test": "vitest",
     "typecheck": "tsc --noEmit",
-    "example:basic": "pnpm --filter basic-poc dev"
+    "example:basic": "pnpm --filter basic-poc dev",
+    "lint": "oxlint",
+    "lint:fix": "oxlint --fix",
+    "fmt": "oxfmt"
   },
-  "keywords": [
-    "nodejs",
-    "browser",
-    "webassembly",
-    "education",
-    "runtime"
-  ],
-  "author": "",
-  "license": "MIT",
   "devDependencies": {
     "@types/node": "^20.19.33",
+    "oxfmt": "^0.31.0",
+    "oxlint": "^1.46.0",
     "typescript": "^5.3.3",
     "vite": "^5.0.12",
     "vitest": "^1.2.1"
-  }
+  },
+  "packageManager": "pnpm@10.24.0"
 }

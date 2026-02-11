@@ -207,7 +207,7 @@ export function factorial(n) {
             }
             writeFileSync('/${filename}', ${JSON.stringify(content)});
           }
-        `
+        `,
             )
             .join('\n')}
         `;

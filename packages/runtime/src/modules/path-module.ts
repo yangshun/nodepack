@@ -11,7 +11,7 @@ export function createPathModule(vm: QuickJSContext): QuickJSHandle {
 
   // join(...paths)
   addModuleFunction(vm, pathObj, 'join', (...pathHandles) => {
-    const paths = pathHandles.map(handle => {
+    const paths = pathHandles.map((handle) => {
       const value = vm.dump(handle);
       return String(value);
     });
@@ -59,7 +59,7 @@ export function createPathModule(vm: QuickJSContext): QuickJSHandle {
 
   // resolve(...paths)
   addModuleFunction(vm, pathObj, 'resolve', (...pathHandles) => {
-    const paths = pathHandles.map(handle => {
+    const paths = pathHandles.map((handle) => {
       const value = vm.dump(handle);
       return String(value);
     });
