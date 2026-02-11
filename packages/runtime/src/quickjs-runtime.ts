@@ -6,7 +6,7 @@
 import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import { vol } from 'memfs';
-import type { ExecutionResult, RuntimeOptions, FileSystemTree, ConsoleOutput } from './types.js';
+import type { ExecutionResult, RuntimeOptions } from './types.js';
 import {
   createFsModule,
   createPathModule,
@@ -31,13 +31,6 @@ export class QuickJSRuntime {
 
     this.QuickJS = await newQuickJSWASMModuleFromVariant(variant);
     this.isInitialized = true;
-  }
-
-  /**
-   * Mount files into the virtual filesystem
-   */
-  mountFiles(files: FileSystemTree): void {
-    this.filesystem.fromJSON(this.flattenFileTree(files));
   }
 
   /**
@@ -154,115 +147,10 @@ export class QuickJSRuntime {
   }
 
   /**
-   * Read a file from the virtual filesystem
-   */
-  readFile(path: string, encoding: 'utf8' | 'buffer' = 'utf8'): string | Buffer {
-    try {
-      return this.filesystem.readFileSync(path, encoding === 'utf8' ? 'utf8' : undefined) as any;
-    } catch (error: any) {
-      throw new Error(`Failed to read file ${path}: ${error.message}`);
-    }
-  }
-
-  /**
-   * Write a file to the virtual filesystem
-   */
-  writeFile(path: string, content: string | Buffer): void {
-    try {
-      // Ensure parent directory exists
-      const dir = path.substring(0, path.lastIndexOf('/'));
-      if (dir && !this.filesystem.existsSync(dir)) {
-        this.filesystem.mkdirSync(dir, { recursive: true });
-      }
-      this.filesystem.writeFileSync(path, content);
-    } catch (error: any) {
-      throw new Error(`Failed to write file ${path}: ${error.message}`);
-    }
-  }
-
-  /**
-   * List files in a directory
-   */
-  readdir(path: string): string[] {
-    try {
-      return this.filesystem.readdirSync(path) as string[];
-    } catch (error: any) {
-      throw new Error(`Failed to read directory ${path}: ${error.message}`);
-    }
-  }
-
-  /**
-   * Create a directory
-   */
-  mkdir(path: string, recursive = true): void {
-    try {
-      this.filesystem.mkdirSync(path, { recursive });
-    } catch (error: any) {
-      throw new Error(`Failed to create directory ${path}: ${error.message}`);
-    }
-  }
-
-  /**
-   * Check if a file/directory exists
-   */
-  exists(path: string): boolean {
-    return this.filesystem.existsSync(path);
-  }
-
-  /**
-   * Remove a file or directory
-   */
-  remove(path: string, recursive = false): void {
-    try {
-      const stats = this.filesystem.statSync(path);
-      if (stats.isDirectory()) {
-        this.filesystem.rmdirSync(path, { recursive });
-      } else {
-        this.filesystem.unlinkSync(path);
-      }
-    } catch (error: any) {
-      throw new Error(`Failed to remove ${path}: ${error.message}`);
-    }
-  }
-
-  /**
    * Get all console logs from last execution
    */
   getConsoleLogs(): string[] {
     return [...this.consoleLogs];
-  }
-
-  /**
-   * Clear the virtual filesystem
-   */
-  clearFileSystem(): void {
-    this.filesystem.reset();
-  }
-
-  /**
-   * Export the entire filesystem as JSON
-   */
-  exportFileSystem(): Record<string, string> {
-    return this.filesystem.toJSON() as Record<string, string>;
-  }
-
-  /**
-   * Flatten nested file tree into flat object for memfs
-   */
-  private flattenFileTree(tree: FileSystemTree, prefix = ''): Record<string, any> {
-    const result: Record<string, any> = {};
-
-    for (const [key, value] of Object.entries(tree)) {
-      const path = prefix + '/' + key;
-
-      if (typeof value === 'string' || value instanceof Uint8Array) {
-        result[path] = value;
-      } else if (typeof value === 'object') {
-        Object.assign(result, this.flattenFileTree(value, path));
-      }
-    }
-
-    return result;
   }
 
 }

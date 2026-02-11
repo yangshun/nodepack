@@ -5,7 +5,7 @@
 
 import { expose } from 'comlink';
 import { QuickJSRuntime } from '@nodepack/runtime';
-import type { ExecutionResult, RuntimeOptions, FileSystemTree } from '@nodepack/runtime';
+import type { ExecutionResult, RuntimeOptions } from '@nodepack/runtime';
 
 /**
  * Worker-side runtime wrapper
@@ -39,69 +39,6 @@ class WorkerRuntime {
       throw new Error('Runtime not initialized in worker');
     }
     return this.runtime.execute(code, options);
-  }
-
-  /**
-   * Mount files into virtual filesystem
-   */
-  mountFiles(files: FileSystemTree): void {
-    this.runtime.mountFiles(files);
-  }
-
-  /**
-   * Write a file
-   */
-  writeFile(path: string, content: string): void {
-    this.runtime.writeFile(path, content);
-  }
-
-  /**
-   * Read a file
-   */
-  readFile(path: string, encoding: 'utf8' | 'buffer' = 'utf8'): string | Buffer {
-    return this.runtime.readFile(path, encoding);
-  }
-
-  /**
-   * List directory contents
-   */
-  readdir(path: string): string[] {
-    return this.runtime.readdir(path);
-  }
-
-  /**
-   * Create directory
-   */
-  mkdir(path: string, recursive = true): void {
-    this.runtime.mkdir(path, recursive);
-  }
-
-  /**
-   * Check if file exists
-   */
-  exists(path: string): boolean {
-    return this.runtime.exists(path);
-  }
-
-  /**
-   * Remove file or directory
-   */
-  remove(path: string, recursive = false): void {
-    this.runtime.remove(path, recursive);
-  }
-
-  /**
-   * Export filesystem as JSON
-   */
-  exportFileSystem(): Record<string, string> {
-    return this.runtime.exportFileSystem();
-  }
-
-  /**
-   * Clear the filesystem
-   */
-  clearFileSystem(): void {
-    this.runtime.clearFileSystem();
   }
 
   /**

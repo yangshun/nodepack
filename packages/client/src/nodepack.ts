@@ -5,7 +5,7 @@
 
 import { wrap, Remote } from 'comlink';
 import { QuickJSRuntime } from '@nodepack/runtime';
-import type { ExecutionResult, RuntimeOptions, FileSystemTree } from '@nodepack/runtime';
+import type { ExecutionResult, RuntimeOptions } from '@nodepack/runtime';
 import type { NodepackOptions } from './types.js';
 
 /**
@@ -14,15 +14,6 @@ import type { NodepackOptions } from './types.js';
 interface WorkerRuntimeAPI {
   initialize(): Promise<void>;
   execute(code: string, options?: RuntimeOptions): Promise<ExecutionResult>;
-  mountFiles(files: FileSystemTree): void;
-  writeFile(path: string, content: string): void;
-  readFile(path: string, encoding?: 'utf8' | 'buffer'): string | Buffer;
-  readdir(path: string): string[];
-  mkdir(path: string, recursive?: boolean): void;
-  exists(path: string): boolean;
-  remove(path: string, recursive?: boolean): void;
-  exportFileSystem(): Record<string, string>;
-  clearFileSystem(): void;
   terminate(): void;
 }
 
@@ -107,48 +98,6 @@ export class Nodepack {
       throw new Error('Runtime not initialized. Call boot() first.');
     }
     return this.runtime.execute(code, options);
-  }
-
-  /**
-   * Mount files into the virtual filesystem
-   */
-  mountFiles(files: FileSystemTree): void {
-    if (!this.runtime) {
-      throw new Error('Runtime not initialized');
-    }
-    this.runtime.mountFiles(files);
-  }
-
-  /**
-   * File system API
-   */
-  get fs() {
-    const runtime = this.runtime;
-    if (!runtime) {
-      throw new Error('Runtime not initialized');
-    }
-
-    return {
-      writeFile: (path: string, content: string) => runtime.writeFile(path, content),
-      readFile: (path: string, encoding: 'utf8' | 'buffer' = 'utf8') =>
-        runtime.readFile(path, encoding),
-      readdir: (path: string) => runtime.readdir(path),
-      mkdir: (path: string, recursive = true) => runtime.mkdir(path, recursive),
-      exists: (path: string) => runtime.exists(path),
-      remove: (path: string, recursive = false) => runtime.remove(path, recursive),
-      export: () => runtime.exportFileSystem(),
-      clear: () => runtime.clearFileSystem(),
-    };
-  }
-
-  /**
-   * Spawn a process (alias for execute, more Node.js-like)
-   */
-  async spawn(command: string, args: string[] = [], options?: RuntimeOptions): Promise<ExecutionResult> {
-    // For now, just execute the file
-    // In future, this could handle actual process spawning
-    const code = await this.fs.readFile(command, 'utf8') as string;
-    return this.execute(code, options);
   }
 
   /**
