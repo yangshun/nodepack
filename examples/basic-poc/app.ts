@@ -147,7 +147,7 @@ export default {
   version
 };`,
 
-  packages: `// NPM packages from esm.sh CDN! 🎉
+  packages: `// NPM packages from jsDelivr CDN! 🎉
 import _ from 'lodash';
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
