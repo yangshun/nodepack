@@ -178,7 +178,9 @@ export function factorial(n) {
   };
 
   const handleRun = useCallback(async () => {
-    if (!nodepack || isRunning) return;
+    if (!nodepack || isRunning) {
+      return;
+    }
 
     setIsRunning(true);
     setStatus('running');
@@ -264,7 +266,6 @@ export function factorial(n) {
           usingWorker={usingWorker}
           onRun={handleRun}
         />
-
         <div className="grid grid-cols-12 gap-6 mb-6 h-[600px]">
           {/* File List */}
           <div className="col-span-2">
@@ -276,7 +277,6 @@ export function factorial(n) {
               onAddFile={handleAddFile}
             />
           </div>
-
           {/* Code Editor */}
           <div className="col-span-5">
             <CodeEditor
