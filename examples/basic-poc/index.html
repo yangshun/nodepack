@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Nodepack - Basic PoC</title>
+  <title>Nodepack</title>
   <style>
     * {
       margin: 0;
@@ -39,7 +39,7 @@
 
     .editor-container {
       display: grid;
-      grid-template-columns: 1fr 1fr;
+      grid-template-columns: 200px 1fr 1fr;
       gap: 20px;
       margin-bottom: 20px;
     }
@@ -172,7 +172,8 @@
     }
 
     .examples {
-      margin-top: 20px;
+      margin-top: 10px;
+      margin-bottom: 20px;
       padding: 15px;
       background: #252526;
       border: 1px solid #3e3e42;
@@ -200,24 +201,101 @@
     .example-buttons button:hover {
       background: #505050;
     }
+
+    .file-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .file-item {
+      padding: 6px 10px;
+      cursor: pointer;
+      border-radius: 3px;
+      font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+      font-size: 12px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .file-item:hover {
+      background: #2a2d2e;
+    }
+
+    .file-item.active {
+      background: #37373d;
+      color: #4ec9b0;
+    }
+
+    .file-item .delete-btn {
+      opacity: 0;
+      color: #f48771;
+      font-size: 14px;
+      padding: 0 4px;
+    }
+
+    .file-item:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .add-file-btn {
+      background: #2d2d30;
+      width: 100%;
+      margin-top: 10px;
+      font-size: 12px;
+      padding: 6px;
+    }
+
+    .file-header {
+      padding: 8px 10px;
+      background: #2d2d30;
+      border-bottom: 1px solid #3e3e42;
+      font-size: 12px;
+      color: #858585;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .current-file {
+      color: #4ec9b0;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <header>
-      <h1>Nodepack - Browser-Based Node.js Runtime</h1>
-      <p class="subtitle">Educational proof of concept • Phase 1: Project Setup</p>
-    </header>
-
+    <div class="examples">
+      <h3>📚 Example Scripts</h3>
+      <div class="example-buttons">
+        <button data-example="hello">Hello World</button>
+        <button data-example="math">Math Operations</button>
+        <button data-example="loops">Loops</button>
+        <button data-example="fs">File Operations</button>
+        <button data-example="modules">Built-in Modules</button>
+        <button data-example="multifile">Multi-file Import 🆕</button>
+        <button data-example="packages" disabled>NPM Packages (Week 4)</button>
+      </div>
+    </div>
     <div class="controls">
       <button id="runBtn" disabled>▶ Run Code</button>
       <button id="clearBtn">🗑 Clear Output</button>
       <span id="status" class="status">Initializing...</span>
     </div>
-
     <div class="editor-container">
       <div class="panel">
-        <div class="panel-header">📝 Code Editor (Node.js)</div>
+        <div class="panel-header">📁 Files</div>
+        <div class="panel-content">
+          <ul id="fileList" class="file-list"></ul>
+          <button id="addFileBtn" class="add-file-btn">+ New File</button>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="file-header">
+          <span>📝 Editor</span>
+          <span id="currentFile" class="current-file">main.js</span>
+        </div>
         <div class="panel-content">
           <textarea id="codeEditor" spellcheck="false">// Welcome to Nodepack!
 // This is a browser-based Node.js runtime
@@ -225,18 +303,9 @@
 console.log('Hello from Node.js in the browser!');
 console.log('Current time:', new Date().toISOString());
 
-// File system operations (coming in Week 2)
-// const fs = require('fs');
-// fs.writeFileSync('/test.txt', 'Hello World');
-
-// Module imports (coming in Week 3)
-// const utils = require('./utils');
-
-// Package installation (coming in Week 4)
-// const _ = require('lodash');</textarea>
+export default { status: 'ok' };</textarea>
         </div>
       </div>
-
       <div class="panel">
         <div class="panel-header">📺 Console Output</div>
         <div class="panel-content">
@@ -244,21 +313,8 @@ console.log('Current time:', new Date().toISOString());
         </div>
       </div>
     </div>
-
-    <div class="examples">
-      <h3>📚 Example Scripts (Will work in future phases)</h3>
-      <div class="example-buttons">
-        <button data-example="hello">Hello World</button>
-        <button data-example="math">Math Operations</button>
-        <button data-example="loops">Loops</button>
-        <button data-example="fs">File Operations (Week 2)</button>
-        <button data-example="modules">Modules (Week 3)</button>
-        <button data-example="packages" disabled>NPM Packages (Week 4)</button>
-      </div>
-    </div>
-
     <div class="panel" style="margin-top: 20px;">
-      <div class="panel-header">ℹ️ Current Status - Week 3: Node.js Modules</div>
+      <div class="panel-header">ℹ️ Current Status - Week 3+: Native ES Modules ✨</div>
       <div class="panel-content">
         <div style="line-height: 1.8; color: #cccccc;">
           ✅ Monorepo structure with pnpm workspaces<br>
@@ -267,10 +323,11 @@ console.log('Current time:', new Date().toISOString());
           ✅ Virtual file system (memfs)<br>
           ✅ Console output working<br>
           ✅ Node.js modules: fs, path, process<br>
-          ⏳ CommonJS require() support (Week 3 continued)<br>
+          ✅ <strong>Native ES module support (import/export)</strong> 🎉<br>
+          ✅ <strong>Multi-file projects with local imports</strong> 🎉<br>
           ⏳ NPM package installation from CDN (Week 4)<br>
           <br>
-          <strong>Next Steps:</strong> Implement module loader for require() support
+          <strong>Architecture:</strong> Using QuickJS's native <code>setModuleLoader()</code> API instead of regex transforms
         </div>
       </div>
     </div>

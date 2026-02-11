@@ -16,6 +16,7 @@
     "dev": "tsc --watch"
   },
   "devDependencies": {
+    "@types/path-browserify": "^1.0.3",
     "typescript": "^5.3.3"
   },
   "dependencies": {

@@ -11,8 +11,8 @@ import {
   createFsModule,
   createPathModule,
   createProcessModule,
-  createGlobalModule
 } from './modules/index.js';
+import { NodepackModuleLoader } from './module-loader.js';
 
 export class QuickJSRuntime {
   private QuickJS: any;
@@ -41,7 +41,9 @@ export class QuickJSRuntime {
       throw new Error('Runtime not initialized. Call initialize() first.');
     }
 
-    const vm = this.QuickJS.newContext();
+    // Create runtime and context
+    const runtime = this.QuickJS.newRuntime();
+    const vm = runtime.newContext();
 
     try {
       // Set up console object
@@ -62,72 +64,70 @@ export class QuickJSRuntime {
       logFn.dispose();
       consoleObj.dispose();
 
-      // Inject Node.js modules
-      createGlobalModule(vm, 'fs', (vm) => createFsModule(vm, this.filesystem));
-      createGlobalModule(vm, 'path', (vm) => createPathModule(vm));
-      createGlobalModule(vm, 'process', (vm) => createProcessModule(vm, options));
+      // Inject Node.js modules as hidden globals for module loader to use
+      const fsHandle = createFsModule(vm, this.filesystem);
+      vm.setProp(vm.global, '__nodepack_fs', fsHandle);
+      fsHandle.dispose();
 
-      // Transform ES module syntax to work with QuickJS
-      let transformedCode = code;
-      let hasExport = false;
-      let exportedValue;
+      const pathHandle = createPathModule(vm);
+      vm.setProp(vm.global, '__nodepack_path', pathHandle);
+      pathHandle.dispose();
 
-      // Transform import statements to use global modules
-      // import { readFileSync, writeFileSync } from 'fs' -> const { readFileSync, writeFileSync } = fs;
-      transformedCode = transformedCode.replace(
-        /import\s+{([^}]+)}\s+from\s+['"](\w+)['"]\s*;?/g,
-        (_match, imports, moduleName) => `const {${imports}} = ${moduleName};`
+      const processHandle = createProcessModule(vm, options);
+      vm.setProp(vm.global, '__nodepack_process', processHandle);
+      processHandle.dispose();
+
+      // Set up module loader
+      const moduleLoader = new NodepackModuleLoader(this.filesystem);
+      runtime.setModuleLoader(
+        (moduleName: string) => moduleLoader.load(moduleName),
+        (baseName: string, requestedName: string) => moduleLoader.normalize(baseName, requestedName)
       );
 
-      // import * as fs from 'fs' -> const fs = fs; (works since fs is global)
-      transformedCode = transformedCode.replace(
-        /import\s+\*\s+as\s+(\w+)\s+from\s+['"](\w+)['"]\s*;?/g,
-        (_match, alias, moduleName) => `const ${alias} = ${moduleName};`
-      );
+      // Write the code to the virtual filesystem so the module loader can find it
+      // Write to root so relative imports like './utils.js' work correctly
+      this.filesystem.writeFileSync('/main.js', code);
 
-      // import fs from 'fs' -> const fs = fs; (default import as global)
-      transformedCode = transformedCode.replace(
-        /import\s+(\w+)\s+from\s+['"](\w+)['"]\s*;?/g,
-        (_match, varName, moduleName) => `const ${varName} = ${moduleName};`
-      );
+      // Execute code as a module by dynamically importing it
+      // We wrap it to extract the default export or the whole module
+      const wrapperCode = `
+        import * as mod from '/main.js';
+        globalThis.__result = mod.default !== undefined ? mod.default : mod;
+      `;
 
-      // Check if code uses export syntax
-      const hasExportSyntax = /\bexport\s+(default\s+|{|const|let|var|function|class)/i.test(transformedCode);
-
-      if (hasExportSyntax) {
-        // Transform export default to use a global variable
-        transformedCode = transformedCode.replace(
-          /export\s+default\s+(.*);?\s*$/m,
-          'globalThis.__moduleExport = $1;'
-        );
-        hasExport = true;
-      }
-
-      // Execute the transformed code
-      const result = vm.evalCode(transformedCode);
-
-      if (!result.error && hasExport) {
-        // Get the exported value from global
-        const exportHandle = vm.getProp(vm.global, '__moduleExport');
-        exportedValue = vm.dump(exportHandle);
-        exportHandle.dispose();
-      }
+      const result = vm.evalCode(wrapperCode);
 
       if (result.error) {
         const error = vm.dump(result.error);
         result.error.dispose();
         vm.dispose();
+        runtime.dispose();
+
+        // Convert error to a readable string
+        let errorMessage: string;
+        if (typeof error === 'string') {
+          errorMessage = error;
+        } else if (error && typeof error === 'object') {
+          errorMessage = error.message || error.toString?.() || JSON.stringify(error, null, 2);
+        } else {
+          errorMessage = String(error);
+        }
 
         return {
           ok: false,
-          error: String(error),
+          error: errorMessage,
           logs: this.consoleLogs,
         };
       }
 
-      const data = hasExport ? exportedValue : vm.dump(result.value);
+      // Get the result from global
+      const resultHandle = vm.getProp(vm.global, '__result');
+      const data = vm.dump(resultHandle);
+      resultHandle.dispose();
       result.value.dispose();
+
       vm.dispose();
+      runtime.dispose();
 
       return {
         ok: true,
@@ -136,6 +136,7 @@ export class QuickJSRuntime {
       };
     } catch (error: any) {
       vm.dispose();
+      runtime.dispose();
       return {
         ok: false,
         error: error.message || String(error),

@@ -19,9 +19,29 @@ const runBtn = document.getElementById('runBtn') as HTMLButtonElement;
 const clearBtn = document.getElementById('clearBtn') as HTMLButtonElement;
 const outputEl = document.getElementById('output') as HTMLElement;
 const codeEditor = document.getElementById('codeEditor') as HTMLTextAreaElement;
+const fileListEl = document.getElementById('fileList') as HTMLUListElement;
+const addFileBtn = document.getElementById('addFileBtn') as HTMLButtonElement;
+const currentFileEl = document.getElementById('currentFile') as HTMLElement;
 
 let nodepack: Nodepack | null = null;
 let isRunning = false;
+
+// File management
+interface FileMap {
+  [filename: string]: string;
+}
+
+let files: FileMap = {
+  'main.js': `// Welcome to Nodepack!
+// This is a browser-based Node.js runtime
+
+console.log('Hello from Node.js in the browser!');
+console.log('Current time:', new Date().toISOString());
+
+export default { status: 'ok' };`
+};
+
+let currentFile = 'main.js';
 
 // Example scripts
 const examples: Record<string, string> = {
@@ -55,26 +75,31 @@ fruits.forEach((fruit, index) => {
 
 export default fruits;`,
 
-  fs: `// File system operations using the global fs module
-fs.writeFileSync('/hello.txt', 'Hello from virtual filesystem!');
-const content = fs.readFileSync('/hello.txt', 'utf8');
+  fs: `// File system operations using ES module imports
+import { writeFileSync, readFileSync, mkdirSync, readdirSync } from 'fs';
+
+writeFileSync('/hello.txt', 'Hello from virtual filesystem!');
+const content = readFileSync('/hello.txt', 'utf8');
 
 console.log('File content:', content);
 
 // Create a directory and list files
-fs.mkdirSync('/data', { recursive: true });
-fs.writeFileSync('/data/test.txt', 'Test file');
+mkdirSync('/data', { recursive: true });
+writeFileSync('/data/test.txt', 'Test file');
 
-const files = fs.readdirSync('/');
+const files = readdirSync('/');
 console.log('Root directory files:', files);
 
 export default { content, files };`,
 
-  modules: `// Using path module (available as global)
-const fullPath = path.join('/home', 'user', 'documents', 'file.txt');
-const dir = path.dirname(fullPath);
-const file = path.basename(fullPath);
-const ext = path.extname(fullPath);
+  modules: `// Using ES module imports
+import { join, dirname, basename, extname } from 'path';
+import process from 'process';
+
+const fullPath = join('/home', 'user', 'documents', 'file.txt');
+const dir = dirname(fullPath);
+const file = basename(fullPath);
+const ext = extname(fullPath);
 
 console.log('Full path:', fullPath);
 console.log('Directory:', dir);
@@ -87,6 +112,40 @@ console.log('Version:', process.version);
 console.log('Working dir:', process.cwd());
 
 export default { fullPath, dir, file, ext };`,
+
+  multifile: `// Multi-file project with local module imports! 🎉
+// Files /utils.js and /math-helpers.js were created during initialization
+
+// Import from our custom utility module
+import { greet, add, multiply, PI, version } from './utils.js';
+
+console.log(greet('World'));
+console.log('2 + 3 =', add(2, 3));
+console.log('4 × 5 =', multiply(4, 5));
+console.log('PI =', PI);
+console.log('Utils version:', version);
+
+// Import from another custom module
+import { square, cube, factorial } from './math-helpers.js';
+
+console.log('');
+console.log('5² =', square(5));
+console.log('3³ =', cube(3));
+console.log('5! =', factorial(5));
+
+// You can also mix builtin and custom imports
+import { existsSync } from 'fs';
+
+console.log('');
+console.log('Does /utils.js exist?', existsSync('/utils.js'));
+console.log('Does /math-helpers.js exist?', existsSync('/math-helpers.js'));
+
+export default {
+  greeting: greet('User'),
+  sum: add(10, 20),
+  square: square(7),
+  version
+};`,
 };
 
 // Initialize Nodepack
@@ -100,6 +159,45 @@ async function initNodepack() {
     nodepack = await Nodepack.boot({
       useWorker: false,
     });
+
+    // Pre-populate filesystem with utility modules for multi-file demo
+    await nodepack.execute(`
+      import { writeFileSync } from 'fs';
+
+      // Create a reusable utility module
+      writeFileSync('/utils.js', \`
+export function greet(name) {
+  return 'Hello, ' + name + '!';
+}
+
+export function add(a, b) {
+  return a + b;
+}
+
+export function multiply(a, b) {
+  return a * b;
+}
+
+export const PI = 3.14159;
+export const version = '1.0.0';
+\`);
+
+      // Create a math helper module
+      writeFileSync('/math-helpers.js', \`
+export function square(x) {
+  return x * x;
+}
+
+export function cube(x) {
+  return x * x * x;
+}
+
+export function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+}
+\`);
+    `);
 
     const usingWorker = nodepack.isUsingWorker();
 
@@ -122,15 +220,87 @@ async function initNodepack() {
   }
 }
 
+// Render file list
+function renderFileList() {
+  fileListEl.innerHTML = '';
+
+  Object.keys(files).sort().forEach(filename => {
+    const li = document.createElement('li');
+    li.className = `file-item ${filename === currentFile ? 'active' : ''}`;
+
+    const nameSpan = document.createElement('span');
+    nameSpan.textContent = filename;
+    nameSpan.onclick = () => switchFile(filename);
+
+    const deleteBtn = document.createElement('span');
+    deleteBtn.className = 'delete-btn';
+    deleteBtn.textContent = '×';
+    deleteBtn.onclick = (e) => {
+      e.stopPropagation();
+      deleteFile(filename);
+    };
+
+    li.appendChild(nameSpan);
+    if (filename !== 'main.js') { // Don't allow deleting main.js
+      li.appendChild(deleteBtn);
+    }
+
+    fileListEl.appendChild(li);
+  });
+}
+
+// Switch to a different file
+function switchFile(filename: string) {
+  // Save current file content
+  files[currentFile] = codeEditor.value;
+
+  // Switch to new file
+  currentFile = filename;
+  codeEditor.value = files[filename];
+  currentFileEl.textContent = filename;
+
+  renderFileList();
+}
+
+// Add new file
+function addNewFile() {
+  const filename = prompt('Enter filename (e.g., utils.js):');
+  if (!filename) return;
+
+  if (files[filename]) {
+    alert('File already exists!');
+    return;
+  }
+
+  files[filename] = `// ${filename}\n\nexport default {};\n`;
+  switchFile(filename);
+}
+
+// Delete file
+function deleteFile(filename: string) {
+  if (filename === 'main.js') {
+    alert('Cannot delete main.js');
+    return;
+  }
+
+  if (!confirm(`Delete ${filename}?`)) return;
+
+  delete files[filename];
+
+  // Switch to main.js if we deleted the current file
+  if (currentFile === filename) {
+    switchFile('main.js');
+  } else {
+    renderFileList();
+  }
+}
+
 // Run code
 async function runCode() {
   if (!nodepack || isRunning) return;
 
-  const code = codeEditor.value.trim();
-  if (!code) {
-    addOutput('system', 'Please enter some code to run');
-    return;
-  }
+  // Save current editor content
+  files[currentFile] = codeEditor.value;
 
   isRunning = true;
   runBtn.disabled = true;
@@ -138,13 +308,38 @@ async function runCode() {
   statusEl.className = 'status running';
 
   clearOutput();
-  addOutput('system', '▶ Running code...');
+  addOutput('system', `▶ Running ${currentFile}...`);
   addOutput('system', '');
 
   const startTime = performance.now();
 
   try {
-    const result = await nodepack.execute(code);
+    // If we have multiple files, write them all to the virtual filesystem first
+    if (Object.keys(files).length > 1) {
+      const fileEntries = Object.entries(files);
+      const writeFilesCode = `
+        import { writeFileSync, mkdirSync, existsSync } from 'fs';
+        import { dirname } from 'path';
+
+        ${fileEntries.map(([filename, content]) => `
+          {
+            const dir = dirname('/${filename}');
+            if (dir !== '/' && !existsSync(dir)) {
+              mkdirSync(dir, { recursive: true });
+            }
+            writeFileSync('/${filename}', ${JSON.stringify(content)});
+          }
+        `).join('\n')}
+      `;
+
+      const writeResult = await nodepack.execute(writeFilesCode);
+      if (!writeResult.ok) {
+        throw new Error(`Failed to write files: ${writeResult.error}`);
+      }
+    }
+
+    // Execute the current file
+    const result = await nodepack.execute(files[currentFile]);
     const duration = Math.round(performance.now() - startTime);
 
     if (result.ok) {
@@ -167,9 +362,11 @@ async function runCode() {
       addOutput('stderr', '');
       addOutput('stderr', '❌ Error:');
       addOutput('stderr', result.error || 'Unknown error');
+      console.error('QuickJS error:', result.error);
     }
   } catch (error: any) {
     addOutput('stderr', `❌ Unexpected error: ${error.message}`);
+    addOutput('stderr', error.stack || '');
     console.error('Execution error:', error);
   } finally {
     isRunning = false;
@@ -200,6 +397,11 @@ function addOutput(type: 'stdout' | 'stderr' | 'system', message: string) {
   outputEl.scrollTop = outputEl.scrollHeight;
 }
 
+// Save current file on editor change
+codeEditor.addEventListener('input', () => {
+  files[currentFile] = codeEditor.value;
+});
+
 // Event listeners
 runBtn.addEventListener('click', runCode);
 
@@ -209,6 +411,8 @@ clearBtn.addEventListener('click', () => {
   outputEl.textContent = 'Output cleared.';
 });
 
+addFileBtn.addEventListener('click', addNewFile);
+
 // Allow Cmd/Ctrl+Enter to run
 codeEditor.addEventListener('keydown', (e) => {
   if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
@@ -217,15 +421,57 @@ codeEditor.addEventListener('keydown', (e) => {
   }
 });
 
-// Example buttons
+// Example buttons - reset to just the example
 document.querySelectorAll('[data-example]').forEach(btn => {
   btn.addEventListener('click', (e) => {
     const example = (e.target as HTMLElement).getAttribute('data-example');
     if (example && examples[example]) {
+      // Special handling for multifile example - include utility files
+      if (example === 'multifile') {
+        files = {
+          'main.js': examples[example],
+          'utils.js': `export function greet(name) {
+  return 'Hello, ' + name + '!';
+}
+
+export function add(a, b) {
+  return a + b;
+}
+
+export function multiply(a, b) {
+  return a * b;
+}
+
+export const PI = 3.14159;
+export const version = '1.0.0';`,
+          'math-helpers.js': `export function square(x) {
+  return x * x;
+}
+
+export function cube(x) {
+  return x * x * x;
+}
+
+export function factorial(n) {
+  if (n <= 1) return 1;
+  return n * factorial(n - 1);
+}`
+        };
+      } else {
+        // Reset files to just main.js with the example
+        files = {
+          'main.js': examples[example]
+        };
+      }
+
+      currentFile = 'main.js';
       codeEditor.value = examples[example];
+      currentFileEl.textContent = 'main.js';
+      renderFileList();
     }
   });
 });
 
 // Initialize on load
+renderFileList();
 initNodepack();
