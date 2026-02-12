@@ -4,6 +4,7 @@
  */
 
 import pathBrowserify from 'path-browserify';
+import { exports as resolveExports, legacy as resolveLegacy } from 'resolve.exports';
 
 /**
  * NodepackModuleLoader
@@ -254,61 +255,44 @@ export class NodepackModuleLoader {
 
         // Try "exports" field first (modern packages)
         if (packageJson.exports) {
-          // Handle simple string exports
-          if (typeof packageJson.exports === 'string') {
-            const exportsPath = pathBrowserify.join(packagePath, packageJson.exports);
-            if (this.filesystem.existsSync(exportsPath)) {
-              return exportsPath;
-            }
-          }
-          // Handle object exports with "." key
-          else if (packageJson.exports['.']) {
-            const dotExport = packageJson.exports['.'];
-            let exportPath: string | undefined;
+          try {
+            // Use resolve.exports library for spec-compliant resolution
+            // Returns an array of possible paths, we take the first one
+            const resolved = resolveExports(packageJson, '.', {
+              unsafe: false, // Use default conditions (import, default)
+            });
 
-            if (typeof dotExport === 'string') {
-              exportPath = dotExport;
-            } else if (dotExport.import) {
-              // Handle nested import object (e.g., { import: { default: "./dist/file.mjs" } })
-              if (typeof dotExport.import === 'string') {
-                exportPath = dotExport.import;
-              } else if (typeof dotExport.import === 'object' && dotExport.import.default) {
-                exportPath = dotExport.import.default;
-              }
-            } else if (dotExport.default) {
-              // Handle nested default object (e.g., { default: { default: "./dist/file.js" } })
-              if (typeof dotExport.default === 'string') {
-                exportPath = dotExport.default;
-              } else if (typeof dotExport.default === 'object' && dotExport.default.default) {
-                exportPath = dotExport.default.default;
+            if (resolved && resolved.length > 0) {
+              const exportsPath = pathBrowserify.join(packagePath, resolved[0]);
+              if (this.filesystem.existsSync(exportsPath)) {
+                return exportsPath;
               }
             }
-
-            if (exportPath) {
-              const fullPath = pathBrowserify.join(packagePath, exportPath);
-              if (this.filesystem.existsSync(fullPath)) {
-                return fullPath;
-              }
-            }
+          } catch {
+            // If resolution fails, fall through to module/main fields
           }
         }
 
-        // Try "module" field (ESM entry)
-        if (packageJson.module) {
-          const modulePath = pathBrowserify.join(packagePath, packageJson.module);
-          if (this.filesystem.existsSync(modulePath)) {
-            return modulePath;
+        // Try "module" and "main" fields using legacy resolver
+        // Default behavior prefers "module" over "main" (ESM over CJS)
+        const legacyPath = resolveLegacy(packageJson);
+        if (legacyPath) {
+          // resolveLegacy can return string, string[], or object
+          let path: string | undefined;
+          if (typeof legacyPath === 'string') {
+            path = legacyPath;
+          } else if (Array.isArray(legacyPath) && legacyPath.length > 0) {
+            path = legacyPath[0];
           }
-        }
 
-        // Try "main" field
-        if (packageJson.main) {
-          const mainPath = pathBrowserify.join(packagePath, packageJson.main);
-          if (this.filesystem.existsSync(mainPath)) {
-            return mainPath;
+          if (path) {
+            const fullPath = pathBrowserify.join(packagePath, path);
+            if (this.filesystem.existsSync(fullPath)) {
+              return fullPath;
+            }
           }
         }
-      } catch (e) {
+      } catch {
         // If package.json parsing fails, fall through to index.js
       }
     }

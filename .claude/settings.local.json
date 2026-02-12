@@ -33,7 +33,8 @@
       "Bash(timeout 30 pnpm:*)",
       "Bash(git mv:*)",
       "Bash(pnpm run test:*)",
-      "Bash(find:*)"
+      "Bash(find:*)",
+      "Bash(npm test:*)"
     ]
   }
 }

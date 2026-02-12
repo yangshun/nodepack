@@ -290,6 +290,38 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
+    it('should prioritize exports over main', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: './dist/exports.js',
+          main: 'dist/main.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/exports.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/exports.js');
+    });
+
+    it('should prioritize exports over module', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: './dist/exports.js',
+          module: 'dist/module.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/exports.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/exports.js');
+    });
+
     it('should prioritize exports over module and main', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
