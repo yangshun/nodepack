@@ -4,34 +4,27 @@ This file contains project-specific coding standards, conventions, and architect
 
 ## Project Overview
 
-Nodepack is a browser-based Node.js runtime that allows running Node.js code directly in the browser using QuickJS WASM. It's designed as an educational platform for teaching Node.js programming.
+Nodepack is a browser-based Node.js runtime that allows running Node.js code directly in the browser using QuickJS WASM.
 
 ## Code Style & Conventions
 
-### File Naming
+### General
 
-- **Use kebab-case** for all file names
-  - ✅ `code-editor.tsx`, `status-bar.tsx`, `example-buttons.tsx`
-  - ❌ `CodeEditor.tsx`, `StatusBar.tsx`, `ExampleButtons.tsx`
+- File naming: Use kebab-case for all file names
+- Avoid single-character variables
+- NEVER ever use emojis 
+  
+### Text and headings
 
-### React Components
+- Use sentence case for any UI headings, labels, titles, etc.
 
-- **Use named exports** for React components, not default exports
-  - ✅ `export function Header() { ... }`
-  - ❌ `export default function Header() { ... }`
+### React
 
-- **Component file structure**:
+- Use named exports for all JavaScript/TypeScript files
 
-  ```typescript
-  // component-name.tsx
-  interface ComponentNameProps {
-    // props definition
-  }
+### JavaScript
 
-  export function ComponentName({ prop1, prop2 }: ComponentNameProps) {
-    // component implementation
-  }
-  ```
+- Implement functions as function declarations
 
 ### TypeScript
 
