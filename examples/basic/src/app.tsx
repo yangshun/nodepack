@@ -460,21 +460,19 @@ export function App() {
     }
   }, [nodepack, isRunning, files, currentFile]);
 
-  const handleInstallPackage = async (packageName: string) => {
-    if (!nodepack) {
-      alert("Nodepack not initialized yet");
-      return;
-    }
+  const handleInstallPackage = useCallback(
+    async (packageName: string) => {
+      if (!nodepack) {
+        throw new Error('Nodepack not initialized yet');
+      }
 
-    const npm = nodepack.npm;
-    if (!npm) {
-      alert("NPM not available in worker mode");
-      return;
-    }
+      const npm = nodepack.npm;
+      if (!npm) {
+        throw new Error('NPM not available in worker mode');
+      }
 
-    try {
       if (terminalRef.current) {
-        terminalRef.current.writeOutput(`📦 Installing ${packageName}...`);
+        terminalRef.current.writeOutput(`Installing ${packageName}...`);
       }
 
       await npm.install(packageName);
@@ -482,19 +480,15 @@ export function App() {
       setFilesystemVersion((v) => v + 1);
 
       if (terminalRef.current) {
-        terminalRef.current.writeOutput(`✅ Successfully installed ${packageName}`);
+        terminalRef.current.writeOutput(`Successfully installed ${packageName}`);
         terminalRef.current.writeOutput(
-          `📁 Check the file tree to see node_modules/${packageName}`,
+          `Check the file tree to see node_modules/${packageName}`,
         );
-        terminalRef.current.writeOutput("");
+        terminalRef.current.writeOutput('');
       }
-    } catch (error: any) {
-      if (terminalRef.current) {
-        terminalRef.current.writeOutput(`❌ Failed to install ${packageName}: ${error.message}`);
-      }
-      console.error("Package installation error:", error);
-    }
-  };
+    },
+    [nodepack],
+  );
 
   return (
     <div className="min-h-screen p-6">
@@ -513,7 +507,11 @@ export function App() {
                 disabled={!nodepack || usingWorker}
                 onKeyDown={(e) => {
                   if (e.key === "Enter" && customPackageName.trim()) {
-                    handleInstallPackage(customPackageName.trim());
+                    handleInstallPackage(customPackageName.trim()).catch((error) => {
+                      if (terminalRef.current) {
+                        terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
+                      }
+                    });
                     setCustomPackageName("");
                   }
                 }}
@@ -521,7 +519,11 @@ export function App() {
               <button
                 onClick={() => {
                   if (customPackageName.trim()) {
-                    handleInstallPackage(customPackageName.trim());
+                    handleInstallPackage(customPackageName.trim()).catch((error) => {
+                      if (terminalRef.current) {
+                        terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
+                      }
+                    });
                     setCustomPackageName("");
                   }
                 }}
@@ -570,6 +572,7 @@ export function App() {
               filesystem={nodepack?.getFilesystem() || undefined}
               onExecuteFile={handleExecuteFile}
               onCommandExecuted={handleRefresh}
+              onInstallPackage={handleInstallPackage}
             />
           </div>
         </div>

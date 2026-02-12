@@ -21,6 +21,7 @@ export interface TerminalProps {
   onReady?: () => void;
   onExecuteFile?: (filepath: string) => Promise<{ ok: boolean; output: string; error?: string }>;
   onCommandExecuted?: () => void;
+  onInstallPackage?: (packageName: string) => Promise<void>;
 }
 
 export interface TerminalHandle {
@@ -29,7 +30,7 @@ export interface TerminalHandle {
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
-  ({ filesystem, onReady, onExecuteFile, onCommandExecuted }, ref) => {
+  ({ filesystem, onReady, onExecuteFile, onCommandExecuted, onInstallPackage }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerm | null>(null);
     const bashRef = useRef<Bash | null>(null);
@@ -172,6 +173,65 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               }
             },
           },
+          {
+            name: 'npm',
+            execute: async (args: string[]) => {
+              if (!onInstallPackage) {
+                return {
+                  stdout: '',
+                  stderr: 'Error: npm command not available\n',
+                  exitCode: 1,
+                };
+              }
+
+              // Parse arguments
+              if (args.length === 0) {
+                return {
+                  stdout: '',
+                  stderr: 'Usage: npm install <package-name>\n',
+                  exitCode: 1,
+                };
+              }
+
+              const subcommand = args[0];
+
+              // Only support 'install' subcommand
+              if (subcommand !== 'install' && subcommand !== 'i') {
+                return {
+                  stdout: '',
+                  stderr: `Error: Unsupported npm command '${subcommand}'\nOnly 'npm install' is supported\n`,
+                  exitCode: 1,
+                };
+              }
+
+              // Get package name
+              if (args.length < 2) {
+                return {
+                  stdout: '',
+                  stderr: 'Usage: npm install <package-name>\n',
+                  exitCode: 1,
+                };
+              }
+
+              const packageName = args[1];
+
+              // Install the package
+              try {
+                await onInstallPackage(packageName);
+                return {
+                  stdout: '',
+                  stderr: '',
+                  exitCode: 0,
+                };
+              } catch (error: any) {
+                return {
+                  stdout: '',
+                  stderr: `Error installing ${packageName}: ${error.message}\n`,
+                  exitCode: 1,
+                };
+              }
+            },
+          },
         ],
       });
 
@@ -206,7 +266,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         window.removeEventListener('resize', handleResize);
         term.dispose();
       };
-    }, [filesystem, onReady, onExecuteFile, onCommandExecuted]);
+    }, [filesystem, onReady, onExecuteFile, onCommandExecuted, onInstallPackage]);
 
     function handleClear() {
       if (xtermRef.current) {
