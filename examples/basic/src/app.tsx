@@ -42,32 +42,42 @@ export function App() {
   const syncFilesystemWithState = useCallback((filesToSync: FileMap) => {
     const fs = nodepack?.getFilesystem();
     if (!fs) {
-      console.log('[Sync] Filesystem not available yet');
       return;
     }
 
     try {
-      console.log('[Sync] Syncing files:', Object.keys(filesToSync));
+      // Helper function to recursively get all files
+      const getAllFiles = (dir: string, fileList: string[] = []): string[] => {
+        try {
+          const entries = fs.readdirSync(dir);
+          entries.forEach((entry: string) => {
+            const fullPath = dir === '/' ? `/${entry}` : `${dir}/${entry}`;
+            const relativePath = fullPath.startsWith('/') ? fullPath.substring(1) : fullPath;
+
+            try {
+              const stats = fs.statSync(fullPath);
+              if (stats.isDirectory()) {
+                getAllFiles(fullPath, fileList);
+              } else {
+                fileList.push(relativePath);
+              }
+            } catch (statError) {
+              // Could not stat file, skip it
+            }
+          });
+        } catch (readError) {
+          // Directory doesn't exist or can't be read
+        }
+        return fileList;
+      };
 
       // Get current files in filesystem
-      const existingFiles = new Set<string>();
-      try {
-        const entries = fs.readdirSync('/');
-        entries.forEach((entry: string) => {
-          existingFiles.add(entry);
-        });
-        console.log('[Sync] Existing files in filesystem:', Array.from(existingFiles));
-      } catch (error) {
-        // Filesystem might not be ready yet
-        console.log('[Sync] Could not read filesystem');
-        return;
-      }
+      const existingFiles = new Set<string>(getAllFiles('/'));
 
       // Remove files that are no longer in state
       existingFiles.forEach((filename) => {
         if (!filesToSync[filename]) {
           try {
-            console.log('[Sync] Removing file:', filename);
             fs.unlinkSync(`/${filename}`);
           } catch (error) {
             console.error(`Failed to delete ${filename}:`, error);
@@ -78,14 +88,22 @@ export function App() {
       // Write all files from state to filesystem
       Object.entries(filesToSync).forEach(([filename, content]) => {
         try {
-          console.log('[Sync] Writing file:', filename);
+          // Create parent directories if the filename contains paths
+          const lastSlashIndex = filename.lastIndexOf('/');
+          if (lastSlashIndex !== -1) {
+            const dirPath = '/' + filename.substring(0, lastSlashIndex);
+            try {
+              fs.mkdirSync(dirPath, { recursive: true });
+            } catch (mkdirError) {
+              // Directory might already exist, which is fine
+            }
+          }
+
           fs.writeFileSync(`/${filename}`, content);
         } catch (error) {
           console.error(`Failed to write ${filename}:`, error);
         }
       });
-
-      console.log('[Sync] Sync complete');
     } catch (error) {
       console.error("Failed to sync filesystem:", error);
     }
@@ -296,29 +314,29 @@ export function App() {
       const otherFiles = Object.entries(files).filter(([name]) => name !== "main.js");
 
       if (otherFiles.length > 0) {
-        const writeFilesCode = `
-          import { writeFileSync, mkdirSync, existsSync } from 'fs';
-          import { dirname } from 'path';
-
-          ${otherFiles
-            .map(
-              ([filename, content]) => `
-          {
-            const dir = dirname('/${filename}');
-            if (dir !== '/' && !existsSync(dir)) {
-              mkdirSync(dir, { recursive: true });
-            }
-            writeFileSync('/${filename}', ${JSON.stringify(content)});
-          }
-        `,
-            )
-            .join("\n")}
-        `;
-
-        const writeResult = await nodepack.execute(writeFilesCode);
-        if (!writeResult.ok) {
-          throw new Error(`Failed to write files: ${writeResult.error}`);
+        const fs = nodepack.getFilesystem();
+        if (!fs) {
+          throw new Error('Filesystem not available');
         }
+
+        // Write each file, creating parent directories as needed
+        otherFiles.forEach(([filename, content]) => {
+          const fullPath = `/${filename}`;
+
+          // Create parent directories if needed
+          const lastSlashIndex = filename.lastIndexOf('/');
+          if (lastSlashIndex !== -1) {
+            const dirPath = '/' + filename.substring(0, lastSlashIndex);
+            try {
+              fs.mkdirSync(dirPath, { recursive: true });
+            } catch (err) {
+              // Directory might already exist
+            }
+          }
+
+          // Write the file
+          fs.writeFileSync(fullPath, content);
+        });
       }
 
       // Execute the main file with streaming logs
@@ -354,7 +372,10 @@ export function App() {
         }
       } else {
         if (terminalRef.current) {
-          terminalRef.current.writeOutput(`❌ Error: ${result.error}`);
+          const errorMsg = typeof result.error === 'object'
+            ? JSON.stringify(result.error, null, 2)
+            : String(result.error);
+          terminalRef.current.writeOutput(`❌ Error: ${errorMsg}`);
         }
 
         // Display any logs that occurred before the error

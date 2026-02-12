@@ -16,7 +16,13 @@
       "Bash(pnpm --filter @nodepack/worker build:*)",
       "Bash(npm run build:*)",
       "Bash(npm run dev:*)",
-      "Bash(grep:*)"
+      "Bash(grep:*)",
+      "Bash(lsof:*)",
+      "Bash(xargs:*)",
+      "Bash(npx tsc:*)",
+      "Bash(ls:*)",
+      "Bash(git restore:*)",
+      "Bash(git add:*)"
     ]
   }
 }

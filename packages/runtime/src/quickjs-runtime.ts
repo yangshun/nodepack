@@ -6,6 +6,7 @@
 import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import { vol } from 'memfs';
+import * as pathBrowserify from 'path-browserify';
 import type { ExecutionResult, RuntimeOptions } from './types.js';
 import {
   createFsModule,
@@ -16,6 +17,9 @@ import {
 import type { TimerTracker } from './modules/timers-module.js';
 import { NodepackModuleLoader } from './module-loader.js';
 import { detectImports } from './import-detector.js';
+import { detectModuleFormat } from './module-format-detector.js';
+import { createRequireFunction } from './require-implementation.js';
+import { createCommonJSExecutor } from './commonjs-wrapper.js';
 
 export class QuickJSRuntime {
   private QuickJS: any;
@@ -93,6 +97,88 @@ export class QuickJSRuntime {
       vm.setProp(vm.global, '__nodepack_timers', timersHandle);
       timersHandle.dispose();
 
+      // Set up CommonJS module executor function
+      // This is called from require() to execute CommonJS modules
+      const executeModuleFn = vm.newFunction(
+        '__nodepack_execute_commonjs_module',
+        (codeHandle: any, moduleHandle: any, pathHandle: any) => {
+          const code = vm.dump(codeHandle);
+          const modulePath = vm.dump(pathHandle);
+
+          // Create executor code that wraps and executes the CommonJS module
+          const executorCode = createCommonJSExecutor(code, modulePath);
+
+          // Execute the wrapped module
+          const result = vm.evalCode(executorCode);
+          if (result.error) {
+            const error = vm.dump(result.error);
+            result.error.dispose();
+            // Properly stringify error object
+            const errorMsg = error.message || (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error));
+            throw vm.newError(errorMsg);
+          }
+          result.value.dispose();
+
+          return vm.undefined;
+        },
+      );
+      vm.setProp(vm.global, '__nodepack_execute_commonjs_module', executeModuleFn);
+      executeModuleFn.dispose();
+
+      // Set up ES module importer for require()
+      // When require() encounters an ES module, use QuickJS's import system
+      const requireESModuleFn = vm.newFunction(
+        '__nodepack_require_es_module',
+        (pathHandle: any) => {
+          const modulePath = vm.dump(pathHandle);
+
+          // Use a synchronous import via the module system
+          // Write a temporary wrapper that imports and exposes the module
+          const wrapperId = '__req_' + Math.random().toString(36).substring(7);
+          const wrapperPath = '/' + wrapperId + '.js';
+          const wrapperCode = `
+            import * as mod from ${JSON.stringify(modulePath)};
+            globalThis.${wrapperId} = mod.default !== undefined ? mod.default : mod;
+          `;
+
+          this.filesystem.writeFileSync(wrapperPath, wrapperCode);
+
+          const result = vm.evalCode(`import ${JSON.stringify(wrapperPath)}`);
+          if (result.error) {
+            const error = vm.dump(result.error);
+            result.error.dispose();
+            // Clean up
+            this.filesystem.unlinkSync(wrapperPath);
+            // Properly stringify error object
+            const errorMsg = error.message || (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error));
+            throw vm.newError(errorMsg);
+          }
+          result.value.dispose();
+
+          // Get the cached result
+          const tempHandle = vm.getProp(vm.global, wrapperId);
+          const value = tempHandle; // Return the handle directly
+
+          // Clean up temp global and wrapper file
+          vm.setProp(vm.global, wrapperId, vm.undefined);
+          this.filesystem.unlinkSync(wrapperPath);
+
+          return value;
+        },
+      );
+      vm.setProp(vm.global, '__nodepack_require_es_module', requireESModuleFn);
+      requireESModuleFn.dispose();
+
+      // Initialize require() function
+      const requireCode = createRequireFunction();
+      const requireResult = vm.evalCode(requireCode);
+      if (requireResult.error) {
+        const error = vm.dump(requireResult.error);
+        requireResult.error.dispose();
+        throw new Error(`Failed to initialize require(): ${error}`);
+      }
+      requireResult.value.dispose();
+
       // Set up module loader
       const moduleLoader = new NodepackModuleLoader(this.filesystem);
       runtime.setModuleLoader(
@@ -101,25 +187,52 @@ export class QuickJSRuntime {
           moduleLoader.normalize(baseName, requestedName),
       );
 
-      // Detect and pre-load npm packages from CDN
-      const npmPackages = detectImports(code);
-      if (npmPackages.length > 0) {
-        console.log('[Runtime] Detected npm packages:', npmPackages);
-        await moduleLoader.preloadPackages(npmPackages);
+      // Detect and pre-load npm packages from CDN (both ES imports and requires)
+      const detectedModules = detectImports(code);
+      if (detectedModules.allPackages.length > 0) {
+        console.log('[Runtime] Detected npm packages:', detectedModules.allPackages);
+        await moduleLoader.preloadPackages(detectedModules.allPackages);
       }
 
       // Write the code to the virtual filesystem so the module loader can find it
       // Write to root so relative imports like './utils.js' work correctly
       this.filesystem.writeFileSync('/main.js', code);
 
-      // Execute code as a module by dynamically importing it
-      // We wrap it to extract the default export or the whole module
-      const wrapperCode = `
-        import * as mod from '/main.js';
-        globalThis.__result = mod.default !== undefined ? mod.default : mod;
-      `;
+      // Detect module format (ES module or CommonJS)
+      const format = detectModuleFormat(code);
 
-      const result = vm.evalCode(wrapperCode);
+      let result;
+
+      if (format === 'esm') {
+        // Execute as ES module (existing behavior)
+        const wrapperCode = `
+          import * as mod from '/main.js';
+          globalThis.__result = mod.default !== undefined ? mod.default : mod;
+        `;
+        result = vm.evalCode(wrapperCode);
+      } else {
+        // Execute as CommonJS module
+        const cjsExecutionCode = `
+          (function() {
+            const module = {
+              exports: {},
+              filename: '/main.js',
+              loaded: false,
+              children: []
+            };
+
+            globalThis.__nodepack_module_cache['/main.js'] = module;
+            globalThis.__nodepack_current_module_dir = '/';
+
+            const code = globalThis.__nodepack_fs.readFileSync('/main.js', 'utf8');
+            globalThis.__nodepack_execute_commonjs_module(code, module, '/main.js');
+
+            module.loaded = true;
+            globalThis.__result = module.exports;
+          })();
+        `;
+        result = vm.evalCode(cjsExecutionCode);
+      }
 
       if (result.error) {
         const error = vm.dump(result.error);
@@ -140,9 +253,10 @@ export class QuickJSRuntime {
         if (typeof error === 'string') {
           errorMessage = error;
         } else if (error && typeof error === 'object') {
-          errorMessage = error.message || error.toString?.() || JSON.stringify(error, null, 2);
+          // Prioritize error.message, then JSON.stringify (toString() can return "[object Object]")
+          errorMessage = error.message || JSON.stringify(error, null, 2) || String(error);
         } else {
-          errorMessage = String(error);
+          errorMessage = JSON.stringify(error);
         }
 
         return {
@@ -208,7 +322,7 @@ export class QuickJSRuntime {
       runtime.dispose();
       return {
         ok: false,
-        error: error.message || String(error),
+        error: error.message || (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error)),
         logs: this.consoleLogs,
       };
     } finally {

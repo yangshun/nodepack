@@ -12,12 +12,15 @@ A browser-based Node.js runtime for educational purposes. Run Node.js code direc
 
 **Target Use Case:** Online coding platforms for teaching Node.js fundamentals - file operations, modules, and eventually npm packages.
 
-## ✨ What Works Now (Week 3)
+## ✨ What Works Now
 
 - ✅ **JavaScript Execution** - QuickJS WASM engine running in browser
 - ✅ **Virtual File System** - In-memory filesystem (memfs) with full CRUD operations
-- ✅ **Node.js Modules** - `fs`, `path`, `process` modules working
+- ✅ **Node.js Modules** - `fs`, `path`, `process`, `timers` modules working
 - ✅ **ES Module Syntax** - `import`/`export` support
+- ✅ **CommonJS Support** - `require()`, `module.exports`, `exports` support (NEW!)
+- ✅ **Mixed Module Systems** - Use both ES imports and CommonJS requires together
+- ✅ **NPM Packages** - Load packages from CDN (with ES imports)
 - ✅ **Console Output** - Capture and display console.log in UI
 - ✅ **Interactive Demo** - Live code editor at http://localhost:3000
 
@@ -95,6 +98,40 @@ const ext = path.extname(fullPath); // .txt
 console.log(process.platform); // 'browser'
 console.log(process.version); // 'v18.0.0-browser'
 console.log(process.cwd()); // '/'
+```
+
+**CommonJS require():**
+
+```javascript
+// Basic require with builtin modules
+const fs = require('fs');
+const path = require('path');
+
+fs.writeFileSync('/data.txt', 'Hello CommonJS!');
+const content = fs.readFileSync('/data.txt', 'utf8');
+
+// Local modules with exports
+fs.writeFileSync('/math.js', `
+  exports.add = (a, b) => a + b;
+  exports.multiply = (a, b) => a * b;
+`);
+
+const math = require('./math.js');
+console.log(math.add(2, 3)); // 5
+
+// Module with module.exports
+fs.writeFileSync('/utils.js', `
+  module.exports = {
+    greet: (name) => 'Hello, ' + name
+  };
+`);
+
+const utils = require('./utils.js');
+console.log(utils.greet('World')); // Hello, World
+
+// Mixed ES and CommonJS
+import { writeFileSync } from 'fs';
+const process = require('process');
 ```
 
 ## 🏗️ Architecture
