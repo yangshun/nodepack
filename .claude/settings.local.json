@@ -31,7 +31,8 @@
       "Bash(pnpm run build:*)",
       "Bash(wc:*)",
       "Bash(timeout 30 pnpm:*)",
-      "Bash(git mv:*)"
+      "Bash(git mv:*)",
+      "Bash(pnpm run test:*)"
     ]
   }
 }

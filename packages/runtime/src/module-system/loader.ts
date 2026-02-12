@@ -83,6 +83,11 @@ export class NodepackModuleLoader {
    * @returns Normalized absolute path
    */
   normalize(baseName: string, requestedName: string): string {
+    // Strip node: protocol prefix if present (e.g., 'node:fs' -> 'fs')
+    if (requestedName.startsWith('node:')) {
+      requestedName = requestedName.slice(5);
+    }
+
     // If importing a builtin, return as-is
     if (this.builtinModules.has(requestedName)) {
       return requestedName;
@@ -121,6 +126,7 @@ export class NodepackModuleLoader {
       export const existsSync = globalThis.__nodepack_fs.existsSync;
       export const readdirSync = globalThis.__nodepack_fs.readdirSync;
       export const mkdirSync = globalThis.__nodepack_fs.mkdirSync;
+      export const unlinkSync = globalThis.__nodepack_fs.unlinkSync;
       export default globalThis.__nodepack_fs;
     `,
     );
@@ -150,6 +156,7 @@ export class NodepackModuleLoader {
       export const argv = globalThis.__nodepack_process.argv;
       export const platform = globalThis.__nodepack_process.platform;
       export const version = globalThis.__nodepack_process.version;
+      export const exit = globalThis.__nodepack_process.exit;
     `,
     );
 

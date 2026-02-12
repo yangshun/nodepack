@@ -112,5 +112,21 @@ export function createFsModule(vm: QuickJSContext, filesystem: any): QuickJSHand
     }
   });
 
+  // unlinkSync(path)
+  addModuleFunction(vm, fsObj, 'unlinkSync', (pathHandle) => {
+    const path = vm.dump(pathHandle);
+
+    if (typeof path !== 'string') {
+      throw new Error('Path must be a string');
+    }
+
+    try {
+      filesystem.unlinkSync(path);
+      return vm.undefined;
+    } catch (error: any) {
+      throw new Error(`ENOENT: no such file or directory, unlink '${path}'`);
+    }
+  });
+
   return fsObj;
 }
