@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import clsx from "clsx";
+import { HiChevronRight, HiChevronDown } from "react-icons/hi2";
 import type { FileTreeNode } from "../types";
 import { buildFileTree } from "../utils/filesystem-tree";
 
@@ -48,9 +49,13 @@ export function FileTree({
   };
 
   return (
-    <div className="panel h-full flex flex-col">
-      <div className="panel-header">Files</div>
-      <div className="flex-1 overflow-y-auto p-2">
+    <div className="bg-dark-panel h-full flex flex-col">
+      <div className="p-2 border-b border-dark-border">
+        <button onClick={onAddFile} className="btn-secondary w-full text-xs">
+          New file
+        </button>
+      </div>
+      <div className="flex-1 h-0 grow overflow-y-auto p-2">
         {!filesystem ? (
           <div className="text-gray-500 text-xs p-2">Loading filesystem...</div>
         ) : tree.length === 0 ? (
@@ -71,11 +76,6 @@ export function FileTree({
             ))}
           </ul>
         )}
-      </div>
-      <div className="p-2 border-t border-dark-border">
-        <button onClick={onAddFile} className="btn-secondary w-full text-xs">
-          + New File
-        </button>
       </div>
     </div>
   );
@@ -111,17 +111,20 @@ function FileTreeNode({
       <>
         <li
           className={clsx(
-            "flex items-center gap-1 px-2 py-0.5 rounded cursor-pointer transition-colors text-xs",
+            "flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm",
             {
-              "bg-gray-500/20 text-accent-primary": isSelected,
-              "text-accent-primary": isExpanded,
+              "bg-gray-500/20 text-purple-400": isSelected,
               "hover:bg-dark-hover": !isSelected && !isExpanded,
-            }
+            },
           )}
-          style={{ paddingLeft: `${paddingLeft + 8}px` }}
+          style={{ paddingLeft: `${paddingLeft}px` }}
           onClick={() => onToggle(node.path)}
         >
-          <span className="text-[10px]">{isExpanded ? "▾" : "▸"}</span>
+          {isExpanded ? (
+            <HiChevronDown className="text-sm flex-shrink-0" />
+          ) : (
+            <HiChevronRight className="text-sm flex-shrink-0" />
+          )}
           <span>{node.name}</span>
         </li>
         {isExpanded &&
@@ -144,13 +147,13 @@ function FileTreeNode({
   return (
     <li
       className={clsx(
-        "flex items-center justify-between px-2 py-0.5 rounded cursor-pointer transition-colors text-xs",
+        "flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm",
         {
-          "bg-gray-500/20 text-accent-primary": isSelected,
+          "bg-gray-500/20 text-purple-400": isSelected,
           "hover:bg-dark-hover": !isSelected,
-        }
+        },
       )}
-      style={{ paddingLeft: `${paddingLeft + 8}px` }}
+      style={{ paddingLeft: `${paddingLeft + 6}px` }}
       onClick={() => onSelectFile(node.path)}
     >
       <span className="truncate">{node.name}</span>

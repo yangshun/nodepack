@@ -1,6 +1,6 @@
-import { useRef, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
-import type { editor } from 'monaco-editor';
+import { useRef, useEffect } from "react";
+import Editor from "@monaco-editor/react";
+import type { editor } from "monaco-editor";
 
 interface CodeEditorProps {
   code: string;
@@ -27,25 +27,22 @@ export function CodeEditor({ code, currentFile, onChange, onRun }: CodeEditorPro
   };
 
   const handleEditorChange = (value: string | undefined) => {
-    onChange(value || '');
+    onChange(value || "");
   };
 
   // Determine language from file extension
   const getLanguage = (filename: string) => {
-    if (filename.endsWith('.ts')) return 'typescript';
-    if (filename.endsWith('.tsx')) return 'typescript';
-    if (filename.endsWith('.json')) return 'json';
-    return 'javascript';
+    if (filename.endsWith(".ts")) return "typescript";
+    if (filename.endsWith(".tsx")) return "typescript";
+    if (filename.endsWith(".json")) return "json";
+    return "javascript";
   };
 
   return (
     <div className="panel h-full flex flex-col">
-      <div className="panel-header flex items-center justify-between">
-        <span>📝 Editor</span>
-        <span className="text-accent-primary font-mono text-xs">{currentFile}</span>
-      </div>
       <div className="flex-1 overflow-hidden">
         <Editor
+          key={currentFile}
           height="100%"
           language={getLanguage(currentFile)}
           value={code}
@@ -55,11 +52,11 @@ export function CodeEditor({ code, currentFile, onChange, onRun }: CodeEditorPro
           options={{
             minimap: { enabled: false },
             fontSize: 14,
-            lineNumbers: 'on',
+            lineNumbers: "on",
             scrollBeyondLastLine: false,
             automaticLayout: true,
             tabSize: 2,
-            wordWrap: 'on',
+            wordWrap: "on",
             formatOnPaste: true,
             formatOnType: true,
           }}

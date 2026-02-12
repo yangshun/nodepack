@@ -109,9 +109,8 @@ export function factorial(n) {
   },
   {
     id: 'packages',
-    label: 'NPM Packages',
-    code: `// NPM packages from jsDelivr CDN! 🎉
-import _ from 'lodash-es';
+    label: 'Lodash',
+    code: `import _ from 'lodash-es';
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -139,10 +138,8 @@ export default {
   },
   {
     id: 'clsx',
-    label: 'Using clsx',
-    code: `// Using the 'clsx' package for conditional classNames
-// NPM packages from jsDelivr CDN! 🎉
-import { clsx } from 'clsx';
+    label: 'clsx',
+    code: `import { clsx } from 'clsx';
 
 console.log(clsx('foo', true && 'bar', 'baz'));
 //=> 'foo bar baz'

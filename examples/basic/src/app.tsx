@@ -40,7 +40,6 @@ export function App() {
 
   const terminalRef = useRef<TerminalHandle>(null);
 
-
   // Initialize Nodepack
   useEffect(() => {
     let cancelled = false;
@@ -67,7 +66,9 @@ export function App() {
         // Write welcome message to terminal
         if (terminalRef.current) {
           terminalRef.current.writeOutput("✅ Nodepack initialized successfully!");
-          terminalRef.current.writeOutput(`🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`);
+          terminalRef.current.writeOutput(
+            `🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`,
+          );
           terminalRef.current.writeOutput("🚀 You can now run Node.js code in your browser");
           terminalRef.current.writeOutput("");
           terminalRef.current.writeOutput("Try the examples or write your own code!");
@@ -98,10 +99,10 @@ export function App() {
 
     // Write initial main.js file to filesystem
     try {
-      fs.writeFileSync('/main.js', defaultCode);
-      setFilesystemVersion(v => v + 1);
+      fs.writeFileSync("/main.js", defaultCode);
+      setFilesystemVersion((v) => v + 1);
     } catch (error) {
-      console.error('Failed to write initial file:', error);
+      console.error("Failed to write initial file:", error);
     }
   }, [nodepack]);
 
@@ -127,11 +128,11 @@ export function App() {
           if (stats.isDirectory()) {
             const entries = fs.readdirSync(path);
             entries.forEach((entry: string) => {
-              const fullPath = path === '/' ? `/${entry}` : `${path}/${entry}`;
+              const fullPath = path === "/" ? `/${entry}` : `${path}/${entry}`;
               deleteRecursive(fullPath);
             });
             // Only remove directory if it's not root
-            if (path !== '/') {
+            if (path !== "/") {
               fs.rmdirSync(path);
             }
           } else {
@@ -144,20 +145,20 @@ export function App() {
 
       // Delete all files in root
       try {
-        const entries = fs.readdirSync('/');
+        const entries = fs.readdirSync("/");
         entries.forEach((entry: string) => {
           deleteRecursive(`/${entry}`);
         });
       } catch (error) {
-        console.warn('Failed to clear filesystem:', error);
+        console.warn("Failed to clear filesystem:", error);
       }
 
       // Then write new files
       Object.entries(newFiles).forEach(([filename, content]) => {
         try {
-          const lastSlashIndex = filename.lastIndexOf('/');
+          const lastSlashIndex = filename.lastIndexOf("/");
           if (lastSlashIndex !== -1) {
-            const dirPath = '/' + filename.substring(0, lastSlashIndex);
+            const dirPath = "/" + filename.substring(0, lastSlashIndex);
             try {
               fs.mkdirSync(dirPath, { recursive: true });
             } catch (mkdirError) {
@@ -170,7 +171,7 @@ export function App() {
         }
       });
 
-      setFilesystemVersion(v => v + 1);
+      setFilesystemVersion((v) => v + 1);
     }
   };
 
@@ -183,17 +184,17 @@ export function App() {
 
     try {
       // Try to read from filesystem first
-      const content = fs.readFileSync(`/${currentFile}`, 'utf8');
+      const content = fs.readFileSync(`/${currentFile}`, "utf8");
       setCurrentFileContent(content);
 
       // Also update the files state if it's a user file (not in node_modules)
-      if (!currentFile.startsWith('node_modules/')) {
-        setFiles(prev => ({ ...prev, [currentFile]: content }));
+      if (!currentFile.startsWith("node_modules/")) {
+        setFiles((prev) => ({ ...prev, [currentFile]: content }));
       }
     } catch (error) {
       // File doesn't exist in filesystem, use empty content
       console.warn(`Could not read ${currentFile}:`, error);
-      setCurrentFileContent('');
+      setCurrentFileContent("");
     }
   }, [currentFile, nodepack]);
 
@@ -225,7 +226,7 @@ export function App() {
     if (fs) {
       try {
         fs.writeFileSync(`/${filename}`, content);
-        setFilesystemVersion(v => v + 1);
+        setFilesystemVersion((v) => v + 1);
       } catch (error) {
         console.error("Failed to write file to filesystem:", error);
       }
@@ -255,7 +256,7 @@ export function App() {
         const path = `/${filename}`;
         if (fs.existsSync(path)) {
           fs.unlinkSync(path);
-          setFilesystemVersion(v => v + 1);
+          setFilesystemVersion((v) => v + 1);
         }
       } catch (error) {
         console.error("Failed to delete file from filesystem:", error);
@@ -268,7 +269,7 @@ export function App() {
     setCurrentFileContent(code);
 
     // Update files state for user files (not node_modules)
-    if (!currentFile.startsWith('node_modules/')) {
+    if (!currentFile.startsWith("node_modules/")) {
       setFiles((prev) => ({ ...prev, [currentFile]: code }));
     }
 
@@ -277,64 +278,67 @@ export function App() {
     if (fs) {
       try {
         fs.writeFileSync(`/${currentFile}`, code);
-        setFilesystemVersion(v => v + 1);
+        setFilesystemVersion((v) => v + 1);
       } catch (error) {
         console.error(`Failed to write ${currentFile}:`, error);
       }
     }
   };
 
-  const handleExecuteFile = useCallback(async (filepath: string) => {
-    if (!nodepack) {
-      return {
-        ok: false,
-        output: '',
-        error: 'Runtime not initialized',
-      };
-    }
-
-    try {
-      // Read file content from filesystem
-      const fs = nodepack.getFilesystem();
-      if (!fs) {
+  const handleExecuteFile = useCallback(
+    async (filepath: string) => {
+      if (!nodepack) {
         return {
           ok: false,
-          output: '',
-          error: 'Filesystem not available',
+          output: "",
+          error: "Runtime not initialized",
         };
       }
 
-      const content = fs.readFileSync(filepath, 'utf8');
+      try {
+        // Read file content from filesystem
+        const fs = nodepack.getFilesystem();
+        if (!fs) {
+          return {
+            ok: false,
+            output: "",
+            error: "Filesystem not available",
+          };
+        }
 
-      // Execute the file content
-      const result = await nodepack.execute(content);
+        const content = fs.readFileSync(filepath, "utf8");
 
-      // Format output
-      let output = '';
-      if (result.logs && result.logs.length > 0) {
-        output = result.logs.join('\n') + '\n';
-      }
+        // Execute the file content
+        const result = await nodepack.execute(content);
 
-      if (result.ok) {
-        return {
-          ok: true,
-          output,
-        };
-      } else {
+        // Format output
+        let output = "";
+        if (result.logs && result.logs.length > 0) {
+          output = result.logs.join("\n") + "\n";
+        }
+
+        if (result.ok) {
+          return {
+            ok: true,
+            output,
+          };
+        } else {
+          return {
+            ok: false,
+            output,
+            error: result.error || "Execution failed",
+          };
+        }
+      } catch (error: any) {
         return {
           ok: false,
-          output,
-          error: result.error || 'Execution failed',
+          output: "",
+          error: error.message,
         };
       }
-    } catch (error: any) {
-      return {
-        ok: false,
-        output: '',
-        error: error.message,
-      };
-    }
-  }, [nodepack]);
+    },
+    [nodepack],
+  );
 
   const handleRun = useCallback(async () => {
     if (!nodepack || isRunning) {
@@ -353,7 +357,7 @@ export function App() {
       if (otherFiles.length > 0) {
         const fs = nodepack.getFilesystem();
         if (!fs) {
-          throw new Error('Filesystem not available');
+          throw new Error("Filesystem not available");
         }
 
         // Write each file, creating parent directories as needed
@@ -361,9 +365,9 @@ export function App() {
           const fullPath = `/${filename}`;
 
           // Create parent directories if needed
-          const lastSlashIndex = filename.lastIndexOf('/');
+          const lastSlashIndex = filename.lastIndexOf("/");
           if (lastSlashIndex !== -1) {
-            const dirPath = '/' + filename.substring(0, lastSlashIndex);
+            const dirPath = "/" + filename.substring(0, lastSlashIndex);
             try {
               fs.mkdirSync(dirPath, { recursive: true });
             } catch (err) {
@@ -409,9 +413,10 @@ export function App() {
         }
       } else {
         if (terminalRef.current) {
-          const errorMsg = typeof result.error === 'object'
-            ? JSON.stringify(result.error, null, 2)
-            : String(result.error);
+          const errorMsg =
+            typeof result.error === "object"
+              ? JSON.stringify(result.error, null, 2)
+              : String(result.error);
           terminalRef.current.writeOutput(`❌ Error: ${errorMsg}`);
         }
 
@@ -441,13 +446,13 @@ export function App() {
 
   const handleInstallPackage = async (packageName: string) => {
     if (!nodepack) {
-      alert('Nodepack not initialized yet');
+      alert("Nodepack not initialized yet");
       return;
     }
 
     const npm = nodepack.npm;
     if (!npm) {
-      alert('NPM not available in worker mode');
+      alert("NPM not available in worker mode");
       return;
     }
 
@@ -458,18 +463,20 @@ export function App() {
 
       await npm.install(packageName);
 
-      setFilesystemVersion(v => v + 1);
+      setFilesystemVersion((v) => v + 1);
 
       if (terminalRef.current) {
         terminalRef.current.writeOutput(`✅ Successfully installed ${packageName}`);
-        terminalRef.current.writeOutput(`📁 Check the file tree to see node_modules/${packageName}`);
-        terminalRef.current.writeOutput('');
+        terminalRef.current.writeOutput(
+          `📁 Check the file tree to see node_modules/${packageName}`,
+        );
+        terminalRef.current.writeOutput("");
       }
     } catch (error: any) {
       if (terminalRef.current) {
         terminalRef.current.writeOutput(`❌ Failed to install ${packageName}: ${error.message}`);
       }
-      console.error('Package installation error:', error);
+      console.error("Package installation error:", error);
     }
   };
 
@@ -482,20 +489,20 @@ export function App() {
             <div className="h-6 w-px bg-gray-600" />
             <div className="flex gap-2">
               <button
-                onClick={() => handleInstallPackage('ms')}
+                onClick={() => handleInstallPackage("ms")}
                 className="btn-secondary text-xs"
                 disabled={!nodepack || usingWorker}
                 title="Install the 'ms' package to see node_modules in the file tree"
               >
-                📦 Install ms
+                Install ms
               </button>
               <button
-                onClick={() => handleInstallPackage('clsx')}
+                onClick={() => handleInstallPackage("clsx")}
                 className="btn-secondary text-xs"
                 disabled={!nodepack || usingWorker}
                 title="Install the 'clsx' package to see node_modules in the file tree"
               >
-                📦 Install clsx
+                Install clsx
               </button>
             </div>
           </div>
@@ -506,9 +513,9 @@ export function App() {
             onRun={handleRun}
           />
         </div>
-        <div className="grid grid-cols-12 gap-6 mb-6 h-[600px]">
+        <div className="flex h-[600px] rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
           {/* File List */}
-          <div className="col-span-2">
+          <div className="w-[200px] grow h-full">
             <FileTree
               filesystem={nodepack?.getFilesystem()}
               currentFile={currentFile}
@@ -519,7 +526,7 @@ export function App() {
             />
           </div>
           {/* Code Editor */}
-          <div className="col-span-5">
+          <div className="w-1/2 h-full">
             <CodeEditor
               code={currentFileContent}
               currentFile={currentFile}
@@ -529,7 +536,7 @@ export function App() {
             />
           </div>
           {/* Terminal */}
-          <div className="col-span-5">
+          <div className="w-1/3 h-full">
             <Terminal
               ref={terminalRef}
               filesystem={nodepack?.getFilesystem() || undefined}

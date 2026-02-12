@@ -96,16 +96,16 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       const bridgedFs = new BridgedFilesystem(filesystem);
       const bash = new Bash({
         fs: bridgedFs,
-        cwd: '/', // Start at root directory
+        cwd: "/", // Start at root directory
         ...bashSecurityConfig,
         customCommands: [
           {
-            name: 'node',
+            name: "node",
             execute: async (args: string[], context: any) => {
               if (!onExecuteFile) {
                 return {
-                  stdout: '',
-                  stderr: 'Error: node command not available\n',
+                  stdout: "",
+                  stderr: "Error: node command not available\n",
                   exitCode: 1,
                 };
               }
@@ -113,8 +113,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               // Parse arguments
               if (args.length === 0) {
                 return {
-                  stdout: '',
-                  stderr: 'Usage: node <filename>\n',
+                  stdout: "",
+                  stderr: "Usage: node <filename>\n",
                   exitCode: 1,
                 };
               }
@@ -123,7 +123,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
               // Normalize path
               let filepath = filename;
-              if (!filepath.startsWith('/')) {
+              if (!filepath.startsWith("/")) {
                 filepath = `/${filepath}`;
               }
 
@@ -132,14 +132,14 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 const exists = await context.fs.exists(filepath);
                 if (!exists) {
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error: Cannot find module '${filename}'\n`,
                     exitCode: 1,
                   };
                 }
               } catch (error) {
                 return {
-                  stdout: '',
+                  stdout: "",
                   stderr: `Error: ${error}\n`,
                   exitCode: 1,
                 };
@@ -151,20 +151,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
                 if (result.ok) {
                   return {
-                    stdout: result.output || '',
-                    stderr: '',
+                    stdout: result.output || "",
+                    stderr: "",
                     exitCode: 0,
                   };
                 } else {
                   return {
-                    stdout: result.output || '',
-                    stderr: result.error || 'Execution failed\n',
+                    stdout: result.output || "",
+                    stderr: result.error || "Execution failed\n",
                     exitCode: 1,
                   };
                 }
               } catch (error: any) {
                 return {
-                  stdout: '',
+                  stdout: "",
                   stderr: `Error executing file: ${error.message}\n`,
                   exitCode: 1,
                 };
@@ -207,10 +207,22 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       };
     }, [filesystem, onReady]);
 
+    function handleClear() {
+      if (xtermRef.current) {
+        xtermRef.current.clear();
+      }
+    }
+
     return (
       <div className="terminal-wrapper panel">
         <div className="panel-header">
-          <h2>Terminal</h2>
+          <button
+            onClick={handleClear}
+            className="btn-secondary text-xs px-2 py-1"
+            title="Clear terminal"
+          >
+            Clear
+          </button>
         </div>
         <div ref={terminalRef} className="terminal-container" />
       </div>

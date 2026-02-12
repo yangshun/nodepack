@@ -37,6 +37,7 @@ export default defineConfig({
   },
   optimizeDeps: {
     exclude: ['@jitl/quickjs-wasmfile-release-sync', 'quickjs-emscripten'],
+    include: ['monaco-editor'],
     esbuildOptions: {
       target: 'esnext',
       define: {
@@ -44,12 +45,23 @@ export default defineConfig({
       },
     },
   },
+  cacheDir: 'node_modules/.vite',
   server: {
     port: 3000,
     open: true,
     headers: {
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp',
+    },
+    hmr: {
+      overlay: true,
+      protocol: 'ws',
+      host: 'localhost',
+    },
+    watch: {
+      usePolling: true,
+      interval: 1000,
+      ignored: ['**/node_modules/**', '**/.git/**'],
     },
   },
 });
