@@ -178,6 +178,17 @@ export function App() {
       });
 
       setFilesystemVersion((v) => v + 1);
+
+      // Auto-install packages if package.json exists
+      if ("package.json" in newFiles) {
+        handleInstallPackage().catch((error) => {
+          if (terminalRef.current) {
+            terminalRef.current.writeOutput(
+              `Failed to auto-install packages: ${error.message}`
+            );
+          }
+        });
+      }
     }
   };
 
