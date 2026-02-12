@@ -16,15 +16,12 @@ export class NpmRegistry {
   async fetchPackageMetadata(packageName: string): Promise<PackageMetadata> {
     // Check cache
     if (this.manifestCache.has(packageName)) {
-      console.log(`[NPM] Using cached metadata for ${packageName}`);
       return this.manifestCache.get(packageName)!;
     }
 
     // Encode package name for URL (scoped packages need special handling)
     const encodedName = packageName.replace('/', '%2F');
     const url = `${this.registryUrl}/${encodedName}`;
-
-    console.log(`[NPM] Fetching metadata for ${packageName} from ${url}`);
 
     try {
       const response = await fetch(url);
@@ -39,10 +36,6 @@ export class NpmRegistry {
 
       // Cache it
       this.manifestCache.set(packageName, metadata);
-
-      console.log(
-        `[NPM] Fetched ${packageName} (${Object.keys(metadata.versions).length} versions)`,
-      );
 
       return metadata;
     } catch (error: any) {
@@ -93,8 +86,6 @@ export class NpmRegistry {
    * Download tarball as ArrayBuffer
    */
   async downloadTarball(url: string): Promise<ArrayBuffer> {
-    console.log(`[NPM] Downloading tarball from ${url}`);
-
     try {
       const response = await fetch(url);
 
@@ -103,7 +94,6 @@ export class NpmRegistry {
       }
 
       const buffer = await response.arrayBuffer();
-      console.log(`[NPM] Downloaded tarball (${buffer.byteLength} bytes)`);
 
       return buffer;
     } catch (error: any) {

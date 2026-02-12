@@ -328,8 +328,8 @@ export function App() {
 
         const content = fs.readFileSync(filepath, "utf8");
 
-        // Execute the file content
-        const result = await nodepack.execute(content);
+        // Execute the file content with the correct filepath for module resolution
+        const result = await nodepack.execute(content, { filename: filepath });
 
         // Format output
         let output = "";

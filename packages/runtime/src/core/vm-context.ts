@@ -12,6 +12,9 @@ import {
   createProcessModule,
   createTimersModule,
   createModuleBuiltin,
+  createUrlModule,
+  createEventsModule,
+  createChildProcessModule,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
 import { NodepackModuleLoader } from '../module-system/loader.js';
@@ -53,6 +56,21 @@ export function setupVMContext(
   vm.setProp(vm.global, '__nodepack_module', moduleHandle);
   moduleHandle.dispose();
 
+  // Set up url builtin
+  const urlHandle = createUrlModule(vm);
+  vm.setProp(vm.global, '__nodepack_url', urlHandle);
+  urlHandle.dispose();
+
+  // Set up events builtin
+  const eventsHandle = createEventsModule(vm);
+  vm.setProp(vm.global, '__nodepack_events', eventsHandle);
+  eventsHandle.dispose();
+
+  // Set up child_process builtin
+  const childProcessHandle = createChildProcessModule(vm);
+  vm.setProp(vm.global, '__nodepack_child_process', childProcessHandle);
+  childProcessHandle.dispose();
+
   // Set up CommonJS module executor function
   // This is called from require() to execute CommonJS modules
   const executeModuleFn = vm.newFunction(
@@ -69,10 +87,25 @@ export function setupVMContext(
       if (result.error) {
         const error = vm.dump(result.error);
         result.error.dispose();
-        // Properly stringify error object
-        const errorMsg =
-          error.message ||
-          (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error));
+
+        // Create detailed error message with stack trace
+        let errorMsg = '';
+        if (error && typeof error === 'object') {
+          if (error.name && error.message) {
+            errorMsg = `${error.name}: ${error.message}`;
+          } else if (error.message) {
+            errorMsg = error.message;
+          } else {
+            errorMsg = JSON.stringify(error, null, 2);
+          }
+
+          if (error.stack) {
+            errorMsg += '\n' + error.stack;
+          }
+        } else {
+          errorMsg = String(error);
+        }
+
         throw vm.newError(errorMsg);
       }
       result.value.dispose();
