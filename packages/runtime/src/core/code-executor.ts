@@ -49,19 +49,6 @@ export async function executeCode(
     // Strip shebang if present
     code = stripShebang(code);
 
-    // Detect and install npm packages (both ES imports and requires)
-    // Disabled for debugging - packages should be installed manually via npm install
-    // const detectedModules = detectImports(code);
-    // if (detectedModules.allPackages.length > 0) {
-    //   console.log('[Runtime] Detected npm packages:', detectedModules.allPackages);
-
-    //   // Install each detected package from npm registry
-    //   const installPromises = detectedModules.allPackages.map((pkg) =>
-    //     npmPackageManager.install(pkg, 'latest'),
-    //   );
-    //   await Promise.all(installPromises);
-    // }
-
     // Determine the file path to use (from options or default to /main.js)
     const filepath = options.filename || '/main.js';
     const fileDir = filepath.substring(0, filepath.lastIndexOf('/')) || '/';
