@@ -1,3 +1,4 @@
+import clsx from "clsx";
 import { RuntimeStatus } from "../types";
 
 interface StatusBarProps {
@@ -15,13 +16,6 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
     return `✅ Ready (${usingWorker ? "Web Worker" : "Direct"})`;
   };
 
-  const getStatusClass = () => {
-    if (status === "initializing") return "text-gray-400";
-    if (isRunning) return "status-running";
-    if (status === "error") return "status-error";
-    return "status-ready";
-  };
-
   return (
     <div className="flex items-center gap-4">
       <button
@@ -32,7 +26,12 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
         <span>▶</span>
         <span>Run Code</span>
       </button>
-      <span className={`status-badge ${getStatusClass()}`}>{getStatusLabel()}</span>
+      <span className={clsx("status-badge", {
+        "text-gray-400": status === "initializing",
+        "status-running": isRunning,
+        "status-error": status === "error",
+        "status-ready": status === "ready" && !isRunning,
+      })}>{getStatusLabel()}</span>
       <span className="text-xs text-gray-500">Press Cmd/Ctrl+Enter to run</span>
     </div>
   );

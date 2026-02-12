@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import clsx from "clsx";
 import type { FileTreeNode } from "../types";
 import { buildFileTree } from "../utils/filesystem-tree";
 
@@ -109,12 +110,14 @@ function FileTreeNode({
     return (
       <>
         <li
-          className={`
-            flex items-center gap-1 px-2 py-0.5 rounded cursor-pointer transition-colors
-            text-xs
-            ${isSelected ? "bg-gray-500/20 text-accent-primary" : "hover:bg-dark-hover"}
-            ${isExpanded ? "text-accent-primary" : "hover:bg-dark-hover"}
-          `}
+          className={clsx(
+            "flex items-center gap-1 px-2 py-0.5 rounded cursor-pointer transition-colors text-xs",
+            {
+              "bg-gray-500/20 text-accent-primary": isSelected,
+              "text-accent-primary": isExpanded,
+              "hover:bg-dark-hover": !isSelected && !isExpanded,
+            }
+          )}
           style={{ paddingLeft: `${paddingLeft + 8}px` }}
           onClick={() => onToggle(node.path)}
         >
@@ -140,11 +143,13 @@ function FileTreeNode({
 
   return (
     <li
-      className={`
-        flex items-center justify-between px-2 py-0.5 rounded cursor-pointer
-        transition-colors text-xs
-        ${isSelected ? "bg-gray-500/20 text-accent-primary" : "hover:bg-dark-hover"}
-      `}
+      className={clsx(
+        "flex items-center justify-between px-2 py-0.5 rounded cursor-pointer transition-colors text-xs",
+        {
+          "bg-gray-500/20 text-accent-primary": isSelected,
+          "hover:bg-dark-hover": !isSelected,
+        }
+      )}
       style={{ paddingLeft: `${paddingLeft + 8}px` }}
       onClick={() => onSelectFile(node.path)}
     >
