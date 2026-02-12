@@ -37,6 +37,7 @@ export function App() {
   const [currentFile, setCurrentFile] = useState('main.js');
   const [currentFileContent, setCurrentFileContent] = useState(defaultCode);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
+  const [customPackageName, setCustomPackageName] = useState('');
 
   const terminalRef = useRef<TerminalHandle>(null);
 
@@ -498,21 +499,32 @@ export function App() {
             <ExampleButtons onSelectExample={handleSelectExample} />
             <div className="h-6 w-px bg-gray-600" />
             <div className="flex gap-2">
-              <button
-                onClick={() => handleInstallPackage('ms')}
-                className="btn-secondary"
+              <input
+                type="text"
+                value={customPackageName}
+                onChange={(e) => setCustomPackageName(e.target.value)}
+                placeholder="Install package (e.g., clsx, zod)"
+                className="w-60 px-3 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-blue-500"
                 disabled={!nodepack || usingWorker}
-                title="Install the 'ms' package to see node_modules in the file tree"
-              >
-                Install ms
-              </button>
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && customPackageName.trim()) {
+                    handleInstallPackage(customPackageName.trim());
+                    setCustomPackageName('');
+                  }
+                }}
+              />
               <button
-                onClick={() => handleInstallPackage('clsx')}
+                onClick={() => {
+                  if (customPackageName.trim()) {
+                    handleInstallPackage(customPackageName.trim());
+                    setCustomPackageName('');
+                  }
+                }}
                 className="btn-secondary"
-                disabled={!nodepack || usingWorker}
-                title="Install the 'clsx' package to see node_modules in the file tree"
+                disabled={!nodepack || usingWorker || !customPackageName.trim()}
+                title="Install a custom npm package"
               >
-                Install clsx
+                Install
               </button>
             </div>
           </div>
