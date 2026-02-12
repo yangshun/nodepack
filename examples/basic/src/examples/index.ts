@@ -12,6 +12,7 @@ import { commonjsNested } from './commonjs-nested';
 import { multifileMixed } from './multifile-mixed';
 import { multifileComplex } from './multifile-complex';
 import { packageJson } from './package-json';
+import { npmScripts } from './npm-scripts';
 
 export const examples: ExampleDefinition[] = [
   hello,
@@ -21,6 +22,7 @@ export const examples: ExampleDefinition[] = [
   clsx,
   timers,
   packageJson,
+  npmScripts,
   commonjsBasic,
   commonjsModules,
   commonjsMixed,

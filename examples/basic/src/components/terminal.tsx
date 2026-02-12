@@ -175,54 +175,151 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
           },
           {
             name: 'npm',
-            execute: async (args: string[]) => {
-              if (!onInstallPackage) {
-                return {
-                  stdout: '',
-                  stderr: 'Error: npm command not available\n',
-                  exitCode: 1,
-                };
-              }
-
+            execute: async (args: string[], context: any) => {
               // Parse arguments
               if (args.length === 0) {
                 return {
                   stdout: '',
-                  stderr: 'Usage: npm install [package-name]\n',
+                  stderr:
+                    'Usage: npm <command>\n\n' +
+                    'Supported commands:\n' +
+                    '  install [package]  - Install packages from package.json or specific package\n' +
+                    '  run <script>       - Run a package.json script\n' +
+                    '  start              - Alias for npm run start\n' +
+                    '  test               - Alias for npm run test\n' +
+                    '  dev                - Alias for npm run dev\n',
                   exitCode: 1,
                 };
               }
 
-              const subcommand = args[0];
+              let subcommand = args[0];
 
-              // Only support 'install' subcommand
-              if (subcommand !== 'install' && subcommand !== 'i') {
-                return {
-                  stdout: '',
-                  stderr: `Error: Unsupported npm command '${subcommand}'\nOnly 'npm install' is supported\n`,
-                  exitCode: 1,
-                };
+              // Handle shortcuts (npm start, npm test, npm dev)
+              if (subcommand === 'start' || subcommand === 'test' || subcommand === 'dev') {
+                // Transform to "npm run <shortcut>"
+                args = ['run', subcommand, ...args.slice(1)];
+                subcommand = 'run';
               }
 
-              // Get package name (optional - if not provided, install from package.json)
-              const packageName = args.length >= 2 ? args[1] : undefined;
+              // Handle install subcommand
+              if (subcommand === 'install' || subcommand === 'i') {
+                if (!onInstallPackage) {
+                  return {
+                    stdout: '',
+                    stderr: 'Error: npm install command not available\n',
+                    exitCode: 1,
+                  };
+                }
 
-              // Install the package
-              try {
-                await onInstallPackage(packageName);
-                return {
-                  stdout: '',
-                  stderr: '',
-                  exitCode: 0,
-                };
-              } catch (error: any) {
-                const target = packageName || 'packages from package.json';
-                return {
-                  stdout: '',
-                  stderr: `Error installing ${target}: ${error.message}\n`,
-                  exitCode: 1,
-                };
+                // Get package name (optional - if not provided, install from package.json)
+                const packageName = args.length >= 2 ? args[1] : undefined;
+
+                // Install the package
+                try {
+                  await onInstallPackage(packageName);
+                  return {
+                    stdout: '',
+                    stderr: '',
+                    exitCode: 0,
+                  };
+                } catch (error: any) {
+                  const target = packageName || 'packages from package.json';
+                  return {
+                    stdout: '',
+                    stderr: `Error installing ${target}: ${error.message}\n`,
+                    exitCode: 1,
+                  };
+                }
               }
+
+              // Handle run subcommand
+              if (subcommand === 'run') {
+                // Validate arguments
+                if (args.length < 2) {
+                  return {
+                    stdout: '',
+                    stderr: 'Usage: npm run <script-name>\n',
+                    exitCode: 1,
+                  };
+                }
+
+                const scriptName = args[1];
+
+                // Read package.json
+                let packageJson: any;
+                try {
+                  const packageJsonExists = await context.fs.exists('/package.json');
+                  if (!packageJsonExists) {
+                    return {
+                      stdout: '',
+                      stderr: 'Error: No package.json found in current directory\n',
+                      exitCode: 1,
+                    };
+                  }
+
+                  const packageJsonContent = await context.fs.readFile('/package.json', 'utf8');
+                  packageJson = JSON.parse(packageJsonContent);
+                } catch (error: any) {
+                  return {
+                    stdout: '',
+                    stderr: `Error reading package.json: ${error.message}\n`,
+                    exitCode: 1,
+                  };
+                }
+
+                // Get scripts
+                const scripts = packageJson.scripts || {};
+
+                if (!scripts[scriptName]) {
+                  const availableScripts = Object.keys(scripts);
+                  const suggestion =
+                    availableScripts.length > 0
+                      ? `\nAvailable scripts:\n${availableScripts.map((s) => `  - ${s}`).join('\n')}\n`
+                      : '\nNo scripts defined in package.json\n';
+
+                  return {
+                    stdout: '',
+                    stderr: `Error: Missing script: "${scriptName}"${suggestion}`,
+                    exitCode: 1,
+                  };
+                }
+
+                const scriptCommand = scripts[scriptName];
+
+                // Execute script using context.exec
+                try {
+                  // Check if exec is available
+                  if (!context.exec) {
+                    return {
+                      stdout: '',
+                      stderr: 'Error: Command execution not available in this context\n',
+                      exitCode: 1,
+                    };
+                  }
+
+                  // Execute the script command through bash
+                  const result = await context.exec(scriptCommand);
+
+                  return {
+                    stdout: result.stdout || '',
+                    stderr: result.stderr || '',
+                    exitCode: result.exitCode || 0,
+                  };
+                } catch (error: any) {
+                  return {
+                    stdout: '',
+                    stderr: `Error executing script "${scriptName}": ${error.message}\n`,
+                    exitCode: 1,
+                  };
+                }
+              }
+
+              // Unsupported subcommand
+              return {
+                stdout: '',
+                stderr: `Error: Unsupported npm command '${subcommand}'\nRun 'npm' to see available commands\n`,
+                exitCode: 1,
+              };
             },
           },
         ],
