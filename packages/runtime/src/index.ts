@@ -6,7 +6,6 @@
 export { NodepackRuntime } from './core/runtime.js';
 export { NodepackModuleLoader } from './module-system/loader.js';
 export { detectModuleFormat } from './module-system/format-detector.js';
-export { detectImports } from './module-system/import-detector.js';
 
 export type {
   FileSystemTree,

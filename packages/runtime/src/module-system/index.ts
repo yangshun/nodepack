@@ -5,6 +5,5 @@
 
 export { NodepackModuleLoader } from './loader.js';
 export { detectModuleFormat } from './format-detector.js';
-export { detectImports } from './import-detector.js';
 export { createRequireFunction } from './commonjs/require.js';
 export { wrapCommonJS, createCommonJSExecutor } from './commonjs/wrapper.js';
