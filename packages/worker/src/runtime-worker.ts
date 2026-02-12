@@ -4,7 +4,7 @@
  */
 
 import { expose } from 'comlink';
-import { QuickJSRuntime } from '@nodepack/runtime';
+import { NodepackRuntime } from '@nodepack/runtime';
 import type { ExecutionResult, RuntimeOptions } from '@nodepack/runtime';
 
 /**
@@ -12,11 +12,11 @@ import type { ExecutionResult, RuntimeOptions } from '@nodepack/runtime';
  * Exposed via Comlink to main thread
  */
 class WorkerRuntime {
-  private runtime: QuickJSRuntime;
+  private runtime: NodepackRuntime;
   private isInitialized = false;
 
   constructor() {
-    this.runtime = new QuickJSRuntime();
+    this.runtime = new NodepackRuntime();
   }
 
   /**

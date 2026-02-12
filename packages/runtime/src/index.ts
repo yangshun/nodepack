@@ -3,7 +3,7 @@
  * QuickJS-based JavaScript runtime for browser
  */
 
-export { QuickJSRuntime } from './quickjs-runtime.js';
+export { NodepackRuntime } from './runtime.js';
 export type {
   FileSystemTree,
   ExecutionResult,

@@ -4,7 +4,7 @@
  */
 
 import { wrap, Remote } from 'comlink';
-import { QuickJSRuntime } from '@nodepack/runtime';
+import { NodepackRuntime } from '@nodepack/runtime';
 import type { ExecutionResult, RuntimeOptions } from '@nodepack/runtime';
 import type { NodepackOptions } from './types.js';
 
@@ -22,7 +22,7 @@ interface WorkerRuntimeAPI {
  * Provides unified API whether using Web Worker or direct runtime
  */
 export class Nodepack {
-  private runtime: QuickJSRuntime | Remote<WorkerRuntimeAPI> | null = null;
+  private runtime: NodepackRuntime | Remote<WorkerRuntimeAPI> | null = null;
   private worker: Worker | null = null;
   private useWorker: boolean;
   private isInitialized = false;
@@ -85,7 +85,7 @@ export class Nodepack {
    * Initialize with direct runtime (no worker)
    */
   private async initializeDirect(): Promise<void> {
-    this.runtime = new QuickJSRuntime();
+    this.runtime = new NodepackRuntime();
     await this.runtime.initialize();
     console.log('[Nodepack] Initialized with direct runtime');
   }
@@ -135,6 +135,6 @@ export class Nodepack {
       console.warn('[Nodepack] Filesystem access not available in worker mode');
       return null;
     }
-    return (this.runtime as QuickJSRuntime).getFilesystem();
+    return (this.runtime as NodepackRuntime).getFilesystem();
   }
 }

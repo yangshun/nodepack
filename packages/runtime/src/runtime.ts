@@ -1,12 +1,11 @@
 /**
- * QuickJS Runtime Wrapper
+ * Nodepack Runtime Wrapper
  * Uses quickjs-emscripten directly for browser compatibility
  */
 
 import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
 import { vol } from 'memfs';
-import * as pathBrowserify from 'path-browserify';
 import type { ExecutionResult, RuntimeOptions } from './types.js';
 import {
   createFsModule,
@@ -21,7 +20,7 @@ import { detectModuleFormat } from './module-format-detector.js';
 import { createRequireFunction } from './require-implementation.js';
 import { createCommonJSExecutor } from './commonjs-wrapper.js';
 
-export class QuickJSRuntime {
+export class NodepackRuntime {
   private QuickJS: any;
   private isInitialized = false;
   private filesystem = vol;
