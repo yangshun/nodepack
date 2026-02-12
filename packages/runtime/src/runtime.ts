@@ -12,8 +12,8 @@ import {
   createPathModule,
   createProcessModule,
   createTimersModule,
-} from './modules/index.js';
-import type { TimerTracker } from './modules/timers-module.js';
+} from './shims/index.js';
+import type { TimerTracker } from './shims/timers-module.js';
 import { NodepackModuleLoader } from './module-loader.js';
 import { detectImports } from './import-detector.js';
 import { detectModuleFormat } from './module-format-detector.js';

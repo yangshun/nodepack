@@ -3,6 +3,9 @@ import react from '@vitejs/plugin-react';
 
 export default defineConfig({
   plugins: [react()],
+  worker: {
+    format: 'es',
+  },
   resolve: {
     alias: {
       // Map Node.js built-ins to browser polyfills
@@ -21,6 +24,11 @@ export default defineConfig({
       // Mock node:fs since we're using memfs
       'node:fs': 'memfs',
       fs: 'memfs',
+      // Map zlib to browserify-zlib for compression
+      'node:zlib': 'browserify-zlib',
+      zlib: 'browserify-zlib',
+      // Mock node:module
+      'node:module': 'module',
     },
   },
   define: {

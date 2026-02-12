@@ -28,7 +28,9 @@
       "Bash(pnpm test:*)",
       "Bash(pnpm -r --filter '@nodepack/runtime' build:*)",
       "Bash(npm install:*)",
-      "Bash(pnpm run build:*)"
+      "Bash(pnpm run build:*)",
+      "Bash(wc:*)",
+      "Bash(timeout 30 pnpm:*)"
     ]
   }
 }
