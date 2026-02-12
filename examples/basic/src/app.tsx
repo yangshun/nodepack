@@ -439,11 +439,66 @@ export function App() {
     }
   }, [nodepack, isRunning, files, currentFile]);
 
+  const handleInstallPackage = async (packageName: string) => {
+    if (!nodepack) {
+      alert('Nodepack not initialized yet');
+      return;
+    }
+
+    const npm = nodepack.npm;
+    if (!npm) {
+      alert('NPM not available in worker mode');
+      return;
+    }
+
+    try {
+      if (terminalRef.current) {
+        terminalRef.current.writeOutput(`📦 Installing ${packageName}...`);
+      }
+
+      await npm.install(packageName);
+
+      setFilesystemVersion(v => v + 1);
+
+      if (terminalRef.current) {
+        terminalRef.current.writeOutput(`✅ Successfully installed ${packageName}`);
+        terminalRef.current.writeOutput(`📁 Check the file tree to see node_modules/${packageName}`);
+        terminalRef.current.writeOutput('');
+      }
+    } catch (error: any) {
+      if (terminalRef.current) {
+        terminalRef.current.writeOutput(`❌ Failed to install ${packageName}: ${error.message}`);
+      }
+      console.error('Package installation error:', error);
+    }
+  };
+
   return (
     <div className="min-h-screen p-6">
       <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
         <div className="flex items-center justify-between">
-          <ExampleButtons onSelectExample={handleSelectExample} />
+          <div className="flex items-center gap-4">
+            <ExampleButtons onSelectExample={handleSelectExample} />
+            <div className="h-6 w-px bg-gray-600" />
+            <div className="flex gap-2">
+              <button
+                onClick={() => handleInstallPackage('ms')}
+                className="btn-secondary text-xs"
+                disabled={!nodepack || usingWorker}
+                title="Install the 'ms' package to see node_modules in the file tree"
+              >
+                📦 Install ms
+              </button>
+              <button
+                onClick={() => handleInstallPackage('clsx')}
+                className="btn-secondary text-xs"
+                disabled={!nodepack || usingWorker}
+                title="Install the 'clsx' package to see node_modules in the file tree"
+              >
+                📦 Install clsx
+              </button>
+            </div>
+          </div>
           <StatusBar
             status={status}
             isRunning={isRunning}

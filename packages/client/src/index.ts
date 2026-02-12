@@ -4,4 +4,5 @@
  */
 
 export { Nodepack } from './nodepack.js';
+export type { NpmAPI } from './nodepack.js';
 export type { NodepackOptions, ExecutionResult, RuntimeOptions, FileSystemTree } from './types.js';

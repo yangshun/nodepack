@@ -18,6 +18,16 @@ interface WorkerRuntimeAPI {
 }
 
 /**
+ * NPM package manager interface
+ */
+export interface NpmAPI {
+  install: (pkg: string, version?: string, options?: any) => Promise<void>;
+  installFromPackageJson: (content: string, options?: any) => Promise<void>;
+  isInstalled: (pkg: string, version?: string) => boolean;
+  clearCache: () => void;
+}
+
+/**
  * Main Nodepack client
  * Provides unified API whether using Web Worker or direct runtime
  */
@@ -136,5 +146,18 @@ export class Nodepack {
       return null;
     }
     return (this.runtime as NodepackRuntime).getFilesystem();
+  }
+
+  /**
+   * Get the npm package manager API
+   * Only available when NOT using worker mode
+   * @returns npm API or null if using worker mode
+   */
+  get npm(): NpmAPI | null {
+    if (this.useWorker || !this.runtime) {
+      console.warn('[Nodepack] NPM access not available in worker mode');
+      return null;
+    }
+    return (this.runtime as NodepackRuntime).npm as NpmAPI;
   }
 }
