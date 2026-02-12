@@ -3,7 +3,7 @@
  */
 
 import { describe, it, expect, beforeEach } from 'vitest';
-import { NodepackRuntime } from '../runtime.js';
+import { NodepackRuntime } from '../core/runtime.js';
 
 describe('NPM Package Installation', () => {
   let runtime: NodepackRuntime;
