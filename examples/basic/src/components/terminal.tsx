@@ -21,7 +21,7 @@ export interface TerminalProps {
   onReady?: () => void;
   onExecuteFile?: (filepath: string) => Promise<{ ok: boolean; output: string; error?: string }>;
   onCommandExecuted?: () => void;
-  onInstallPackage?: (packageName: string) => Promise<void>;
+  onInstallPackage?: (packageName?: string) => Promise<void>;
 }
 
 export interface TerminalHandle {
@@ -188,7 +188,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               if (args.length === 0) {
                 return {
                   stdout: '',
-                  stderr: 'Usage: npm install <package-name>\n',
+                  stderr: 'Usage: npm install [package-name]\n',
                   exitCode: 1,
                 };
               }
@@ -204,16 +204,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 };
               }
 
-              // Get package name
-              if (args.length < 2) {
-                return {
-                  stdout: '',
-                  stderr: 'Usage: npm install <package-name>\n',
-                  exitCode: 1,
-                };
-              }
-
-              const packageName = args[1];
+              // Get package name (optional - if not provided, install from package.json)
+              const packageName = args.length >= 2 ? args[1] : undefined;
 
               // Install the package
               try {
@@ -224,9 +216,10 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                   exitCode: 0,
                 };
               } catch (error: any) {
+                const target = packageName || 'packages from package.json';
                 return {
                   stdout: '',
-                  stderr: `Error installing ${packageName}: ${error.message}\n`,
+                  stderr: `Error installing ${target}: ${error.message}\n`,
                   exitCode: 1,
                 };
               }

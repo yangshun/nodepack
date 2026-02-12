@@ -461,7 +461,7 @@ export function App() {
   }, [nodepack, isRunning, files, currentFile]);
 
   const handleInstallPackage = useCallback(
-    async (packageName: string) => {
+    async (packageName?: string) => {
       if (!nodepack) {
         throw new Error('Nodepack not initialized yet');
       }
@@ -471,20 +471,104 @@ export function App() {
         throw new Error('NPM not available in worker mode');
       }
 
-      if (terminalRef.current) {
-        terminalRef.current.writeOutput(`Installing ${packageName}...`);
+      const fs = nodepack.getFilesystem();
+      if (!fs) {
+        throw new Error('Filesystem not available');
       }
 
-      await npm.install(packageName);
+      // If no package name provided, install from package.json
+      if (!packageName) {
+        const packageJsonPath = '/package.json';
 
-      setFilesystemVersion((v) => v + 1);
+        // Check if package.json exists
+        if (!fs.existsSync(packageJsonPath)) {
+          throw new Error('No package.json found in current directory');
+        }
 
-      if (terminalRef.current) {
-        terminalRef.current.writeOutput(`Successfully installed ${packageName}`);
-        terminalRef.current.writeOutput(
-          `Check the file tree to see node_modules/${packageName}`,
-        );
-        terminalRef.current.writeOutput('');
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput('Installing packages from package.json...');
+        }
+
+        // Read package.json
+        const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+
+        // Install from package.json
+        await npm.installFromPackageJson(packageJsonContent);
+
+        setFilesystemVersion((v) => v + 1);
+
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput('Successfully installed all packages');
+          terminalRef.current.writeOutput('Check the file tree to see node_modules/');
+          terminalRef.current.writeOutput('');
+        }
+      } else {
+        // Install specific package
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`Installing ${packageName}...`);
+        }
+
+        await npm.install(packageName);
+
+        // Add package to package.json if it exists
+        const packageJsonPath = '/package.json';
+        if (fs.existsSync(packageJsonPath)) {
+          try {
+            // Get the installed version from the package's package.json
+            const installedPackageJsonPath = `/node_modules/${packageName}/package.json`;
+            let versionToAdd = 'latest';
+
+            if (fs.existsSync(installedPackageJsonPath)) {
+              const installedPackageJson = JSON.parse(
+                fs.readFileSync(installedPackageJsonPath, 'utf8')
+              );
+              if (installedPackageJson.version) {
+                versionToAdd = `^${installedPackageJson.version}`;
+              }
+            }
+
+            // Read and update package.json
+            const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
+            const packageJsonData = JSON.parse(packageJsonContent);
+
+            // Initialize dependencies object if it doesn't exist
+            if (!packageJsonData.dependencies) {
+              packageJsonData.dependencies = {};
+            }
+
+            // Add the package with the installed version
+            packageJsonData.dependencies[packageName] = versionToAdd;
+
+            // Write back to package.json
+            const updatedPackageJsonContent = JSON.stringify(packageJsonData, null, 2);
+            fs.writeFileSync(packageJsonPath, updatedPackageJsonContent);
+
+            // Update editor state if package.json is currently open
+            if (currentFile === 'package.json') {
+              setCurrentFileContent(updatedPackageJsonContent);
+              setFiles((prev) => ({ ...prev, 'package.json': updatedPackageJsonContent }));
+            }
+
+            if (terminalRef.current) {
+              terminalRef.current.writeOutput(
+                `Added ${packageName}@${versionToAdd} to package.json`
+              );
+            }
+          } catch (error) {
+            console.warn('Failed to update package.json:', error);
+            // Don't throw - package is still installed successfully
+          }
+        }
+
+        setFilesystemVersion((v) => v + 1);
+
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`Successfully installed ${packageName}`);
+          terminalRef.current.writeOutput(
+            `Check the file tree to see node_modules/${packageName}`,
+          );
+          terminalRef.current.writeOutput('');
+        }
       }
     },
     [nodepack],
