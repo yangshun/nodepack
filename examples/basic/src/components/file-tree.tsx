@@ -11,6 +11,7 @@ interface FileTreeProps {
   onSelectFile: (filename: string) => void;
   onDeleteFile: (filename: string) => void;
   onAddFile: () => void;
+  onRefresh: () => void;
 }
 
 export function FileTree({
@@ -20,6 +21,7 @@ export function FileTree({
   onSelectFile,
   onDeleteFile,
   onAddFile,
+  onRefresh,
 }: FileTreeProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
@@ -50,9 +52,16 @@ export function FileTree({
 
   return (
     <div className="bg-dark-panel h-full flex flex-col">
-      <div className="p-2 border-b border-dark-border">
-        <button onClick={onAddFile} className="btn-secondary w-full text-xs">
+      <div className="p-2 border-b border-dark-border flex gap-2">
+        <button onClick={onAddFile} className="btn-secondary flex-1 text-xs">
           New file
+        </button>
+        <button
+          onClick={onRefresh}
+          className="btn-secondary text-xs px-2"
+          title="Refresh filesystem"
+        >
+          ↻
         </button>
       </div>
       <div className="flex-1 h-0 grow overflow-y-auto p-2">

@@ -264,6 +264,10 @@ export function App() {
     }
   };
 
+  const handleRefresh = () => {
+    setFilesystemVersion((v) => v + 1);
+  };
+
   const handleCodeChange = (code: string) => {
     // Update current file content state
     setCurrentFileContent(code);
@@ -523,6 +527,7 @@ export function App() {
               onSelectFile={handleSelectFile}
               onDeleteFile={handleDeleteFile}
               onAddFile={handleAddFile}
+              onRefresh={handleRefresh}
             />
           </div>
           {/* Code Editor */}

@@ -18,10 +18,6 @@ Nodepack is a browser-based Node.js runtime that allows running Node.js code dir
 
 - Use sentence case for any UI headings, labels, titles, etc.
 
-### React
-
-- Use named exports for all JavaScript/TypeScript files
-
 ### JavaScript
 
 - Implement functions as function declarations
@@ -32,3 +28,8 @@ Nodepack is a browser-based Node.js runtime that allows running Node.js code dir
 - Define interfaces for component props
 - Use type imports when importing only types: `import type { ExecutionResult } from '@nodepack/client'`
 - Prefer explicit typing over implicit `any`
+
+### React
+
+- Use named exports for all JavaScript/TypeScript files
+- Implement functions within components as function declarations
