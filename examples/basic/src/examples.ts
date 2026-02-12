@@ -138,6 +138,30 @@ export default {
 };`,
   },
   {
+    id: 'clsx',
+    label: 'Using clsx',
+    code: `// Using the 'clsx' package for conditional classNames
+// NPM packages from jsDelivr CDN! 🎉
+import { clsx } from 'clsx';
+
+console.log(clsx('foo', true && 'bar', 'baz'));
+//=> 'foo bar baz'
+
+// Objects
+console.log(clsx({ foo:true, bar:false, baz:isTrue() }));
+//=> 'foo baz'
+
+// Objects (variadic)
+console.log(clsx({ foo:true }, { bar:false }, null, { '--foobar':'hello' }));
+//=> 'foo --foobar'
+
+// Arrays
+console.log(clsx(['foo', 0, false, 'bar']));
+
+export default {};
+`,
+  },
+  {
     id: 'timers',
     label: 'Timers',
     code: `// Using setTimeout and setInterval

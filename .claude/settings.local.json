@@ -22,7 +22,11 @@
       "Bash(npx tsc:*)",
       "Bash(ls:*)",
       "Bash(git restore:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "WebFetch(domain:api.github.com)",
+      "Bash(git -C /Users/yangshun/Downloads/nodepack log --oneline -15)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm -r --filter '@nodepack/runtime' build:*)"
     ]
   }
 }

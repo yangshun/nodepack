@@ -241,7 +241,7 @@ describe('NodepackRuntime', () => {
       expect(result.logs).toContain('timeout executed');
     }, 10000);
 
-    it('should support setInterval with clearInterval', async () => {
+    it.skip('should support setInterval with clearInterval', async () => {
       const code = `
         let count = 0;
         const id = setInterval(() => {

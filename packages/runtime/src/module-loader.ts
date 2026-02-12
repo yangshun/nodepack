@@ -3,8 +3,7 @@
  * Implements ES module resolution using QuickJS's native setModuleLoader() API
  */
 
-import * as pathBrowserify from 'path-browserify';
-import { CDNFetcher } from './cdn-fetcher.js';
+import pathBrowserify from 'path-browserify';
 
 /**
  * NodepackModuleLoader
@@ -13,51 +12,17 @@ import { CDNFetcher } from './cdn-fetcher.js';
 export class NodepackModuleLoader {
   private filesystem: any; // memfs Volume instance
   private builtinModules: Map<string, string>;
-  private cdnFetcher: CDNFetcher;
 
   constructor(filesystem: any) {
     this.filesystem = filesystem;
     this.builtinModules = this.createBuiltinModules();
-    this.cdnFetcher = new CDNFetcher();
-  }
-
-  /**
-   * Pre-load npm packages from CDN
-   * Fetches packages and stores them in /node_modules in the virtual filesystem
-   *
-   * This must be called BEFORE execution since QuickJS's load() is synchronous
-   *
-   * @param packages - Array of package names to fetch
-   */
-  async preloadPackages(packages: string[]): Promise<void> {
-    if (packages.length === 0) {
-      return;
-    }
-
-    // Fetch all packages from CDN
-    const packagesMap = await this.cdnFetcher.fetchPackages(packages);
-
-    // Write each package to /node_modules in the virtual filesystem
-    for (const [packageName, code] of packagesMap) {
-      const modulePath = `/node_modules/${packageName}/index.js`;
-
-      // Create directory
-      const packageDir = `/node_modules/${packageName}`;
-      if (!this.filesystem.existsSync(packageDir)) {
-        this.filesystem.mkdirSync(packageDir, { recursive: true });
-      }
-
-      // Write module code
-      this.filesystem.writeFileSync(modulePath, code);
-      console.log(`[ModuleLoader] Cached ${packageName} at ${modulePath}`);
-    }
   }
 
   /**
    * Load module source code
    * Called by QuickJS when code contains import statement
    *
-   * @param moduleName - The normalized module name/path
+   * @param moduleName - The normalized module name/path (absolute path from normalize())
    * @returns Module source code as string
    */
   load(moduleName: string): string {
@@ -66,23 +31,47 @@ export class NodepackModuleLoader {
       return this.builtinModules.get(moduleName)!;
     }
 
-    // 2. Try to load from virtual filesystem (local files)
-    const resolvedPath = this.resolveModulePath(moduleName);
-    if (this.filesystem.existsSync(resolvedPath)) {
-      return this.filesystem.readFileSync(resolvedPath, 'utf8');
+    // 2. Try to load from filesystem (moduleName should be an absolute path from normalize())
+    if (this.filesystem.existsSync(moduleName)) {
+      return this.filesystem.readFileSync(moduleName, 'utf8');
     }
 
-    // 3. Try to load from /node_modules (CDN packages)
-    const npmPath = `/node_modules/${moduleName}/index.js`;
-    if (this.filesystem.existsSync(npmPath)) {
-      return this.filesystem.readFileSync(npmPath, 'utf8');
-    }
-
-    // 4. Not found
+    // 3. Not found
     throw new Error(
       `Cannot find module '${moduleName}'. ` +
-        `Make sure the package is imported or the file exists.`,
+        `Make sure the package is installed or the file exists.`,
     );
+  }
+
+  /**
+   * Parse a module name into package name and subpath
+   * Examples:
+   *   "lodash" -> { packageName: "lodash", subpath: "" }
+   *   "lodash/add" -> { packageName: "lodash", subpath: "add" }
+   *   "@babel/core" -> { packageName: "@babel/core", subpath: "" }
+   *   "@babel/core/lib/index" -> { packageName: "@babel/core", subpath: "lib/index" }
+   */
+  private parsePackageName(moduleName: string): { packageName: string; subpath: string } {
+    // Handle scoped packages (@scope/name)
+    if (moduleName.startsWith('@')) {
+      const parts = moduleName.split('/');
+      if (parts.length >= 2) {
+        const packageName = `${parts[0]}/${parts[1]}`;
+        const subpath = parts.slice(2).join('/');
+        return { packageName, subpath };
+      }
+    }
+
+    // Handle regular packages
+    const slashIndex = moduleName.indexOf('/');
+    if (slashIndex === -1) {
+      return { packageName: moduleName, subpath: '' };
+    }
+
+    return {
+      packageName: moduleName.substring(0, slashIndex),
+      subpath: moduleName.substring(slashIndex + 1),
+    };
   }
 
   /**
@@ -112,8 +101,8 @@ export class NodepackModuleLoader {
     }
 
     // Otherwise, treat as npm package (e.g., 'lodash', '@babel/core')
-    // Return as-is - the load() method will look in /node_modules
-    return requestedName;
+    // Resolve to absolute path in /node_modules
+    return this.resolvePackageToAbsolutePath(requestedName);
   }
 
   /**
@@ -212,5 +201,113 @@ export class NodepackModuleLoader {
     }
 
     return moduleName; // Let it fail naturally
+  }
+
+  /**
+   * Resolve npm package name to absolute file path
+   * Examples:
+   *   'lodash' -> '/node_modules/lodash/index.js'
+   *   'lodash/add' -> '/node_modules/lodash/add.js'
+   *   '@babel/core' -> '/node_modules/@babel/core/lib/index.js' (from package.json main)
+   */
+  private resolvePackageToAbsolutePath(packageName: string): string {
+    const { packageName: basePkg, subpath } = this.parsePackageName(packageName);
+    const packagePath = `/node_modules/${basePkg}`;
+
+    // If there's a subpath (e.g., "lodash/add"), resolve it directly
+    if (subpath) {
+      const subpathFile = pathBrowserify.join(packagePath, subpath);
+
+      // Try the subpath as-is
+      if (this.filesystem.existsSync(subpathFile)) {
+        return subpathFile;
+      }
+
+      // Try adding .js extension
+      const withJs = subpathFile + '.js';
+      if (this.filesystem.existsSync(withJs)) {
+        return withJs;
+      }
+
+      // Try as directory with index.js
+      const withIndex = pathBrowserify.join(subpathFile, 'index.js');
+      if (this.filesystem.existsSync(withIndex)) {
+        return withIndex;
+      }
+
+      // If not found, return the .js version and let load() fail with a clear error
+      return withJs;
+    }
+
+    // For top-level package imports, check package.json for entry point
+    const packageJsonPath = pathBrowserify.join(packagePath, 'package.json');
+    if (this.filesystem.existsSync(packageJsonPath)) {
+      try {
+        const packageJson = JSON.parse(this.filesystem.readFileSync(packageJsonPath, 'utf8'));
+
+        // Try "exports" field first (modern packages)
+        if (packageJson.exports) {
+          // Handle simple string exports
+          if (typeof packageJson.exports === 'string') {
+            const exportsPath = pathBrowserify.join(packagePath, packageJson.exports);
+            if (this.filesystem.existsSync(exportsPath)) {
+              return exportsPath;
+            }
+          }
+          // Handle object exports with "." key
+          else if (packageJson.exports['.']) {
+            const dotExport = packageJson.exports['.'];
+            let exportPath: string | undefined;
+
+            if (typeof dotExport === 'string') {
+              exportPath = dotExport;
+            } else if (dotExport.import) {
+              // Handle nested import object (e.g., { import: { default: "./dist/file.mjs" } })
+              if (typeof dotExport.import === 'string') {
+                exportPath = dotExport.import;
+              } else if (typeof dotExport.import === 'object' && dotExport.import.default) {
+                exportPath = dotExport.import.default;
+              }
+            } else if (dotExport.default) {
+              // Handle nested default object (e.g., { default: { default: "./dist/file.js" } })
+              if (typeof dotExport.default === 'string') {
+                exportPath = dotExport.default;
+              } else if (typeof dotExport.default === 'object' && dotExport.default.default) {
+                exportPath = dotExport.default.default;
+              }
+            }
+
+            if (exportPath) {
+              const fullPath = pathBrowserify.join(packagePath, exportPath);
+              if (this.filesystem.existsSync(fullPath)) {
+                return fullPath;
+              }
+            }
+          }
+        }
+
+        // Try "module" field (ESM entry)
+        if (packageJson.module) {
+          const modulePath = pathBrowserify.join(packagePath, packageJson.module);
+          if (this.filesystem.existsSync(modulePath)) {
+            return modulePath;
+          }
+        }
+
+        // Try "main" field
+        if (packageJson.main) {
+          const mainPath = pathBrowserify.join(packagePath, packageJson.main);
+          if (this.filesystem.existsSync(mainPath)) {
+            return mainPath;
+          }
+        }
+      } catch (e) {
+        // If package.json parsing fails, fall through to index.js
+      }
+    }
+
+    // Fall back to index.js
+    const indexPath = pathBrowserify.join(packagePath, 'index.js');
+    return indexPath;
   }
 }

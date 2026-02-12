@@ -19,12 +19,34 @@ import { detectImports } from './import-detector.js';
 import { detectModuleFormat } from './module-format-detector.js';
 import { createRequireFunction } from './require-implementation.js';
 import { createCommonJSExecutor } from './commonjs-wrapper.js';
+import { NpmPackageManager } from './npm/package-manager.js';
+import type { InstallOptions } from './npm/types.js';
 
 export class NodepackRuntime {
   private QuickJS: any;
   private isInitialized = false;
   private filesystem = vol;
   private consoleLogs: string[] = [];
+  private npmPackageManager: NpmPackageManager;
+
+  constructor() {
+    this.npmPackageManager = new NpmPackageManager(this.filesystem);
+  }
+
+  /**
+   * Public API for npm package management
+   */
+  get npm() {
+    return {
+      install: (pkg: string, version?: string, options?: InstallOptions) =>
+        this.npmPackageManager.install(pkg, version, options),
+      installFromPackageJson: (content: string, options?: InstallOptions) =>
+        this.npmPackageManager.installFromPackageJson(content, options),
+      isInstalled: (pkg: string, version?: string) =>
+        this.npmPackageManager.isInstalled(pkg, version),
+      clearCache: () => this.npmPackageManager.clearCache(),
+    };
+  }
 
   /**
    * Initialize the QuickJS runtime
@@ -89,6 +111,8 @@ export class NodepackRuntime {
 
       const processHandle = createProcessModule(vm, options);
       vm.setProp(vm.global, '__nodepack_process', processHandle);
+      // Also set process as a global for npm packages that expect it
+      vm.setProp(vm.global, 'process', processHandle);
       processHandle.dispose();
 
       // Set up timers module
@@ -186,11 +210,16 @@ export class NodepackRuntime {
           moduleLoader.normalize(baseName, requestedName),
       );
 
-      // Detect and pre-load npm packages from CDN (both ES imports and requires)
+      // Detect and install npm packages (both ES imports and requires)
       const detectedModules = detectImports(code);
       if (detectedModules.allPackages.length > 0) {
         console.log('[Runtime] Detected npm packages:', detectedModules.allPackages);
-        await moduleLoader.preloadPackages(detectedModules.allPackages);
+
+        // Install each detected package from npm registry
+        const installPromises = detectedModules.allPackages.map((pkg) =>
+          this.npmPackageManager.install(pkg, 'latest'),
+        );
+        await Promise.all(installPromises);
       }
 
       // Write the code to the virtual filesystem so the module loader can find it
