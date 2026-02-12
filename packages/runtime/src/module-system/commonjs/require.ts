@@ -51,12 +51,17 @@ export function createRequireFunction(): string {
    * @returns {any} Module exports
    */
   function require(modulePath) {
-    // 1. Handle builtin modules
+    // 1. Strip node: protocol prefix if present (e.g., 'node:fs' -> 'fs')
+    if (modulePath.startsWith('node:')) {
+      modulePath = modulePath.slice(5);
+    }
+
+    // 2. Handle builtin modules
     if (BUILTIN_MODULES.includes(modulePath)) {
       return globalThis['__nodepack_' + modulePath];
     }
 
-    // 2. Resolve module path
+    // 3. Resolve module path
     let resolvedPath;
 
     if (modulePath.startsWith('/')) {
@@ -73,7 +78,7 @@ export function createRequireFunction(): string {
       resolvedPath = '/node_modules/' + modulePath + '/index.js';
     }
 
-    // 3. Add .js extension if missing (try multiple patterns)
+    // 4. Add .js extension if missing (try multiple patterns)
     if (!resolvedPath.endsWith('.js') && !resolvedPath.endsWith('.json')) {
       // Try with .js
       if (globalThis.__nodepack_fs.existsSync(resolvedPath + '.js')) {
@@ -90,23 +95,23 @@ export function createRequireFunction(): string {
       }
     }
 
-    // 4. Check cache - return cached module if already loaded
+    // 5. Check cache - return cached module if already loaded
     if (globalThis.__nodepack_module_cache[resolvedPath]) {
       return globalThis.__nodepack_module_cache[resolvedPath].exports;
     }
 
-    // 5. Check if file exists
+    // 6. Check if file exists
     if (!globalThis.__nodepack_fs.existsSync(resolvedPath)) {
       throw new Error("Cannot find module '" + modulePath + "'");
     }
 
-    // 6. Load module source code
+    // 7. Load module source code
     let code = globalThis.__nodepack_fs.readFileSync(resolvedPath, 'utf8');
 
     // Strip shebang if present (#!/usr/bin/env node)
     code = stripShebang(code);
 
-    // 7. Create module object
+    // 8. Create module object
     const module = {
       exports: {},
       filename: resolvedPath,
@@ -114,10 +119,10 @@ export function createRequireFunction(): string {
       children: []
     };
 
-    // 8. Cache module immediately (enables circular dependencies)
+    // 9. Cache module immediately (enables circular dependencies)
     globalThis.__nodepack_module_cache[resolvedPath] = module;
 
-    // 9. Handle JSON files specially
+    // 10. Handle JSON files specially
     if (resolvedPath.endsWith('.json')) {
       try {
         module.exports = JSON.parse(code);
@@ -129,7 +134,7 @@ export function createRequireFunction(): string {
       }
     }
 
-    // 10. Detect if this is an ES module (has export/import statements)
+    // 11. Detect if this is an ES module (has export/import statements)
     // Use word boundary \\b to avoid matching "exports" or "imported"
     const isESModule = /^\s*(export|import)\b/m.test(code);
 
@@ -146,23 +151,23 @@ export function createRequireFunction(): string {
       }
     }
 
-    // 11. Set current directory for nested requires
+    // 12. Set current directory for nested requires
     const previousDir = globalThis.__nodepack_current_module_dir;
     globalThis.__nodepack_current_module_dir = globalThis.__nodepack_path.dirname(resolvedPath);
 
     try {
-      // 12. Execute module code via host function
+      // 13. Execute module code via host function
       // This delegates to the TypeScript side which handles the wrapper
       globalThis.__nodepack_execute_commonjs_module(code, module, resolvedPath);
 
-      // 13. Mark module as loaded
+      // 14. Mark module as loaded
       module.loaded = true;
     } finally {
-      // 14. Restore previous directory
+      // 15. Restore previous directory
       globalThis.__nodepack_current_module_dir = previousDir;
     }
 
-    // 15. Return module exports
+    // 16. Return module exports
     return module.exports;
   }
 
