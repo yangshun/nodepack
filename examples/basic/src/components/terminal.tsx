@@ -20,6 +20,7 @@ export interface TerminalProps {
   filesystem?: IFs;
   onReady?: () => void;
   onExecuteFile?: (filepath: string) => Promise<{ ok: boolean; output: string; error?: string }>;
+  onCommandExecuted?: () => void;
 }
 
 export interface TerminalHandle {
@@ -28,7 +29,7 @@ export interface TerminalHandle {
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
-  ({ filesystem, onReady, onExecuteFile }, ref) => {
+  ({ filesystem, onReady, onExecuteFile, onCommandExecuted }, ref) => {
     const terminalRef = useRef<HTMLDivElement>(null);
     const xtermRef = useRef<XTerm | null>(null);
     const bashRef = useRef<Bash | null>(null);
@@ -175,7 +176,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       });
 
       // Create terminal controller
-      const controller = new TerminalController(term, bash);
+      const controller = new TerminalController(term, bash, onCommandExecuted);
       controller.initialize();
 
       // Handle user input
@@ -205,7 +206,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         window.removeEventListener('resize', handleResize);
         term.dispose();
       };
-    }, [filesystem, onReady]);
+    }, [filesystem, onReady, onExecuteFile, onCommandExecuted]);
 
     function handleClear() {
       if (xtermRef.current) {

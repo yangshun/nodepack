@@ -118,6 +118,11 @@ export function App() {
     setCurrentFile('main.js');
     setCurrentFileContent(example.code);
 
+    // Clear terminal when switching examples
+    if (terminalRef.current) {
+      terminalRef.current.clear();
+    }
+
     // Clear and write files to filesystem
     const fs = nodepack?.getFilesystem();
     if (fs) {
@@ -264,9 +269,9 @@ export function App() {
     }
   };
 
-  const handleRefresh = () => {
+  const handleRefresh = useCallback(() => {
     setFilesystemVersion((v) => v + 1);
-  };
+  }, []);
 
   const handleCodeChange = (code: string) => {
     // Update current file content state
@@ -277,12 +282,11 @@ export function App() {
       setFiles((prev) => ({ ...prev, [currentFile]: code }));
     }
 
-    // Write to filesystem to keep FileTree in sync
+    // Write to filesystem (but don't increment version since file structure hasn't changed)
     const fs = nodepack?.getFilesystem();
     if (fs) {
       try {
         fs.writeFileSync(`/${currentFile}`, code);
-        setFilesystemVersion((v) => v + 1);
       } catch (error) {
         console.error(`Failed to write ${currentFile}:`, error);
       }
@@ -445,6 +449,8 @@ export function App() {
     } finally {
       setIsRunning(false);
       setStatus('ready');
+      // Refresh file explorer after execution
+      setFilesystemVersion((v) => v + 1);
     }
   }, [nodepack, isRunning, files, currentFile]);
 
@@ -494,7 +500,7 @@ export function App() {
             <div className="flex gap-2">
               <button
                 onClick={() => handleInstallPackage('ms')}
-                className="btn-secondary text-xs"
+                className="btn-secondary"
                 disabled={!nodepack || usingWorker}
                 title="Install the 'ms' package to see node_modules in the file tree"
               >
@@ -502,7 +508,7 @@ export function App() {
               </button>
               <button
                 onClick={() => handleInstallPackage('clsx')}
-                className="btn-secondary text-xs"
+                className="btn-secondary"
                 disabled={!nodepack || usingWorker}
                 title="Install the 'clsx' package to see node_modules in the file tree"
               >
@@ -546,6 +552,7 @@ export function App() {
               ref={terminalRef}
               filesystem={nodepack?.getFilesystem() || undefined}
               onExecuteFile={handleExecuteFile}
+              onCommandExecuted={handleRefresh}
             />
           </div>
         </div>

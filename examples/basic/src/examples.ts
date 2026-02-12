@@ -145,11 +145,13 @@ console.log(clsx('foo', true && 'bar', 'baz'));
 //=> 'foo bar baz'
 
 // Objects
-console.log(clsx({ foo:true, bar:false }));
-//=> 'foo baz'
+console.log(clsx({ foo: true, bar: false }));
+//=> 'foo'
 
 // Objects (variadic)
-console.log(clsx({ foo:true }, { bar:false }, null, { '--foobar':'hello' }));
+console.log(clsx(
+  { foo: true }, { bar:false }, null, { '--foobar':'hello' },
+));
 //=> 'foo --foobar'
 
 // Arrays

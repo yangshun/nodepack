@@ -31,13 +31,13 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
 
   return (
     <div className="flex items-center gap-2">
-      <button onClick={handlePrevious} className="btn-secondary px-3" title="Previous example">
+      <button onClick={handlePrevious} className="btn-secondary" title="Previous example">
         ←
       </button>
       <select
         value={examples[currentIndex].id}
         onChange={handleSelectChange}
-        className="btn-secondary px-4 py-2 cursor-pointer"
+        className="btn-secondary px-2 cursor-pointer"
       >
         {examples.map((example) => (
           <option key={example.id} value={example.id}>
@@ -45,7 +45,7 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
           </option>
         ))}
       </select>
-      <button onClick={handleNext} className="btn-secondary px-3" title="Next example">
+      <button onClick={handleNext} className="btn-secondary" title="Next example">
         →
       </button>
     </div>

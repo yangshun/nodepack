@@ -33,9 +33,14 @@ export function FileTree({
     const newTree = buildFileTree(filesystem, '/');
     setTree(newTree);
 
-    // Auto-expand root level
-    const rootPaths = newTree.filter((node) => node.isDirectory).map((node) => node.path);
-    setExpandedPaths(new Set(rootPaths));
+    // Only auto-expand root level on initial load (when there are no expanded paths)
+    setExpandedPaths((prev) => {
+      if (prev.size === 0) {
+        const rootPaths = newTree.filter((node) => node.isDirectory).map((node) => node.path);
+        return new Set(rootPaths);
+      }
+      return prev;
+    });
   }, [filesystem, version]);
 
   const handleToggle = (path: string) => {

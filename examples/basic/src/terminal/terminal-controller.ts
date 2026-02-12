@@ -23,6 +23,7 @@ export class TerminalController {
   constructor(
     private terminal: Terminal,
     private bash: Bash,
+    private onCommandExecuted?: () => void,
   ) {}
 
   /**
@@ -268,6 +269,11 @@ export class TerminalController {
         }
       } catch (error) {
         this.terminal.write(`\x1b[31mError: ${error}\x1b[0m\r\n`);
+      }
+
+      // Notify that command was executed
+      if (this.onCommandExecuted) {
+        this.onCommandExecuted();
       }
     }
 
