@@ -354,6 +354,11 @@ export function App() {
       return;
     }
 
+    // Clear terminal before running
+    if (terminalRef.current) {
+      terminalRef.current.clear();
+    }
+
     setIsRunning(true);
     setStatus('running');
 
