@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll } from 'vitest';
-import { NodepackRuntime } from '../runtime.js';
+import { NodepackRuntime } from './runtime.js';
 
 describe('NodepackRuntime', () => {
   let runtime: NodepackRuntime;

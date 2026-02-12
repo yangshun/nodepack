@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectModuleFormat } from '../module-system/format-detector.js';
+import { detectModuleFormat } from './format-detector.js';
 
 describe('detectModuleFormat', () => {
   describe('ES Module detection', () => {
