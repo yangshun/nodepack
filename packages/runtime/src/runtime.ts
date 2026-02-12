@@ -12,13 +12,13 @@ import {
   createPathModule,
   createProcessModule,
   createTimersModule,
-} from './shims/index.js';
-import type { TimerTracker } from './shims/timers-module.js';
-import { NodepackModuleLoader } from './module-loader.js';
-import { detectImports } from './import-detector.js';
-import { detectModuleFormat } from './module-format-detector.js';
-import { createRequireFunction } from './require-implementation.js';
-import { createCommonJSExecutor } from './commonjs-wrapper.js';
+} from './builtins/index.js';
+import type { TimerTracker } from './builtins/timers.js';
+import { NodepackModuleLoader } from './module-system/loader.js';
+import { detectImports } from './module-system/import-detector.js';
+import { detectModuleFormat } from './module-system/format-detector.js';
+import { createRequireFunction } from './module-system/commonjs/require.js';
+import { createCommonJSExecutor } from './module-system/commonjs/wrapper.js';
 import { NpmPackageManager } from './npm/package-manager.js';
 import type { InstallOptions } from './npm/types.js';
 

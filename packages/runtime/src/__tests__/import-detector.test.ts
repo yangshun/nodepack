@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { detectImports } from './import-detector.js';
+import { detectImports } from '../module-system/import-detector.js';
 
 describe('detectImports', () => {
   describe('ES Module imports', () => {

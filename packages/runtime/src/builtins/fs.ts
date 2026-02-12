@@ -2,7 +2,7 @@
  * Node.js fs module implementation using memfs
  */
 import type { QuickJSContext, QuickJSHandle } from 'quickjs-emscripten';
-import { addModuleFunction } from './module-helpers.js';
+import { addModuleFunction } from './helpers.js';
 
 export function createFsModule(vm: QuickJSContext, filesystem: any): QuickJSHandle {
   const fsObj = vm.newObject();

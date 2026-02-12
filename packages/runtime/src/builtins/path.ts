@@ -4,7 +4,7 @@
 import type { QuickJSContext, QuickJSHandle } from 'quickjs-emscripten';
 // @ts-ignore - path-browserify doesn't have type declarations
 import pathBrowserify from 'path-browserify';
-import { addModuleFunction } from './module-helpers.js';
+import { addModuleFunction } from './helpers.js';
 
 export function createPathModule(vm: QuickJSContext): QuickJSHandle {
   const pathObj = vm.newObject();

@@ -3,7 +3,7 @@
  */
 import type { QuickJSContext, QuickJSHandle } from 'quickjs-emscripten';
 import type { RuntimeOptions } from '../types.js';
-import { addModuleFunction } from './module-helpers.js';
+import { addModuleFunction } from './helpers.js';
 
 export function createProcessModule(
   vm: QuickJSContext,
