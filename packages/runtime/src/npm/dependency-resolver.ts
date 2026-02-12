@@ -3,9 +3,9 @@
  * Recursively resolves dependency trees
  */
 
-import type { ResolvedDependency, InstallOptions } from "./types.js";
-import { NpmRegistry } from "./npm-registry.js";
-import { VersionResolver } from "./version-resolver.js";
+import type { ResolvedDependency, InstallOptions } from './types.js';
+import { NpmRegistry } from './npm-registry.js';
+import { VersionResolver } from './version-resolver.js';
 
 export class DependencyResolver {
   private registry: NpmRegistry;

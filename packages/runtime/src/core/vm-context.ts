@@ -79,47 +79,44 @@ export function setupVMContext(
 
   // Set up ES module importer for require()
   // When require() encounters an ES module, use QuickJS's import system
-  const requireESModuleFn = vm.newFunction(
-    '__nodepack_require_es_module',
-    (pathHandle: any) => {
-      const modulePath = vm.dump(pathHandle);
+  const requireESModuleFn = vm.newFunction('__nodepack_require_es_module', (pathHandle: any) => {
+    const modulePath = vm.dump(pathHandle);
 
-      // Use a synchronous import via the module system
-      // Write a temporary wrapper that imports and exposes the module
-      const wrapperId = '__req_' + Math.random().toString(36).substring(7);
-      const wrapperPath = '/' + wrapperId + '.js';
-      const wrapperCode = `
+    // Use a synchronous import via the module system
+    // Write a temporary wrapper that imports and exposes the module
+    const wrapperId = '__req_' + Math.random().toString(36).substring(7);
+    const wrapperPath = '/' + wrapperId + '.js';
+    const wrapperCode = `
         import * as mod from ${JSON.stringify(modulePath)};
         globalThis.${wrapperId} = mod.default !== undefined ? mod.default : mod;
       `;
 
-      filesystem.writeFileSync(wrapperPath, wrapperCode);
+    filesystem.writeFileSync(wrapperPath, wrapperCode);
 
-      const result = vm.evalCode(`import ${JSON.stringify(wrapperPath)}`);
-      if (result.error) {
-        const error = vm.dump(result.error);
-        result.error.dispose();
-        // Clean up
-        filesystem.unlinkSync(wrapperPath);
-        // Properly stringify error object
-        const errorMsg =
-          error.message ||
-          (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error));
-        throw vm.newError(errorMsg);
-      }
-      result.value.dispose();
-
-      // Get the cached result
-      const tempHandle = vm.getProp(vm.global, wrapperId);
-      const value = tempHandle; // Return the handle directly
-
-      // Clean up temp global and wrapper file
-      vm.setProp(vm.global, wrapperId, vm.undefined);
+    const result = vm.evalCode(`import ${JSON.stringify(wrapperPath)}`);
+    if (result.error) {
+      const error = vm.dump(result.error);
+      result.error.dispose();
+      // Clean up
       filesystem.unlinkSync(wrapperPath);
+      // Properly stringify error object
+      const errorMsg =
+        error.message ||
+        (typeof error === 'object' ? JSON.stringify(error, null, 2) : String(error));
+      throw vm.newError(errorMsg);
+    }
+    result.value.dispose();
 
-      return value;
-    },
-  );
+    // Get the cached result
+    const tempHandle = vm.getProp(vm.global, wrapperId);
+    const value = tempHandle; // Return the handle directly
+
+    // Clean up temp global and wrapper file
+    vm.setProp(vm.global, wrapperId, vm.undefined);
+    filesystem.unlinkSync(wrapperPath);
+
+    return value;
+  });
   vm.setProp(vm.global, '__nodepack_require_es_module', requireESModuleFn);
   requireESModuleFn.dispose();
 
@@ -137,7 +134,6 @@ export function setupVMContext(
   const moduleLoader = new NodepackModuleLoader(filesystem);
   runtime.setModuleLoader(
     (moduleName: string) => moduleLoader.load(moduleName),
-    (baseName: string, requestedName: string) =>
-      moduleLoader.normalize(baseName, requestedName),
+    (baseName: string, requestedName: string) => moduleLoader.normalize(baseName, requestedName),
   );
 }

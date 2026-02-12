@@ -56,9 +56,12 @@ describe('NodepackModuleLoader', () => {
 
     it('should handle npm package imports', () => {
       vol.mkdirSync('/node_modules/lodash', { recursive: true });
-      vol.writeFileSync('/node_modules/lodash/package.json', JSON.stringify({
-        main: 'index.js'
-      }));
+      vol.writeFileSync(
+        '/node_modules/lodash/package.json',
+        JSON.stringify({
+          main: 'index.js',
+        }),
+      );
       vol.writeFileSync('/node_modules/lodash/index.js', 'export default {}');
 
       const result = loader.normalize('/main.js', 'lodash');
@@ -68,9 +71,12 @@ describe('NodepackModuleLoader', () => {
 
     it('should handle scoped packages', () => {
       vol.mkdirSync('/node_modules/@babel/core/lib', { recursive: true });
-      vol.writeFileSync('/node_modules/@babel/core/package.json', JSON.stringify({
-        main: 'lib/index.js'
-      }));
+      vol.writeFileSync(
+        '/node_modules/@babel/core/package.json',
+        JSON.stringify({
+          main: 'lib/index.js',
+        }),
+      );
       vol.writeFileSync('/node_modules/@babel/core/lib/index.js', 'export default {}');
 
       const result = loader.normalize('/main.js', '@babel/core');
@@ -111,9 +117,12 @@ describe('NodepackModuleLoader', () => {
   describe('Package resolution', () => {
     it('should read package.json main field', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
-      vol.writeFileSync('/node_modules/mypackage/package.json', JSON.stringify({
-        main: 'dist/index.js'
-      }));
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          main: 'dist/index.js',
+        }),
+      );
       vol.writeFileSync('/node_modules/mypackage/dist/index.js', 'export default {}');
 
       const result = loader.normalize('/main.js', 'mypackage');
@@ -133,10 +142,13 @@ describe('NodepackModuleLoader', () => {
 
     it('should use module field over main for ESM', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
-      vol.writeFileSync('/node_modules/mypackage/package.json', JSON.stringify({
-        main: 'dist/cjs.js',
-        module: 'dist/esm.js'
-      }));
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          main: 'dist/cjs.js',
+          module: 'dist/esm.js',
+        }),
+      );
       vol.writeFileSync('/node_modules/mypackage/dist/esm.js', 'export default {}');
 
       const result = loader.normalize('/main.js', 'mypackage');

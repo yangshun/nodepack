@@ -150,10 +150,7 @@ function cleanupTimers(timerTracker: TimerTracker): void {
 /**
  * Wait for all pending timers to complete
  */
-async function waitForTimers(
-  timerTracker: TimerTracker,
-  options: RuntimeOptions,
-): Promise<void> {
+async function waitForTimers(timerTracker: TimerTracker, options: RuntimeOptions): Promise<void> {
   if (timerTracker.pendingTimers.size === 0) {
     return;
   }

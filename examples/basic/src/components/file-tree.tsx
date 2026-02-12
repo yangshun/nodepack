@@ -1,8 +1,8 @@
-import { useState, useEffect } from "react";
-import clsx from "clsx";
-import { HiChevronRight, HiChevronDown } from "react-icons/hi2";
-import type { FileTreeNode } from "../types";
-import { buildFileTree } from "../utils/filesystem-tree";
+import { useState, useEffect } from 'react';
+import clsx from 'clsx';
+import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';
+import type { FileTreeNode } from '../types';
+import { buildFileTree } from '../utils/filesystem-tree';
 
 interface FileTreeProps {
   filesystem: any;
@@ -28,7 +28,7 @@ export function FileTree({
   useEffect(() => {
     if (!filesystem) return;
 
-    const newTree = buildFileTree(filesystem, "/");
+    const newTree = buildFileTree(filesystem, '/');
     setTree(newTree);
 
     // Auto-expand root level
@@ -111,10 +111,10 @@ function FileTreeNode({
       <>
         <li
           className={clsx(
-            "flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm",
+            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm',
             {
-              "bg-gray-500/20 text-purple-400": isSelected,
-              "hover:bg-dark-hover": !isSelected && !isExpanded,
+              'bg-gray-500/20 text-purple-400': isSelected,
+              'hover:bg-dark-hover': !isSelected && !isExpanded,
             },
           )}
           style={{ paddingLeft: `${paddingLeft}px` }}
@@ -147,17 +147,17 @@ function FileTreeNode({
   return (
     <li
       className={clsx(
-        "flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm",
+        'flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm',
         {
-          "bg-gray-500/20 text-purple-400": isSelected,
-          "hover:bg-dark-hover": !isSelected,
+          'bg-gray-500/20 text-purple-400': isSelected,
+          'hover:bg-dark-hover': !isSelected,
         },
       )}
       style={{ paddingLeft: `${paddingLeft + 6}px` }}
       onClick={() => onSelectFile(node.path)}
     >
       <span className="truncate">{node.name}</span>
-      {node.path !== "main.js" && (
+      {node.path !== 'main.js' && (
         <button
           onClick={(e) => {
             e.stopPropagation();

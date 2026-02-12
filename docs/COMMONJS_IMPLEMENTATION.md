@@ -101,7 +101,9 @@ console.log(process.platform); // "browser"
 const fs = require('fs');
 
 // Create module
-fs.writeFileSync('/math.js', `
+fs.writeFileSync(
+  '/math.js',
+  `
   exports.add = function(a, b) {
     return a + b;
   };
@@ -109,7 +111,8 @@ fs.writeFileSync('/math.js', `
   exports.multiply = function(a, b) {
     return a * b;
   };
-`);
+`,
+);
 
 // Require module
 const math = require('./math.js');
@@ -123,13 +126,16 @@ console.log(math.multiply(4, 5)); // 20
 const fs = require('fs');
 
 // Create module
-fs.writeFileSync('/utils.js', `
+fs.writeFileSync(
+  '/utils.js',
+  `
   module.exports = {
     greet: function(name) {
       return 'Hello, ' + name + '!';
     }
   };
-`);
+`,
+);
 
 // Require module
 const utils = require('./utils.js');
@@ -141,11 +147,14 @@ console.log(utils.greet('World')); // "Hello, World!"
 ```javascript
 const fs = require('fs');
 
-fs.writeFileSync('/counter.js', `
+fs.writeFileSync(
+  '/counter.js',
+  `
   let count = 0;
   exports.increment = () => ++count;
   exports.getCount = () => count;
-`);
+`,
+);
 
 const counter1 = require('./counter.js');
 const counter2 = require('./counter.js');
@@ -158,15 +167,18 @@ console.log(counter2.getCount()); // 2 (same state!)
 console.log(counter1 === counter2); // true
 ```
 
-### 5. Special Variables (__filename, __dirname)
+### 5. Special Variables (**filename, **dirname)
 
 ```javascript
 const fs = require('fs');
 
-fs.writeFileSync('/app.js', `
+fs.writeFileSync(
+  '/app.js',
+  `
   exports.location = __dirname;
   exports.file = __filename;
-`);
+`,
+);
 
 const app = require('./app.js');
 console.log(app.location); // "/"
@@ -196,19 +208,25 @@ export default { success: true };
 const fs = require('fs');
 
 // Create module B
-fs.writeFileSync('/moduleB.js', `
+fs.writeFileSync(
+  '/moduleB.js',
+  `
   exports.name = 'Module B';
   exports.getData = () => exports.name;
-`);
+`,
+);
 
 // Create module A that requires B
-fs.writeFileSync('/moduleA.js', `
+fs.writeFileSync(
+  '/moduleA.js',
+  `
   const moduleB = require('./moduleB.js');
   exports.name = 'Module A';
   exports.getInfo = () => {
     return 'I am ' + exports.name + ', I use ' + moduleB.getData();
   };
-`);
+`,
+);
 
 const moduleA = require('./moduleA.js');
 console.log(moduleA.getInfo());
@@ -223,22 +241,30 @@ console.log(moduleA.getInfo());
 const fs = require('fs');
 
 // File 1: ES module
-fs.writeFileSync('/string-utils.js', `
+fs.writeFileSync(
+  '/string-utils.js',
+  `
   export function capitalize(str) {
     return str.charAt(0).toUpperCase() + str.slice(1);
   }
   export const version = '1.0.0';
-`);
+`,
+);
 
 // File 2: CommonJS module
-fs.writeFileSync('/math.js', `
+fs.writeFileSync(
+  '/math.js',
+  `
   exports.square = function(x) {
     return x * x;
   };
-`);
+`,
+);
 
 // File 3: Mixed - uses both import and require!
-fs.writeFileSync('/calculator.js', `
+fs.writeFileSync(
+  '/calculator.js',
+  `
   // ES import from ES module
   import { capitalize } from './string-utils.js';
 
@@ -251,7 +277,8 @@ fs.writeFileSync('/calculator.js', `
       result: math.square(x)
     };
   }
-`);
+`,
+);
 
 // Use the mixed module
 import { compute } from './calculator.js';
@@ -288,12 +315,14 @@ const _ = require('lodash'); // Error
 The demo app (`examples/basic/`) includes **6 new CommonJS examples**:
 
 ### Basic Examples
+
 1. **CommonJS require()** - Basic require with builtin modules
 2. **CommonJS Local Modules** - Local files with exports patterns
 3. **Mixed ES + CommonJS** - Using both module systems together
 4. **Nested require() Calls** - Modules requiring other modules with `__filename`/`__dirname`
 
 ### Advanced Multi-file Examples
+
 5. **Multi-file Mixed ESM/CJS** - Real-world scenario with multiple files using different module systems
    - ES module utility (`string-utils.js`)
    - CommonJS module (`math-lib.js`)
@@ -308,10 +337,12 @@ The demo app (`examples/basic/`) includes **6 new CommonJS examples**:
    - Demonstrates real-world architecture with mixed module systems
 
 ### Standalone Demos
+
 - `examples/commonjs-demo.js` - Complete standalone demo of all CommonJS features
 - `examples/mixed-modules-demo.js` - Multi-file project structure with mixed modules
 
 Run the demo:
+
 ```bash
 cd examples/basic
 pnpm dev
@@ -349,6 +380,7 @@ The `require()` function resolves modules in this order:
 ### File Extension Resolution
 
 If no extension is provided, tries in order:
+
 1. `.js` extension
 2. `/index.js` (directory)
 3. `.json` extension
@@ -356,6 +388,7 @@ If no extension is provided, tries in order:
 ### Module Caching
 
 Modules are cached by **absolute path**:
+
 - First `require()` loads and executes module
 - Subsequent `require()` calls return cached `module.exports`
 - Enables circular dependencies

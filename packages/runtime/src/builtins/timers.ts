@@ -4,10 +4,7 @@ export interface TimerTracker {
   pendingTimers: Set<number>;
 }
 
-export function createTimersModule(
-  vm: QuickJSContext,
-  tracker: TimerTracker,
-): QuickJSHandle {
+export function createTimersModule(vm: QuickJSContext, tracker: TimerTracker): QuickJSHandle {
   const timersObj = vm.newObject();
 
   // Create counter for unique callback names

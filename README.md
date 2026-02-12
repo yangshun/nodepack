@@ -111,20 +111,26 @@ fs.writeFileSync('/data.txt', 'Hello CommonJS!');
 const content = fs.readFileSync('/data.txt', 'utf8');
 
 // Local modules with exports
-fs.writeFileSync('/math.js', `
+fs.writeFileSync(
+  '/math.js',
+  `
   exports.add = (a, b) => a + b;
   exports.multiply = (a, b) => a * b;
-`);
+`,
+);
 
 const math = require('./math.js');
 console.log(math.add(2, 3)); // 5
 
 // Module with module.exports
-fs.writeFileSync('/utils.js', `
+fs.writeFileSync(
+  '/utils.js',
+  `
   module.exports = {
     greet: (name) => 'Hello, ' + name
   };
-`);
+`,
+);
 
 const utils = require('./utils.js');
 console.log(utils.greet('World')); // Hello, World

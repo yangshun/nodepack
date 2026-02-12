@@ -12,8 +12,8 @@ Nodepack is a browser-based Node.js runtime that allows running Node.js code dir
 
 - File naming: Use kebab-case for all file names
 - Avoid single-character variables
-- NEVER ever use emojis 
-  
+- NEVER ever use emojis
+
 ### Text and headings
 
 - Use sentence case for any UI headings, labels, titles, etc.

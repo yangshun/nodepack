@@ -20,10 +20,7 @@ export interface ConsoleSetupOptions {
  * Set up console object in QuickJS context
  * Creates console.log that captures output to an array and optionally streams it
  */
-export function setupConsole(
-  vm: QuickJSContext,
-  options: ConsoleSetupOptions,
-): QuickJSHandle {
+export function setupConsole(vm: QuickJSContext, options: ConsoleSetupOptions): QuickJSHandle {
   const consoleObj = vm.newObject();
 
   const logFn = vm.newFunction('log', (...args: any[]) => {

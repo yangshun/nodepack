@@ -14,9 +14,7 @@ export function buildFileTree(fs: any, rootPath: string = '/'): FileTreeNode[] {
         const isDirectory = stats.isDirectory();
 
         // Normalize path: remove leading slash for display
-        const normalizedPath = fullPath.startsWith('/')
-          ? fullPath.substring(1)
-          : fullPath;
+        const normalizedPath = fullPath.startsWith('/') ? fullPath.substring(1) : fullPath;
 
         const node: FileTreeNode = {
           name: entry,

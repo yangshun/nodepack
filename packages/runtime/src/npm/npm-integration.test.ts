@@ -46,7 +46,10 @@ describe('NPM Package Installation', () => {
 
       // Verify package was installed with correct version
       const fs = runtime.getFilesystem();
-      const packageJsonContent = fs.readFileSync('/node_modules/picocolors/package.json', 'utf8') as string;
+      const packageJsonContent = fs.readFileSync(
+        '/node_modules/picocolors/package.json',
+        'utf8',
+      ) as string;
       const packageJson = JSON.parse(packageJsonContent);
       expect(packageJson.version).toBe('1.0.0');
     },
@@ -80,7 +83,10 @@ describe('NPM Package Installation', () => {
 
       // Verify version satisfies range
       const fs = runtime.getFilesystem();
-      const packageJsonContent = fs.readFileSync('/node_modules/picocolors/package.json', 'utf8') as string;
+      const packageJsonContent = fs.readFileSync(
+        '/node_modules/picocolors/package.json',
+        'utf8',
+      ) as string;
       const installedPackageJson = JSON.parse(packageJsonContent);
       expect(installedPackageJson.version).toMatch(/^1\./); // Should be 1.x.x
     },

@@ -145,9 +145,9 @@ describe('NodepackRuntime', () => {
     it('should require initialization', async () => {
       const uninitializedRuntime = new NodepackRuntime();
 
-      await expect(
-        uninitializedRuntime.execute('export default 42;')
-      ).rejects.toThrow('Runtime not initialized');
+      await expect(uninitializedRuntime.execute('export default 42;')).rejects.toThrow(
+        'Runtime not initialized',
+      );
     });
 
     it('should handle syntax errors', async () => {

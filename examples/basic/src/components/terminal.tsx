@@ -5,16 +5,16 @@
  * Provides interactive command-line interface for file operations
  */
 
-import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
-import { Terminal as XTerm } from "xterm";
-import { FitAddon } from "@xterm/addon-fit";
-import { WebLinksAddon } from "@xterm/addon-web-links";
-import { Bash } from "just-bash";
-import type { IFs } from "memfs";
-import { BridgedFilesystem } from "../terminal/bridged-filesystem";
-import { TerminalController } from "../terminal/terminal-controller";
-import { bashSecurityConfig } from "../terminal/security-config";
-import "xterm/css/xterm.css";
+import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
+import { Terminal as XTerm } from 'xterm';
+import { FitAddon } from '@xterm/addon-fit';
+import { WebLinksAddon } from '@xterm/addon-web-links';
+import { Bash } from 'just-bash';
+import type { IFs } from 'memfs';
+import { BridgedFilesystem } from '../terminal/bridged-filesystem';
+import { TerminalController } from '../terminal/terminal-controller';
+import { bashSecurityConfig } from '../terminal/security-config';
+import 'xterm/css/xterm.css';
 
 export interface TerminalProps {
   filesystem?: IFs;
@@ -58,25 +58,25 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         fontSize: 12,
         fontFamily: 'Consolas, Monaco, "Courier New", monospace',
         theme: {
-          background: "#1e1e1e",
-          foreground: "#dcdcaa",
-          cursor: "#ffffff",
-          black: "#000000",
-          red: "#cd3131",
-          green: "#0dbc79",
-          yellow: "#e5e510",
-          blue: "#2472c8",
-          magenta: "#bc3fbc",
-          cyan: "#11a8cd",
-          white: "#e5e5e5",
-          brightBlack: "#666666",
-          brightRed: "#f14c4c",
-          brightGreen: "#23d18b",
-          brightYellow: "#f5f543",
-          brightBlue: "#3b8eea",
-          brightMagenta: "#d670d6",
-          brightCyan: "#29b8db",
-          brightWhite: "#e5e5e5",
+          background: '#1e1e1e',
+          foreground: '#dcdcaa',
+          cursor: '#ffffff',
+          black: '#000000',
+          red: '#cd3131',
+          green: '#0dbc79',
+          yellow: '#e5e510',
+          blue: '#2472c8',
+          magenta: '#bc3fbc',
+          cyan: '#11a8cd',
+          white: '#e5e5e5',
+          brightBlack: '#666666',
+          brightRed: '#f14c4c',
+          brightGreen: '#23d18b',
+          brightYellow: '#f5f543',
+          brightBlue: '#3b8eea',
+          brightMagenta: '#d670d6',
+          brightCyan: '#29b8db',
+          brightWhite: '#e5e5e5',
         },
         allowProposedApi: true,
       });
@@ -96,16 +96,16 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       const bridgedFs = new BridgedFilesystem(filesystem);
       const bash = new Bash({
         fs: bridgedFs,
-        cwd: "/", // Start at root directory
+        cwd: '/', // Start at root directory
         ...bashSecurityConfig,
         customCommands: [
           {
-            name: "node",
+            name: 'node',
             execute: async (args: string[], context: any) => {
               if (!onExecuteFile) {
                 return {
-                  stdout: "",
-                  stderr: "Error: node command not available\n",
+                  stdout: '',
+                  stderr: 'Error: node command not available\n',
                   exitCode: 1,
                 };
               }
@@ -113,8 +113,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               // Parse arguments
               if (args.length === 0) {
                 return {
-                  stdout: "",
-                  stderr: "Usage: node <filename>\n",
+                  stdout: '',
+                  stderr: 'Usage: node <filename>\n',
                   exitCode: 1,
                 };
               }
@@ -123,7 +123,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
               // Normalize path
               let filepath = filename;
-              if (!filepath.startsWith("/")) {
+              if (!filepath.startsWith('/')) {
                 filepath = `/${filepath}`;
               }
 
@@ -132,14 +132,14 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 const exists = await context.fs.exists(filepath);
                 if (!exists) {
                   return {
-                    stdout: "",
+                    stdout: '',
                     stderr: `Error: Cannot find module '${filename}'\n`,
                     exitCode: 1,
                   };
                 }
               } catch (error) {
                 return {
-                  stdout: "",
+                  stdout: '',
                   stderr: `Error: ${error}\n`,
                   exitCode: 1,
                 };
@@ -151,20 +151,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
                 if (result.ok) {
                   return {
-                    stdout: result.output || "",
-                    stderr: "",
+                    stdout: result.output || '',
+                    stderr: '',
                     exitCode: 0,
                   };
                 } else {
                   return {
-                    stdout: result.output || "",
-                    stderr: result.error || "Execution failed\n",
+                    stdout: result.output || '',
+                    stderr: result.error || 'Execution failed\n',
                     exitCode: 1,
                   };
                 }
               } catch (error: any) {
                 return {
-                  stdout: "",
+                  stdout: '',
                   stderr: `Error executing file: ${error.message}\n`,
                   exitCode: 1,
                 };
@@ -193,7 +193,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       const handleResize = () => {
         fitAddon.fit();
       };
-      window.addEventListener("resize", handleResize);
+      window.addEventListener('resize', handleResize);
 
       // Notify parent that terminal is ready
       if (onReady) {
@@ -202,7 +202,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
       // Cleanup
       return () => {
-        window.removeEventListener("resize", handleResize);
+        window.removeEventListener('resize', handleResize);
         term.dispose();
       };
     }, [filesystem, onReady]);
@@ -230,4 +230,4 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
   },
 );
 
-Terminal.displayName = "Terminal";
+Terminal.displayName = 'Terminal';

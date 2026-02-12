@@ -9,7 +9,17 @@
  * wrapping sync operations in Promises for just-bash compatibility.
  */
 
-import type { IFileSystem, BufferEncoding, ReadFileOptions, WriteFileOptions, FsStat, MkdirOptions, RmOptions, CpOptions, DirentEntry } from 'just-bash';
+import type {
+  IFileSystem,
+  BufferEncoding,
+  ReadFileOptions,
+  WriteFileOptions,
+  FsStat,
+  MkdirOptions,
+  RmOptions,
+  CpOptions,
+  DirentEntry,
+} from 'just-bash';
 import type { IFs } from 'memfs';
 import * as pathModule from 'path-browserify';
 
@@ -21,10 +31,7 @@ export class BridgedFilesystem implements IFileSystem {
     }
   }
 
-  async readFile(
-    path: string,
-    options?: ReadFileOptions | BufferEncoding
-  ): Promise<string> {
+  async readFile(path: string, options?: ReadFileOptions | BufferEncoding): Promise<string> {
     try {
       const encoding = typeof options === 'string' ? options : options?.encoding || 'utf8';
       const content = this.memfs.readFileSync(path, encoding as BufferEncoding);
@@ -50,7 +57,7 @@ export class BridgedFilesystem implements IFileSystem {
   async writeFile(
     path: string,
     content: string | Uint8Array,
-    options?: WriteFileOptions | BufferEncoding
+    options?: WriteFileOptions | BufferEncoding,
   ): Promise<void> {
     try {
       // Ensure parent directory exists
@@ -69,7 +76,7 @@ export class BridgedFilesystem implements IFileSystem {
   async appendFile(
     path: string,
     content: string | Uint8Array,
-    options?: WriteFileOptions | BufferEncoding
+    options?: WriteFileOptions | BufferEncoding,
   ): Promise<void> {
     try {
       const encoding = typeof options === 'string' ? options : options?.encoding;
@@ -118,7 +125,7 @@ export class BridgedFilesystem implements IFileSystem {
         throw new Error(`Directory does not exist: ${path}`);
       }
       const entries = this.memfs.readdirSync(path);
-      return entries.map(e => String(e));
+      return entries.map((e) => String(e));
     } catch (error: any) {
       throw new Error(`readdir failed for ${path}: ${error.message}`);
     }
@@ -127,7 +134,7 @@ export class BridgedFilesystem implements IFileSystem {
   async readdirWithFileTypes(path: string): Promise<DirentEntry[]> {
     try {
       const entries = this.memfs.readdirSync(path, { withFileTypes: true }) as any[];
-      return entries.map(entry => ({
+      return entries.map((entry) => ({
         name: entry.name,
         isFile: entry.isFile(),
         isDirectory: entry.isDirectory(),

@@ -39,7 +39,11 @@ describe('path module', () => {
 
     const result = vm.evalCode(`path.dirname('/path/to/file.js')`);
 
-    if (result.error) { const error = vm.dump(result.error); result.error.dispose(); throw new Error(`Evaluation failed: ${error}`); }
+    if (result.error) {
+      const error = vm.dump(result.error);
+      result.error.dispose();
+      throw new Error(`Evaluation failed: ${error}`);
+    }
     const dir = vm.dump(result.value);
     expect(dir).toBe('/path/to');
 
@@ -59,7 +63,11 @@ describe('path module', () => {
 
     const result = vm.evalCode(`path.basename('/path/to/file.js')`);
 
-    if (result.error) { const error = vm.dump(result.error); result.error.dispose(); throw new Error(`Evaluation failed: ${error}`); }
+    if (result.error) {
+      const error = vm.dump(result.error);
+      result.error.dispose();
+      throw new Error(`Evaluation failed: ${error}`);
+    }
     const base = vm.dump(result.value);
     expect(base).toBe('file.js');
 
@@ -79,7 +87,11 @@ describe('path module', () => {
 
     const result = vm.evalCode(`path.resolve('a', 'b', 'c')`);
 
-    if (result.error) { const error = vm.dump(result.error); result.error.dispose(); throw new Error(`Evaluation failed: ${error}`); }
+    if (result.error) {
+      const error = vm.dump(result.error);
+      result.error.dispose();
+      throw new Error(`Evaluation failed: ${error}`);
+    }
     const resolved = vm.dump(result.value);
     expect(resolved).toContain('a/b/c');
 
@@ -99,7 +111,11 @@ describe('path module', () => {
 
     const result = vm.evalCode(`path.extname('file.txt')`);
 
-    if (result.error) { const error = vm.dump(result.error); result.error.dispose(); throw new Error(`Evaluation failed: ${error}`); }
+    if (result.error) {
+      const error = vm.dump(result.error);
+      result.error.dispose();
+      throw new Error(`Evaluation failed: ${error}`);
+    }
     const ext = vm.dump(result.value);
     expect(ext).toBe('.txt');
 

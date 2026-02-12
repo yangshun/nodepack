@@ -22,7 +22,7 @@ export class TerminalController {
 
   constructor(
     private terminal: Terminal,
-    private bash: Bash
+    private bash: Bash,
   ) {}
 
   /**
@@ -202,9 +202,10 @@ export class TerminalController {
     this.historyIndex = newIndex;
 
     // Get line from history (or temp line if back to current)
-    const newLine = this.historyIndex === -1
-      ? this.tempLine
-      : this.history[this.history.length - 1 - this.historyIndex];
+    const newLine =
+      this.historyIndex === -1
+        ? this.tempLine
+        : this.history[this.history.length - 1 - this.historyIndex];
 
     // Clear current line and write new one
     this.clearLine();
