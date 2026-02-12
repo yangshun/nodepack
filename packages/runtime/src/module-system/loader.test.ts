@@ -155,6 +155,173 @@ describe('NodepackModuleLoader', () => {
 
       expect(result).toBe('/node_modules/mypackage/dist/esm.js');
     });
+
+    it('should use module field when only module is specified', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          module: 'dist/esm.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/esm.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/esm.js');
+    });
+
+    it('should use exports field as simple string', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: './dist/index.js',
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/index.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/index.js');
+    });
+
+    it('should use exports field with dot notation as string', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: {
+            '.': './dist/index.js',
+          },
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/index.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/index.js');
+    });
+
+    it('should use exports field with import condition', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: {
+            '.': {
+              import: './dist/esm.js',
+              require: './dist/cjs.js',
+            },
+          },
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/esm.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/esm.js');
+    });
+
+    it('should use exports field with nested import default', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: {
+            '.': {
+              import: {
+                default: './dist/esm.mjs',
+              },
+            },
+          },
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/esm.mjs', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/esm.mjs');
+    });
+
+    it('should use exports field with default condition', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: {
+            '.': {
+              default: './dist/index.js',
+            },
+          },
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/index.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/index.js');
+    });
+
+    it('should use exports field with nested default default', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: {
+            '.': {
+              default: {
+                default: './dist/index.js',
+              },
+            },
+          },
+          main: 'index.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/index.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/index.js');
+    });
+
+    it('should prioritize exports over module and main', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          exports: './dist/exports.js',
+          module: 'dist/module.js',
+          main: 'dist/main.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/exports.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/exports.js');
+    });
+
+    it('should prioritize module over main when exports is not present', () => {
+      vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
+      vol.writeFileSync(
+        '/node_modules/mypackage/package.json',
+        JSON.stringify({
+          module: 'dist/module.js',
+          main: 'dist/main.js',
+        }),
+      );
+      vol.writeFileSync('/node_modules/mypackage/dist/module.js', 'export default {}');
+
+      const result = loader.normalize('/main.js', 'mypackage');
+
+      expect(result).toBe('/node_modules/mypackage/dist/module.js');
+    });
   });
 
   describe('Built-in modules', () => {
