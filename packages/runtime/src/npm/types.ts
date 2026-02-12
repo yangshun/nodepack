@@ -11,6 +11,7 @@ export interface PackageManifest {
   module?: string;
   browser?: string | Record<string, string>;
   exports?: Record<string, any>;
+  bin?: string | Record<string, string>;
   dist?: {
     tarball: string;
     shasum?: string;

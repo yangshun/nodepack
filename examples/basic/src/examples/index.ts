@@ -13,6 +13,7 @@ import { multifileMixed } from './multifile-mixed';
 import { multifileComplex } from './multifile-complex';
 import { packageJson } from './package-json';
 import { npmScripts } from './npm-scripts';
+import { npmBin } from './npm-bin';
 
 export const examples: ExampleDefinition[] = [
   hello,
@@ -23,6 +24,7 @@ export const examples: ExampleDefinition[] = [
   timers,
   packageJson,
   npmScripts,
+  npmBin,
   commonjsBasic,
   commonjsModules,
   commonjsMixed,

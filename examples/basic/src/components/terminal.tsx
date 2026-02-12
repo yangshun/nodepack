@@ -99,6 +99,10 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       const bash = new Bash({
         fs: bridgedFs,
         cwd: '/', // Start at root directory
+        env: {
+          PATH: '/node_modules/.bin:/usr/local/bin:/usr/bin:/bin',
+          NODE_ENV: 'development',
+        },
         ...bashSecurityConfig,
         customCommands: [
           {

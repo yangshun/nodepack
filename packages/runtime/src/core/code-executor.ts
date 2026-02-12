@@ -7,7 +7,7 @@ import type { QuickJSContext } from 'quickjs-emscripten';
 import type { IFs } from 'memfs';
 import type { ExecutionResult, RuntimeOptions } from '../types.js';
 import type { TimerTracker } from '../builtins/timers.js';
-import { detectImports } from '../module-system/import-detector.js';
+// import { detectImports } from '../module-system/import-detector.js'; // Disabled for debugging
 import { detectModuleFormat } from '../module-system/format-detector.js';
 import type { NpmPackageManager } from '../npm/package-manager.js';
 
@@ -24,6 +24,20 @@ export interface CodeExecutorContext {
  * Execute user code in the QuickJS context
  * Handles npm package installation, module format detection, and execution
  */
+/**
+ * Strip shebang line from code if present
+ */
+function stripShebang(code: string): string {
+  // Remove shebang line if present (#!/usr/bin/env node, #!/bin/sh, etc.)
+  if (code.startsWith('#!')) {
+    const newlineIndex = code.indexOf('\n');
+    if (newlineIndex !== -1) {
+      return code.substring(newlineIndex + 1);
+    }
+  }
+  return code;
+}
+
 export async function executeCode(
   code: string,
   context: CodeExecutorContext,
@@ -32,21 +46,28 @@ export async function executeCode(
   const { vm, runtime, filesystem, timerTracker, consoleLogs, npmPackageManager } = context;
 
   try {
-    // Detect and install npm packages (both ES imports and requires)
-    const detectedModules = detectImports(code);
-    if (detectedModules.allPackages.length > 0) {
-      console.log('[Runtime] Detected npm packages:', detectedModules.allPackages);
+    // Strip shebang if present
+    code = stripShebang(code);
 
-      // Install each detected package from npm registry
-      const installPromises = detectedModules.allPackages.map((pkg) =>
-        npmPackageManager.install(pkg, 'latest'),
-      );
-      await Promise.all(installPromises);
-    }
+    // Detect and install npm packages (both ES imports and requires)
+    // Disabled for debugging - packages should be installed manually via npm install
+    // const detectedModules = detectImports(code);
+    // if (detectedModules.allPackages.length > 0) {
+    //   console.log('[Runtime] Detected npm packages:', detectedModules.allPackages);
+
+    //   // Install each detected package from npm registry
+    //   const installPromises = detectedModules.allPackages.map((pkg) =>
+    //     npmPackageManager.install(pkg, 'latest'),
+    //   );
+    //   await Promise.all(installPromises);
+    // }
+
+    // Determine the file path to use (from options or default to /main.js)
+    const filepath = options.filename || '/main.js';
+    const fileDir = filepath.substring(0, filepath.lastIndexOf('/')) || '/';
 
     // Write the code to the virtual filesystem so the module loader can find it
-    // Write to root so relative imports like './utils.js' work correctly
-    filesystem.writeFileSync('/main.js', code);
+    filesystem.writeFileSync(filepath, code);
 
     // Detect module format (ES module or CommonJS)
     const format = detectModuleFormat(code);
@@ -56,7 +77,7 @@ export async function executeCode(
     if (format === 'esm') {
       // Execute as ES module (existing behavior)
       const wrapperCode = `
-        import * as mod from '/main.js';
+        import * as mod from '${filepath}';
         globalThis.__result = mod.default !== undefined ? mod.default : mod;
       `;
       result = vm.evalCode(wrapperCode);
@@ -66,16 +87,16 @@ export async function executeCode(
         (function() {
           const module = {
             exports: {},
-            filename: '/main.js',
+            filename: '${filepath}',
             loaded: false,
             children: []
           };
 
-          globalThis.__nodepack_module_cache['/main.js'] = module;
-          globalThis.__nodepack_current_module_dir = '/';
+          globalThis.__nodepack_module_cache['${filepath}'] = module;
+          globalThis.__nodepack_current_module_dir = '${fileDir}';
 
-          const code = globalThis.__nodepack_fs.readFileSync('/main.js', 'utf8');
-          globalThis.__nodepack_execute_commonjs_module(code, module, '/main.js');
+          const code = globalThis.__nodepack_fs.readFileSync('${filepath}', 'utf8');
+          globalThis.__nodepack_execute_commonjs_module(code, module, '${filepath}');
 
           module.loaded = true;
           globalThis.__result = module.exports;

@@ -25,6 +25,7 @@ export interface RuntimeOptions {
   env?: Record<string, string>;
   timeout?: number;
   onLog?: (message: string) => void; // Callback for streaming log updates
+  filename?: string; // The file path being executed (for proper module resolution)
 }
 
 export interface NodeModule {

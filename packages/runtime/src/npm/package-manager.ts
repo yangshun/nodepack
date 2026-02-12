@@ -143,6 +143,9 @@ export class NpmPackageManager {
       }
     }
 
+    // Setup bin links after files are written
+    this.setupBinLinks(packageName, packageDir);
+
     // Mark as installed
     this.cache.installed.set(installKey, packageDir);
 
@@ -174,6 +177,90 @@ export class NpmPackageManager {
     }
 
     return true;
+  }
+
+  /**
+   * Setup bin links for a package
+   * Creates symlinks in /node_modules/.bin/ for executables defined in package.json bin field
+   */
+  private setupBinLinks(packageName: string, packageDir: string): void {
+    console.log(`[NPM] Setting up bin links for ${packageName} at ${packageDir}`);
+
+    // Read package.json to get bin field
+    const packageJsonPath = `${packageDir}/package.json`;
+    if (!this.filesystem.existsSync(packageJsonPath)) {
+      console.log(`[NPM] No package.json found at ${packageJsonPath}`);
+      return;
+    }
+
+    let packageJson: any;
+    try {
+      const content = this.filesystem.readFileSync(packageJsonPath, 'utf8');
+      packageJson = JSON.parse(content);
+      console.log(`[NPM] Read package.json for ${packageName}, bin field:`, packageJson.bin);
+    } catch (e) {
+      console.warn(`[NPM] Failed to read package.json for ${packageName}:`, e);
+      return;
+    }
+
+    if (!packageJson.bin) {
+      console.log(`[NPM] No bin field in ${packageName}`);
+      return; // No bin field, nothing to do
+    }
+
+    console.log(`[NPM] Found bin field in ${packageName}:`, packageJson.bin);
+
+    // Ensure .bin directory exists
+    const binDir = '/node_modules/.bin';
+    if (!this.filesystem.existsSync(binDir)) {
+      console.log(`[NPM] Creating ${binDir} directory`);
+      this.filesystem.mkdirSync(binDir, { recursive: true });
+    }
+
+    // Normalize bin field to object format
+    const binEntries: Record<string, string> =
+      typeof packageJson.bin === 'string'
+        ? { [packageName]: packageJson.bin }
+        : packageJson.bin;
+
+    console.log(`[NPM] Normalized bin entries:`, binEntries);
+
+    // Create symlinks for each bin entry
+    for (const [cmdName, binPath] of Object.entries(binEntries)) {
+      const targetPath = `${packageDir}/${binPath}`;
+      const linkPath = `${binDir}/${cmdName}`;
+
+      console.log(`[NPM] Processing bin entry: ${cmdName} -> ${binPath}`);
+      console.log(`[NPM] Target path: ${targetPath}, Link path: ${linkPath}`);
+
+      // Check if target file exists
+      if (!this.filesystem.existsSync(targetPath)) {
+        console.warn(`[NPM] Bin target not found: ${targetPath} for command ${cmdName}`);
+        continue;
+      }
+
+      console.log(`[NPM] Target file exists: ${targetPath}`);
+
+      // Remove existing link if it exists
+      if (this.filesystem.existsSync(linkPath)) {
+        try {
+          console.log(`[NPM] Removing existing link: ${linkPath}`);
+          this.filesystem.unlinkSync(linkPath);
+        } catch (e) {
+          console.warn(`[NPM] Failed to remove existing bin link: ${linkPath}`, e);
+        }
+      }
+
+      // Create JavaScript wrapper that requires the actual bin file
+      // This works better in browser environment than shell scripts
+      try {
+        const wrapperScript = `#!/usr/bin/env node\nrequire('${targetPath}');\n`;
+        this.filesystem.writeFileSync(linkPath, wrapperScript);
+        console.log(`[NPM] ✓ Created bin wrapper: ${cmdName} -> ${targetPath}`);
+      } catch (e: any) {
+        console.warn(`[NPM] Failed to create bin wrapper for ${cmdName}: ${e.message}`, e);
+      }
+    }
   }
 
   /**

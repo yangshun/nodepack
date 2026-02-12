@@ -11,6 +11,7 @@ import {
   createPathModule,
   createProcessModule,
   createTimersModule,
+  createModuleBuiltin,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
 import { NodepackModuleLoader } from '../module-system/loader.js';
@@ -46,6 +47,11 @@ export function setupVMContext(
   const timersHandle = createTimersModule(vm, timerTracker);
   vm.setProp(vm.global, '__nodepack_timers', timersHandle);
   timersHandle.dispose();
+
+  // Set up module builtin
+  const moduleHandle = createModuleBuiltin(vm);
+  vm.setProp(vm.global, '__nodepack_module', moduleHandle);
+  moduleHandle.dispose();
 
   // Set up CommonJS module executor function
   // This is called from require() to execute CommonJS modules

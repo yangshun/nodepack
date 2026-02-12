@@ -30,8 +30,20 @@ export function createRequireFunction(): string {
     globalThis.__nodepack_current_module_dir = '/';
   }
 
+  // Helper function to strip shebang from code
+  function stripShebang(code) {
+    // Remove shebang line if present (#!/usr/bin/env node, #!/bin/sh, etc.)
+    if (code.startsWith('#!')) {
+      const newlineIndex = code.indexOf('\\n');
+      if (newlineIndex !== -1) {
+        return code.substring(newlineIndex + 1);
+      }
+    }
+    return code;
+  }
+
   // List of builtin modules
-  const BUILTIN_MODULES = ['fs', 'path', 'process', 'timers'];
+  const BUILTIN_MODULES = ['fs', 'path', 'process', 'timers', 'module'];
 
   /**
    * Main require function
@@ -89,7 +101,10 @@ export function createRequireFunction(): string {
     }
 
     // 6. Load module source code
-    const code = globalThis.__nodepack_fs.readFileSync(resolvedPath, 'utf8');
+    let code = globalThis.__nodepack_fs.readFileSync(resolvedPath, 'utf8');
+
+    // Strip shebang if present (#!/usr/bin/env node)
+    code = stripShebang(code);
 
     // 7. Create module object
     const module = {
