@@ -102,7 +102,7 @@ export async function executeCode(
       vm.dispose();
       runtime.dispose();
 
-      // Convert error to a readable string
+      // Convert error to a readable string with full details
       const errorMessage = formatError(error);
 
       return {
@@ -176,7 +176,6 @@ async function waitForTimers(timerTracker: TimerTracker, options: RuntimeOptions
 
       // Check timeout
       if (Date.now() - startTime > maxWaitTime) {
-        console.warn('[Runtime] Timer execution timeout reached');
         clearInterval(checkInterval);
         // Clear all pending timers
         cleanupTimers(timerTracker);
@@ -187,15 +186,36 @@ async function waitForTimers(timerTracker: TimerTracker, options: RuntimeOptions
 }
 
 /**
- * Format an error into a readable string
+ * Format an error into a readable string with full details
  */
 function formatError(error: any): string {
   if (typeof error === 'string') {
     return error;
   } else if (error && typeof error === 'object') {
-    // Prioritize error.message, then JSON.stringify
-    return error.message || JSON.stringify(error, null, 2) || String(error);
+    const parts: string[] = [];
+
+    // Add error name if available
+    if (error.name) {
+      parts.push(`${error.name}`);
+    }
+
+    // Add error message if available
+    if (error.message) {
+      parts.push(error.message);
+    }
+
+    // Add stack trace if available
+    if (error.stack) {
+      parts.push(error.stack);
+    }
+
+    // If we got some parts, join them; otherwise fall back to JSON
+    if (parts.length > 0) {
+      return parts.join(': ');
+    }
+
+    return JSON.stringify(error, null, 2) || String(error);
   } else {
-    return JSON.stringify(error);
+    return String(error);
   }
 }
