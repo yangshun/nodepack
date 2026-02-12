@@ -148,7 +148,7 @@ console.log(clsx('foo', true && 'bar', 'baz'));
 //=> 'foo bar baz'
 
 // Objects
-console.log(clsx({ foo:true, bar:false, baz:isTrue() }));
+console.log(clsx({ foo:true, bar:false }));
 //=> 'foo baz'
 
 // Objects (variadic)

@@ -10,3 +10,10 @@ export interface ExampleDefinition {
   code: string;
   files?: FileMap;
 }
+
+export interface FileTreeNode {
+  name: string;           // Just the filename/folder name
+  path: string;           // Full path from root (e.g., "src/utils/file.ts")
+  isDirectory: boolean;   // Whether this is a folder
+  children?: FileTreeNode[]; // Child nodes (only for directories)
+}

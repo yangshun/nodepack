@@ -6,7 +6,7 @@ import type { ExecutionResult } from "@nodepack/client";
 
 import { ExampleButtons } from "./components/example-buttons";
 import { StatusBar } from "./components/status-bar";
-import { FileList } from "./components/file-list";
+import { FileTree } from "./components/file-tree";
 import { CodeEditor } from "./components/code-editor";
 import { Terminal, type TerminalHandle } from "./components/terminal";
 import { examples } from "./examples";
@@ -35,79 +35,11 @@ export function App() {
 
   const [files, setFiles] = useState<FileMap>({ "main.js": defaultCode });
   const [currentFile, setCurrentFile] = useState("main.js");
+  const [currentFileContent, setCurrentFileContent] = useState(defaultCode);
+  const [filesystemVersion, setFilesystemVersion] = useState(0);
 
   const terminalRef = useRef<TerminalHandle>(null);
 
-  // Sync React files state with memfs filesystem
-  const syncFilesystemWithState = useCallback((filesToSync: FileMap) => {
-    const fs = nodepack?.getFilesystem();
-    if (!fs) {
-      return;
-    }
-
-    try {
-      // Helper function to recursively get all files
-      const getAllFiles = (dir: string, fileList: string[] = []): string[] => {
-        try {
-          const entries = fs.readdirSync(dir);
-          entries.forEach((entry: string) => {
-            const fullPath = dir === '/' ? `/${entry}` : `${dir}/${entry}`;
-            const relativePath = fullPath.startsWith('/') ? fullPath.substring(1) : fullPath;
-
-            try {
-              const stats = fs.statSync(fullPath);
-              if (stats.isDirectory()) {
-                getAllFiles(fullPath, fileList);
-              } else {
-                fileList.push(relativePath);
-              }
-            } catch (statError) {
-              // Could not stat file, skip it
-            }
-          });
-        } catch (readError) {
-          // Directory doesn't exist or can't be read
-        }
-        return fileList;
-      };
-
-      // Get current files in filesystem
-      const existingFiles = new Set<string>(getAllFiles('/'));
-
-      // Remove files that are no longer in state
-      existingFiles.forEach((filename) => {
-        if (!filesToSync[filename]) {
-          try {
-            fs.unlinkSync(`/${filename}`);
-          } catch (error) {
-            console.error(`Failed to delete ${filename}:`, error);
-          }
-        }
-      });
-
-      // Write all files from state to filesystem
-      Object.entries(filesToSync).forEach(([filename, content]) => {
-        try {
-          // Create parent directories if the filename contains paths
-          const lastSlashIndex = filename.lastIndexOf('/');
-          if (lastSlashIndex !== -1) {
-            const dirPath = '/' + filename.substring(0, lastSlashIndex);
-            try {
-              fs.mkdirSync(dirPath, { recursive: true });
-            } catch (mkdirError) {
-              // Directory might already exist, which is fine
-            }
-          }
-
-          fs.writeFileSync(`/${filename}`, content);
-        } catch (error) {
-          console.error(`Failed to write ${filename}:`, error);
-        }
-      });
-    } catch (error) {
-      console.error("Failed to sync filesystem:", error);
-    }
-  }, [nodepack]);
 
   // Initialize Nodepack
   useEffect(() => {
@@ -157,12 +89,20 @@ export function App() {
     };
   }, []);
 
-  // Sync filesystem when nodepack becomes available (initial sync only)
+  // Write initial files to filesystem when nodepack becomes available
   useEffect(() => {
-    if (nodepack) {
-      syncFilesystemWithState(files);
+    if (!nodepack) return;
+
+    const fs = nodepack.getFilesystem();
+    if (!fs) return;
+
+    // Write initial main.js file to filesystem
+    try {
+      fs.writeFileSync('/main.js', defaultCode);
+      setFilesystemVersion(v => v + 1);
+    } catch (error) {
+      console.error('Failed to write initial file:', error);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [nodepack]);
 
   const handleSelectExample = (exampleId: string) => {
@@ -175,10 +115,87 @@ export function App() {
 
     setFiles(newFiles);
     setCurrentFile("main.js");
+    setCurrentFileContent(example.code);
 
-    // Sync filesystem with new files
-    syncFilesystemWithState(newFiles);
+    // Clear and write files to filesystem
+    const fs = nodepack?.getFilesystem();
+    if (fs) {
+      // First, recursively delete all files and directories
+      const deleteRecursive = (path: string) => {
+        try {
+          const stats = fs.statSync(path);
+          if (stats.isDirectory()) {
+            const entries = fs.readdirSync(path);
+            entries.forEach((entry: string) => {
+              const fullPath = path === '/' ? `/${entry}` : `${path}/${entry}`;
+              deleteRecursive(fullPath);
+            });
+            // Only remove directory if it's not root
+            if (path !== '/') {
+              fs.rmdirSync(path);
+            }
+          } else {
+            fs.unlinkSync(path);
+          }
+        } catch (error) {
+          console.warn(`Failed to delete ${path}:`, error);
+        }
+      };
+
+      // Delete all files in root
+      try {
+        const entries = fs.readdirSync('/');
+        entries.forEach((entry: string) => {
+          deleteRecursive(`/${entry}`);
+        });
+      } catch (error) {
+        console.warn('Failed to clear filesystem:', error);
+      }
+
+      // Then write new files
+      Object.entries(newFiles).forEach(([filename, content]) => {
+        try {
+          const lastSlashIndex = filename.lastIndexOf('/');
+          if (lastSlashIndex !== -1) {
+            const dirPath = '/' + filename.substring(0, lastSlashIndex);
+            try {
+              fs.mkdirSync(dirPath, { recursive: true });
+            } catch (mkdirError) {
+              // Directory might already exist
+            }
+          }
+          fs.writeFileSync(`/${filename}`, content);
+        } catch (error) {
+          console.error(`Failed to write ${filename}:`, error);
+        }
+      });
+
+      setFilesystemVersion(v => v + 1);
+    }
   };
+
+  // Load file content from filesystem when currentFile changes
+  useEffect(() => {
+    if (!nodepack || !currentFile) return;
+
+    const fs = nodepack.getFilesystem();
+    if (!fs) return;
+
+    try {
+      // Try to read from filesystem first
+      const content = fs.readFileSync(`/${currentFile}`, 'utf8');
+      setCurrentFileContent(content);
+
+      // Also update the files state if it's a user file (not in node_modules)
+      if (!currentFile.startsWith('node_modules/')) {
+        setFiles(prev => ({ ...prev, [currentFile]: content }));
+      }
+    } catch (error) {
+      // File doesn't exist in filesystem, use empty content
+      console.warn(`Could not read ${currentFile}:`, error);
+      setCurrentFileContent('');
+    }
+  }, [currentFile, nodepack]);
 
   const handleSelectFile = (filename: string) => {
     setCurrentFile(filename);
@@ -201,12 +218,14 @@ export function App() {
 
     setFiles(newFiles);
     setCurrentFile(filename);
+    setCurrentFileContent(content);
 
     // Write new file to filesystem
     const fs = nodepack?.getFilesystem();
     if (fs) {
       try {
         fs.writeFileSync(`/${filename}`, content);
+        setFilesystemVersion(v => v + 1);
       } catch (error) {
         console.error("Failed to write file to filesystem:", error);
       }
@@ -236,6 +255,7 @@ export function App() {
         const path = `/${filename}`;
         if (fs.existsSync(path)) {
           fs.unlinkSync(path);
+          setFilesystemVersion(v => v + 1);
         }
       } catch (error) {
         console.error("Failed to delete file from filesystem:", error);
@@ -244,7 +264,24 @@ export function App() {
   };
 
   const handleCodeChange = (code: string) => {
-    setFiles((prev) => ({ ...prev, [currentFile]: code }));
+    // Update current file content state
+    setCurrentFileContent(code);
+
+    // Update files state for user files (not node_modules)
+    if (!currentFile.startsWith('node_modules/')) {
+      setFiles((prev) => ({ ...prev, [currentFile]: code }));
+    }
+
+    // Write to filesystem to keep FileTree in sync
+    const fs = nodepack?.getFilesystem();
+    if (fs) {
+      try {
+        fs.writeFileSync(`/${currentFile}`, code);
+        setFilesystemVersion(v => v + 1);
+      } catch (error) {
+        console.error(`Failed to write ${currentFile}:`, error);
+      }
+    }
   };
 
   const handleExecuteFile = useCallback(async (filepath: string) => {
@@ -417,9 +454,10 @@ export function App() {
         <div className="grid grid-cols-12 gap-6 mb-6 h-[600px]">
           {/* File List */}
           <div className="col-span-2">
-            <FileList
-              files={files}
+            <FileTree
+              filesystem={nodepack?.getFilesystem()}
               currentFile={currentFile}
+              version={filesystemVersion}
               onSelectFile={handleSelectFile}
               onDeleteFile={handleDeleteFile}
               onAddFile={handleAddFile}
@@ -428,7 +466,7 @@ export function App() {
           {/* Code Editor */}
           <div className="col-span-5">
             <CodeEditor
-              code={files[currentFile] || ""}
+              code={currentFileContent}
               currentFile={currentFile}
               onChange={handleCodeChange}
               onRun={handleRun}
