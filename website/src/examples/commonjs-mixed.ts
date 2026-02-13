@@ -31,12 +31,7 @@ console.log('Process platform:', process.platform);
 
 // And use writeFileSync from ES import
 writeFileSync('/test.txt', 'Mixed modules work!');
-
-export default {
-  doubled: helpers.double(10),
-  tripled: helpers.triple(10),
-  mixed: 'ES and CommonJS work together!'
-};`,
+`,
   files: {
     'helpers.js': `// CommonJS module
 exports.double = function(x) {
@@ -45,6 +40,7 @@ exports.double = function(x) {
 
 exports.triple = function(x) {
   return x * 3;
-};`,
+};
+`,
   },
 };

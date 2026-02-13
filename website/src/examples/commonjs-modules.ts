@@ -27,7 +27,8 @@ console.log('Module caching works:', math === math2); // true
 module.exports = {
   sum: math.add(10, 20),
   greeting: utils.greet('CommonJS User')
-};`,
+};
+`,
   files: {
     'math.js': `// CommonJS module using exports.x pattern
 exports.add = function(a, b) {
@@ -38,7 +39,8 @@ exports.multiply = function(a, b) {
   return a * b;
 };
 
-exports.PI = 3.14159;`,
+exports.PI = 3.14159;
+`,
     'utils.js': `// CommonJS module using module.exports pattern
 module.exports = {
   greet: function(name) {
@@ -48,6 +50,7 @@ module.exports = {
   formatDate: function() {
     return new Date().toISOString();
   }
-};`,
+};
+`,
   },
 };

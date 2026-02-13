@@ -5,6 +5,7 @@ import { multifile } from './multifile';
 import { lodash } from './lodash';
 import { clsx } from './clsx';
 import { timers } from './timers';
+import { promises } from './promises';
 import { commonjsBasic } from './commonjs-basic';
 import { commonjsModules } from './commonjs-modules';
 import { commonjsMixed } from './commonjs-mixed';
@@ -22,6 +23,7 @@ export const examples: ExampleDefinition[] = [
   lodash,
   clsx,
   timers,
+  promises,
   packageJson,
   npmScripts,
   npmBin,

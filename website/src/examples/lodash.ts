@@ -22,12 +22,7 @@ console.log('Last 3:', _.takeRight(numbers, 3));
 console.log('');
 console.log('Unique:', _.uniq([1, 2, 2, 3, 3, 4, 4, 5]));
 console.log('Shuffle:', _.shuffle([1, 2, 3, 4, 5]));
-
-export default {
-  sum: _.sum(numbers),
-  average: _.mean(numbers),
-  doubled: _.map(numbers, n => n * 2)
-};`,
+`,
   files: {
     'package.json': JSON.stringify(
       {

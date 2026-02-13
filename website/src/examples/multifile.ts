@@ -26,14 +26,7 @@ import { existsSync } from 'fs';
 console.log('');
 console.log('Does /utils.js exist?', existsSync('/utils.js'));
 console.log('Does /math-helpers.js exist?', existsSync('/math-helpers.js'));
-
-export default {
-  greeting: greet('User'),
-  sum: add(10, 20),
-  quad: quadruple(10),
-  square: square(7),
-  version
-};`,
+`,
   files: {
     'utils.js': `export function greet(name) {
   return 'Hello, ' + name + '!';
@@ -52,7 +45,8 @@ export function multiply(a, b) {
 }
 
 export const PI = 3.14159;
-export const version = '1.0.0';`,
+export const version = '1.0.0';
+`,
     'math-helpers.js': `import { double } from './utils.js';
 
 export function quadruple(x) {

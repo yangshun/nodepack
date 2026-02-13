@@ -20,8 +20,6 @@ console.log(clsx(
 
 // Arrays
 console.log(clsx(['foo', 0, false, 'bar']));
-
-export default {};
 `,
   files: {
     'package.json': JSON.stringify(

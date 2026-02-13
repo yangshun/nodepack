@@ -16,10 +16,7 @@ const classes = clsx({
 });
 
 console.log('Class names:', classes);
-
-export default {
-  classes,
-};`,
+`,
   files: {
     'package.json': JSON.stringify(
       {

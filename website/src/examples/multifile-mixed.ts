@@ -42,12 +42,7 @@ console.log(' ', formatter.formatReversed('Hello'));
 
 console.log('');
 console.log('✓ ES modules and CommonJS work seamlessly together!');
-
-export default {
-  squareOf5: result1.result,
-  powerOf2to10: result2.result,
-  message: 'Mixed module systems work!'
-};`,
+`,
   files: {
     'string-utils.js': `// Pure ES module with named exports
 export function capitalize(str) {
@@ -58,7 +53,8 @@ export function reverse(str) {
   return str.split('').reverse().join('');
 }
 
-export const version = '1.0.0';`,
+export const version = '1.0.0';
+`,
     'math-lib.js': `// Pure CommonJS module
 exports.square = function(x) {
   return x * x;
@@ -70,7 +66,8 @@ exports.cube = function(x) {
 
 exports.power = function(base, exp) {
   return Math.pow(base, exp);
-};`,
+};
+`,
     'calculator.js': `// Mixed module - Uses ES import AND require!
 
 // ES import from ES module
@@ -107,6 +104,7 @@ export default {
   formatReversed: function(str) {
     return 'Reversed: ' + reverse(str);
   }
-};`,
+};
+`,
   },
 };

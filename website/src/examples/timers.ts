@@ -44,9 +44,5 @@ setTimeout(() => {
 }, 800);
 
 console.log('All timers scheduled!');
-
-export default {
-  message: 'Check console for timer output',
-  timersScheduled: 5
-};`,
+`,
 };

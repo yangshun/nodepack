@@ -6,7 +6,7 @@ export const commonjsNested: ExampleDefinition = {
   code: `// Demonstrating nested requires and __filename/__dirname
 
 // Require module A (which itself requires module B)
-const moduleA = require('./moduleA.js');
+const moduleA = require('./module-a.js');
 
 const info = moduleA.getInfo();
 
@@ -25,9 +25,10 @@ console.log('');
 console.log('✓ Nested requires work correctly!');
 console.log('✓ __filename and __dirname are properly set!');
 
-module.exports = info;`,
+module.exports = info;
+`,
   files: {
-    'moduleB.js': `// Module B - Has its own __filename and __dirname
+    'module-b.js': `// Module B - Has its own __filename and __dirname
 exports.name = 'Module B';
 exports.location = __dirname;
 exports.file = __filename;
@@ -38,9 +39,10 @@ exports.getData = function() {
     location: exports.location,
     file: exports.file
   };
-};`,
-    'moduleA.js': `// Module A - Requires Module B
-const moduleB = require('./moduleB.js');
+};
+`,
+    'module-a.js': `// Module A - Requires Module B
+const moduleB = require('./module-b.js');
 
 exports.name = 'Module A';
 exports.location = __dirname;
@@ -55,6 +57,7 @@ exports.getInfo = function() {
     },
     dependency: moduleB.getData()
   };
-};`,
+};
+`,
   },
 };

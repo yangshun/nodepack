@@ -22,10 +22,5 @@ console.log('Filename:', path.basename(fullPath));
 // Process info
 console.log('Platform:', process.platform);
 console.log('Working dir:', process.cwd());
-
-module.exports = {
-  success: true,
-  content,
-  fullPath
-};`,
+`,
 };

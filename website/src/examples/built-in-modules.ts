@@ -21,6 +21,5 @@ console.log('Extension:', ext);
 console.log('Platform:', process.platform);
 console.log('Version:', process.version);
 console.log('Working dir:', process.cwd());
-
-export default { fullPath, dir, file, ext };`,
+`,
 };

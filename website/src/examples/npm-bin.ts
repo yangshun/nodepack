@@ -30,10 +30,7 @@ console.log('   npm run check');
 console.log('');
 
 // Note: Some CLI tools may not work fully in the browser environment
-// This example demonstrates the bin field support mechanism
-export default {
-  message: 'Bin executables are now available in PATH',
-};`,
+// This example demonstrates the bin field support mechanism`,
   files: {
     'package.json': JSON.stringify(
       {

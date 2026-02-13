@@ -40,11 +40,7 @@ console.log('  Fetch 999:', fetch2.status, fetch2.message);
 
 console.log('');
 console.log('✓ Complex mixed module dependencies work perfectly!');
-
-export default {
-  users: [user1.user, user2.user].filter(Boolean),
-  architecture: 'Mixed ESM/CJS across 4 layers'
-};`,
+`,
   files: {
     'base/logger.js': `// Layer 1: Base utilities (CommonJS)
 exports.log = function(message) {
@@ -53,7 +49,8 @@ exports.log = function(message) {
 
 exports.error = function(message) {
   return '[ERROR] ' + message;
-};`,
+};
+`,
     'data/store.js': `// Layer 2: Data layer (CommonJS) - depends on logger (CJS)
 const logger = require('../base/logger.js');
 
@@ -71,7 +68,8 @@ exports.get = function(key) {
 
 exports.has = function(key) {
   return data.has(key);
-};`,
+};
+`,
     'services/user-service.js': `// Layer 3: Business logic (CommonJS) - depends on data layer (ES)
 const store = require('../data/store.js');
 
@@ -85,7 +83,8 @@ exports.createUser = function(id, name) {
 
 exports.getUser = function(id) {
   return store.get('user_' + id) || null;
-};`,
+};
+`,
     'api/users.js': `// Layer 4: API layer (ES Module) - depends on services (CJS)
 const userService = require('../services/user-service.js');
 

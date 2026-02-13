@@ -14,10 +14,7 @@ const greet = (name) => {
 
 const result = greet('Nodepack User');
 console.log(\`Result: \${result}\`);
-
-export default {
-  greet,
-};`,
+`,
   files: {
     'package.json': JSON.stringify(
       {
