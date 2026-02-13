@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { vol } from 'memfs';
 import type { IFs } from 'memfs';
 import { NpmPackageManager } from './package-manager.js';
@@ -64,7 +64,7 @@ describe('NpmPackageManager', () => {
   }
 
   describe('install()', () => {
-    it('should install a simple package', async () => {
+    test('install a simple package', async () => {
       const resolved = new Map([
         ['simple-package', createMockResolvedDependency('simple-package', '1.0.0')],
       ]);
@@ -81,7 +81,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules/simple-package/package.json')).toBe(true);
     });
 
-    it('should install package with default version (latest)', async () => {
+    test('install package with default version (latest)', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '2.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -92,7 +92,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).toHaveBeenCalledWith('pkg', 'latest', {});
     });
 
-    it('should install package with dependencies', async () => {
+    test('install package with dependencies', async () => {
       const childDep = createMockResolvedDependency('child', '1.0.0');
       const parentDep = createMockResolvedDependency('parent', '1.0.0');
       parentDep.dependencies.set('child', childDep);
@@ -119,7 +119,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules/child')).toBe(true);
     });
 
-    it('should skip installation if package already installed', async () => {
+    test('skip installation if package already installed', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -134,7 +134,7 @@ describe('NpmPackageManager', () => {
       expect(mockRegistry.downloadTarball).toHaveBeenCalledTimes(1); // Still 1
     });
 
-    it('should bypass early check when force option is true', async () => {
+    test('bypass early check when force option is true', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -155,7 +155,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).toHaveBeenCalledTimes(3);
     });
 
-    it('should pass options to resolver', async () => {
+    test('pass options to resolver', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -166,7 +166,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).toHaveBeenCalledWith('pkg', '1.0.0', { includeDev: true });
     });
 
-    it('should download tarball from correct URL', async () => {
+    test('download tarball from correct URL', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -179,7 +179,7 @@ describe('NpmPackageManager', () => {
       );
     });
 
-    it('should create node_modules directory if it does not exist', async () => {
+    test('create node_modules directory if it does not exist', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -192,7 +192,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules')).toBe(true);
     });
 
-    it('should handle nested file structures', async () => {
+    test('handle nested file structures', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       const files = new Map();
@@ -226,7 +226,7 @@ describe('NpmPackageManager', () => {
   });
 
   describe('installFromPackageJson()', () => {
-    it('should install dependencies from package.json', async () => {
+    test('install dependencies from package.json', async () => {
       const packageJson = JSON.stringify({
         dependencies: {
           pkg1: '^1.0.0',
@@ -251,7 +251,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules/pkg2')).toBe(true);
     });
 
-    it('should not install dev dependencies by default', async () => {
+    test('not install dev dependencies by default', async () => {
       const packageJson = JSON.stringify({
         dependencies: {
           prod: '^1.0.0',
@@ -272,7 +272,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).toHaveBeenCalledWith('prod', '^1.0.0', {});
     });
 
-    it('should install dev dependencies when includeDev is true', async () => {
+    test('install dev dependencies when includeDev is true', async () => {
       const packageJson = JSON.stringify({
         dependencies: {
           prod: '^1.0.0',
@@ -298,7 +298,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).toHaveBeenCalledTimes(2);
     });
 
-    it('should handle package.json with no dependencies', async () => {
+    test('handle package.json with no dependencies', async () => {
       const packageJson = JSON.stringify({
         name: 'my-project',
       });
@@ -308,7 +308,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).not.toHaveBeenCalled();
     });
 
-    it('should handle empty dependencies object', async () => {
+    test('handle empty dependencies object', async () => {
       const packageJson = JSON.stringify({
         dependencies: {},
       });
@@ -318,7 +318,7 @@ describe('NpmPackageManager', () => {
       expect(mockResolver.resolve).not.toHaveBeenCalled();
     });
 
-    it('should install all dependencies in parallel', async () => {
+    test('install all dependencies in parallel', async () => {
       const packageJson = JSON.stringify({
         dependencies: {
           pkg1: '^1.0.0',
@@ -351,13 +351,13 @@ describe('NpmPackageManager', () => {
   });
 
   describe('isInstalled()', () => {
-    it('should return false for non-existent package', () => {
+    test('return false for non-existent package', () => {
       const result = packageManager.isInstalled('nonexistent');
 
       expect(result).toBe(false);
     });
 
-    it('should return true for installed package', async () => {
+    test('return true for installed package', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -370,7 +370,7 @@ describe('NpmPackageManager', () => {
       expect(result).toBe(true);
     });
 
-    it('should check specific version when provided', async () => {
+    test('check specific version when provided', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -382,7 +382,7 @@ describe('NpmPackageManager', () => {
       expect(packageManager.isInstalled('pkg', '2.0.0')).toBe(false);
     });
 
-    it('should return false if package.json is missing', () => {
+    test('return false if package.json is missing', () => {
       filesystem.mkdirSync('/node_modules/broken-package', { recursive: true });
 
       const result = packageManager.isInstalled('broken-package');
@@ -390,7 +390,7 @@ describe('NpmPackageManager', () => {
       expect(result).toBe(false);
     });
 
-    it('should return false if package.json is invalid JSON', () => {
+    test('return false if package.json is invalid JSON', () => {
       filesystem.mkdirSync('/node_modules/broken-package', { recursive: true });
       filesystem.writeFileSync('/node_modules/broken-package/package.json', 'invalid json');
 
@@ -399,7 +399,7 @@ describe('NpmPackageManager', () => {
       expect(result).toBe(false);
     });
 
-    it('should return true without version check if no version specified', async () => {
+    test('return true without version check if no version specified', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -412,7 +412,7 @@ describe('NpmPackageManager', () => {
   });
 
   describe('bin links', () => {
-    it('should setup bin links for packages with bin field', async () => {
+    test('setup bin links for packages with bin field', async () => {
       const resolved = new Map([['cli-pkg', createMockResolvedDependency('cli-pkg', '1.0.0')]]);
 
       const files = new Map();
@@ -444,7 +444,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules/.bin/my-cli')).toBe(true);
     });
 
-    it('should handle string bin field', async () => {
+    test('handle string bin field', async () => {
       const resolved = new Map([['cli-pkg', createMockResolvedDependency('cli-pkg', '1.0.0')]]);
 
       const files = new Map();
@@ -473,7 +473,7 @@ describe('NpmPackageManager', () => {
       expect(filesystem.existsSync('/node_modules/.bin/cli-pkg')).toBe(true);
     });
 
-    it('should not create bin links for packages without bin field', async () => {
+    test('not create bin links for packages without bin field', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -487,7 +487,7 @@ describe('NpmPackageManager', () => {
       }
     });
 
-    it('should skip bin link if target file does not exist', async () => {
+    test('skip bin link if target file does not exist', async () => {
       const resolved = new Map([['cli-pkg', createMockResolvedDependency('cli-pkg', '1.0.0')]]);
 
       const files = new Map();
@@ -517,14 +517,14 @@ describe('NpmPackageManager', () => {
   });
 
   describe('clearCache()', () => {
-    it('should clear all caches', () => {
+    test('clear all caches', () => {
       packageManager.clearCache();
 
       expect(mockRegistry.clearCache).toHaveBeenCalled();
       expect(mockResolver.clearCache).toHaveBeenCalled();
     });
 
-    it('should not throw when clearing empty cache', () => {
+    test('not throw when clearing empty cache', () => {
       expect(() => {
         packageManager.clearCache();
       }).not.toThrow();
@@ -532,13 +532,13 @@ describe('NpmPackageManager', () => {
   });
 
   describe('error handling', () => {
-    it('should propagate resolver errors', async () => {
+    test('propagate resolver errors', async () => {
       vi.mocked(mockResolver.resolve).mockRejectedValue(new Error('Resolution failed'));
 
       await expect(packageManager.install('pkg', '1.0.0')).rejects.toThrow('Resolution failed');
     });
 
-    it('should propagate download errors', async () => {
+    test('propagate download errors', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -547,7 +547,7 @@ describe('NpmPackageManager', () => {
       await expect(packageManager.install('pkg', '1.0.0')).rejects.toThrow('Download failed');
     });
 
-    it('should propagate extraction errors', async () => {
+    test('propagate extraction errors', async () => {
       const resolved = new Map([['pkg', createMockResolvedDependency('pkg', '1.0.0')]]);
 
       vi.mocked(mockResolver.resolve).mockResolvedValue(resolved);
@@ -556,7 +556,7 @@ describe('NpmPackageManager', () => {
       await expect(packageManager.install('pkg', '1.0.0')).rejects.toThrow('Extraction failed');
     });
 
-    it('should handle invalid package.json in installFromPackageJson', async () => {
+    test('handle invalid package.json in installFromPackageJson', async () => {
       const invalidJson = 'not valid json';
 
       await expect(packageManager.installFromPackageJson(invalidJson)).rejects.toThrow();

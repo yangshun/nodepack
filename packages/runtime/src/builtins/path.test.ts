@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { createPathModule } from './path.js';
 
 describe('path module', () => {
-  it('should provide join', async () => {
+  test('provide join', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -28,7 +28,7 @@ describe('path module', () => {
     runtime.dispose();
   });
 
-  it('should provide dirname', async () => {
+  test('provide dirname', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -52,7 +52,7 @@ describe('path module', () => {
     runtime.dispose();
   });
 
-  it('should provide basename', async () => {
+  test('provide basename', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -76,7 +76,7 @@ describe('path module', () => {
     runtime.dispose();
   });
 
-  it('should provide resolve', async () => {
+  test('provide resolve', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -100,7 +100,7 @@ describe('path module', () => {
     runtime.dispose();
   });
 
-  it('should provide extname', async () => {
+  test('provide extname', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();

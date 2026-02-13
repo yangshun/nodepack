@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { createTimersModule } from './timers.js';
 import type { TimerTracker } from './timers.js';
@@ -19,7 +19,7 @@ describe('timers module', () => {
   }, 30000);
 
   describe('setTimeout', () => {
-    it('should provide setTimeout function', async () => {
+    test('provide setTimeout function', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -34,7 +34,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should execute callback after delay', async () => {
+    test('execute callback after delay', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -66,7 +66,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should return timer ID', async () => {
+    test('return timer ID', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -85,7 +85,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should track pending timers', async () => {
+    test('track pending timers', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -98,7 +98,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should remove timer from tracker after execution', async () => {
+    test('remove timer from tracker after execution', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -116,7 +116,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should handle zero delay', async () => {
+    test('handle zero delay', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -150,7 +150,7 @@ describe('timers module', () => {
   });
 
   describe('setInterval', () => {
-    it('should provide setInterval function', async () => {
+    test('provide setInterval function', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -165,7 +165,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should execute callback repeatedly', async () => {
+    test('execute callback repeatedly', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -200,7 +200,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should return timer ID', async () => {
+    test('return timer ID', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -219,7 +219,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should track pending intervals', async () => {
+    test('track pending intervals', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -234,7 +234,7 @@ describe('timers module', () => {
   });
 
   describe('clearTimeout', () => {
-    it('should provide clearTimeout function', async () => {
+    test('provide clearTimeout function', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -249,7 +249,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should cancel timer before execution', async () => {
+    test('cancel timer before execution', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -282,7 +282,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should work with clearTimeout', async () => {
+    test('work with clearTimeout', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -315,7 +315,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should handle invalid timer ID gracefully', async () => {
+    test('handle invalid timer ID gracefully', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -331,7 +331,7 @@ describe('timers module', () => {
   });
 
   describe('clearInterval', () => {
-    it('should provide clearInterval function', async () => {
+    test('provide clearInterval function', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -346,7 +346,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should stop interval from executing', async () => {
+    test('stop interval from executing', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -387,7 +387,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should work with clearInterval', async () => {
+    test('work with clearInterval', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -430,7 +430,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should handle invalid interval ID gracefully', async () => {
+    test('handle invalid interval ID gracefully', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -446,7 +446,7 @@ describe('timers module', () => {
   });
 
   describe('multiple timers', () => {
-    it('should handle multiple setTimeout calls', async () => {
+    test('handle multiple setTimeout calls', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -463,7 +463,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should handle multiple setInterval calls', async () => {
+    test('handle multiple setInterval calls', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -479,7 +479,7 @@ describe('timers module', () => {
       runtime.dispose();
     });
 
-    it('should handle mixed timers', async () => {
+    test('handle mixed timers', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -498,7 +498,7 @@ describe('timers module', () => {
   });
 
   describe('error handling', () => {
-    it('should handle callback errors gracefully', async () => {
+    test('handle callback errors gracefully', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();
@@ -523,7 +523,7 @@ describe('timers module', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle undefined delay', async () => {
+    test('handle undefined delay', async () => {
       const timersHandle = createTimersModule(vm, tracker);
       vm.setProp(vm.global, 'timers', timersHandle);
       timersHandle.dispose();

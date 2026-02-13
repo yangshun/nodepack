@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from '../../runtime.js';
 import { loadFixture, loadFixtureIntoFilesystem } from '../fixture-loader.js';
 
@@ -10,7 +10,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should handle ESM importing another ESM module', async () => {
+  test('handle ESM importing another ESM module', async () => {
     const fixture = loadFixture('esm/import-esm');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -20,7 +20,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.data).toEqual({ sum: 8, product: 28 });
   });
 
-  it('should handle import.meta', async () => {
+  test('handle import.meta', async () => {
     const fixture = loadFixture('esm/import-meta');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -34,7 +34,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     });
   });
 
-  it('should handle ESM with default and named exports', async () => {
+  test('handle ESM with default and named exports', async () => {
     const fixture = loadFixture('esm/default-named');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -46,7 +46,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.data.E).toBe(2.71828);
   });
 
-  it('should handle chain of ESM imports', async () => {
+  test('handle chain of ESM imports', async () => {
     const fixture = loadFixture('esm/chain');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -56,7 +56,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.data).toBe(84);
   });
 
-  it('should handle ESM with re-exports', async () => {
+  test('handle ESM with re-exports', async () => {
     const fixture = loadFixture('esm/reexports');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -66,7 +66,7 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.data).toEqual({ sum: 15, diff: 5, product: 50 });
   });
 
-  it('should handle ESM exports destructure', async () => {
+  test('handle ESM exports destructure', async () => {
     const fixture = loadFixture('esm/exports-destructure');
     loadFixtureIntoFilesystem(runtime, fixture);
 

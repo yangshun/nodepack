@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from '../../runtime.js';
 import { loadFixture, loadFixtureIntoFilesystem } from '../fixture-loader.js';
 
@@ -10,7 +10,7 @@ describe('NodepackRuntime - Module execution', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should execute ES modules', async () => {
+  test('execute ES modules', async () => {
     const fixture = loadFixture('modules/esm');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -18,7 +18,7 @@ describe('NodepackRuntime - Module execution', () => {
     expect(result.data).toBe('a/b');
   });
 
-  it('should execute CommonJS modules', async () => {
+  test('execute CommonJS modules', async () => {
     const fixture = loadFixture('modules/cjs');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -26,7 +26,7 @@ describe('NodepackRuntime - Module execution', () => {
     expect(result.data).toBe('x/y');
   });
 
-  it('should resolve require() with package subpaths', async () => {
+  test('resolve require() with package subpaths', async () => {
     const fixture = loadFixture('modules/require-subpath');
     loadFixtureIntoFilesystem(runtime, fixture);
 

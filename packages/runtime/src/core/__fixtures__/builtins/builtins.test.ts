@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { readFileSync } from 'fs';
 import { join, dirname } from 'path';
 import { fileURLToPath } from 'url';
@@ -16,7 +16,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should support path module (ESM)', async () => {
+  test('support path module (ESM)', async () => {
     const fixture = loadFixture('builtins/path');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -28,7 +28,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.hasResolve).toBe(true);
   });
 
-  it('should support path module (CJS)', async () => {
+  test('support path module (CJS)', async () => {
     const cjsCode = readFileSync(join(__dirname, 'path/main-cjs.js'), 'utf8');
     const result = await runtime.execute(cjsCode);
 
@@ -40,7 +40,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.hasResolve).toBe(true);
   });
 
-  it('should support events module (ESM)', async () => {
+  test('support events module (ESM)', async () => {
     const fixture = loadFixture('builtins/events');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -50,7 +50,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.listenerCount).toBe(1);
   });
 
-  it('should support events module (CJS)', async () => {
+  test('support events module (CJS)', async () => {
     const cjsCode = readFileSync(join(__dirname, 'events/main-cjs.js'), 'utf8');
     const result = await runtime.execute(cjsCode);
 
@@ -60,7 +60,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.listenerCount).toBe(1);
   });
 
-  it('should support util module (ESM)', async () => {
+  test('support util module (ESM)', async () => {
     const fixture = loadFixture('builtins/util');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -72,7 +72,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.inspected).toContain('test');
   });
 
-  it('should support util module (CJS)', async () => {
+  test('support util module (CJS)', async () => {
     const cjsCode = readFileSync(join(__dirname, 'util/main-cjs.js'), 'utf8');
     const result = await runtime.execute(cjsCode);
 
@@ -87,7 +87,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.inspected).toContain('test');
   });
 
-  it('should support buffer module (ESM)', async () => {
+  test('support buffer module (ESM)', async () => {
     const fixture = loadFixture('builtins/buffer');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -102,7 +102,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.isBuffer).toBe(true);
   });
 
-  it('should support buffer module (CJS)', async () => {
+  test('support buffer module (CJS)', async () => {
     const cjsCode = readFileSync(join(__dirname, 'buffer/main-cjs.js'), 'utf8');
     const result = await runtime.execute(cjsCode);
 
@@ -114,7 +114,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.isBuffer).toBe(true);
   });
 
-  it('should support url module (ESM)', async () => {
+  test('support url module (ESM)', async () => {
     const fixture = loadFixture('builtins/url');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -132,7 +132,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.fooValue).toBe('bar');
   });
 
-  it('should support url module (CJS)', async () => {
+  test('support url module (CJS)', async () => {
     const cjsCode = readFileSync(join(__dirname, 'url/main-cjs.js'), 'utf8');
     const result = await runtime.execute(cjsCode);
 
@@ -147,7 +147,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.fooValue).toBe('bar');
   });
 
-  it('should support process event handlers', async () => {
+  test('support process event handlers', async () => {
     const fixture = loadFixture('builtins/process-events');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -156,7 +156,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.hasUnhandledListener).toBe(true);
   });
 
-  it('should support process event handlers with full EventEmitter API', async () => {
+  test('support process event handlers with full EventEmitter API', async () => {
     const fixture = loadFixture('builtins/process-events-full');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -166,7 +166,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.listenerCount).toBe(1);
   });
 
-  it('should support process.cwd() and process.chdir()', async () => {
+  test('support process.cwd() and process.chdir()', async () => {
     const fixture = loadFixture('builtins/process-cwd');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -178,7 +178,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.backToRoot).toBe('/');
   });
 
-  it('should support fs.lstatSync()', async () => {
+  test('support fs.lstatSync()', async () => {
     const fixture = loadFixture('builtins/fs-lstat');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -195,7 +195,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.hasMtime).toBe(true);
   });
 
-  it('should support fs.statSync() and fs.readdirSync()', async () => {
+  test('support fs.statSync() and fs.readdirSync()', async () => {
     const fixture = loadFixture('builtins/fs-stat');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -214,7 +214,7 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.filesInDir).toEqual(['file.txt']);
   });
 
-  it('should support comprehensive fs methods', async () => {
+  test('support comprehensive fs methods', async () => {
     const fixture = loadFixture('builtins/fs-comprehensive');
     const result = await runtime.execute(fixture.mainFile);
 

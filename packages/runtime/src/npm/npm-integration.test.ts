@@ -2,7 +2,7 @@
  * Integration tests for NPM package installation
  */
 
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { NodepackRuntime } from '../core/runtime.js';
 
 describe('NPM Package Installation', () => {
@@ -19,8 +19,8 @@ describe('NPM Package Installation', () => {
     }
   });
 
-  it(
-    'should install a simple package (picocolors)',
+  test(
+    'install a simple package (picocolors)',
     async () => {
       // Use picocolors because it's small and has no dependencies
       await runtime.npm.install('picocolors');
@@ -36,8 +36,8 @@ describe('NPM Package Installation', () => {
     { timeout: 30000 },
   );
 
-  it(
-    'should install specific version',
+  test(
+    'install specific version',
     async () => {
       // Install a specific version
       await runtime.npm.install('picocolors', '1.0.0');
@@ -56,8 +56,8 @@ describe('NPM Package Installation', () => {
     { timeout: 30000 },
   );
 
-  it(
-    'should check if package is installed',
+  test(
+    'check if package is installed',
     async () => {
       expect(runtime.npm.isInstalled('picocolors')).toBe(false);
 
@@ -68,8 +68,8 @@ describe('NPM Package Installation', () => {
     { timeout: 30000 },
   );
 
-  it(
-    'should install from package.json',
+  test(
+    'install from package.json',
     async () => {
       const packageJson = JSON.stringify({
         dependencies: {

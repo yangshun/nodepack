@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import * as pako from 'pako';
 import { TarballExtractor } from './tarball-extractor.js';
 
@@ -111,7 +111,7 @@ describe('TarballExtractor', () => {
   }
 
   describe('extract()', () => {
-    it('should extract a simple tar.gz with one file', async () => {
+    test('extract a simple tar.gz with one file', async () => {
       const tarball = createTarball(createTarFile('package/index.js', 'module.exports = {};'));
 
       const files = await extractor.extract(tarball);
@@ -125,7 +125,7 @@ describe('TarballExtractor', () => {
       expect(new TextDecoder().decode(file.content as Uint8Array)).toBe('module.exports = {};');
     });
 
-    it('should extract multiple files', async () => {
+    test('extract multiple files', async () => {
       const tarball = createTarball(
         createTarFile('package/index.js', 'console.log("index");'),
         createTarFile('package/helper.js', 'console.log("helper");'),
@@ -140,7 +140,7 @@ describe('TarballExtractor', () => {
       expect(files.has('package.json')).toBe(true);
     });
 
-    it('should strip "package/" prefix from file paths', async () => {
+    test('strip "package/" prefix from file paths', async () => {
       const tarball = createTarball(
         createTarFile('package/src/index.js', 'content'),
         createTarFile('package/README.md', 'readme'),
@@ -153,7 +153,7 @@ describe('TarballExtractor', () => {
       expect(files.has('package/src/index.js')).toBe(false);
     });
 
-    it('should handle directories', async () => {
+    test('handle directories', async () => {
       const tarball = createTarball(
         createTarDirectory('package/src/'),
         createTarFile('package/src/index.js', 'content'),
@@ -167,7 +167,7 @@ describe('TarballExtractor', () => {
       expect(files.get('src/index.js')!.type).toBe('file');
     });
 
-    it('should preserve file mode', async () => {
+    test('preserve file mode', async () => {
       const tarball = createTarball(
         createTarFile('package/script.sh', '#!/bin/bash\necho hello', 0o755),
       );
@@ -178,7 +178,7 @@ describe('TarballExtractor', () => {
       expect(file.mode).toBe(0o755);
     });
 
-    it('should handle nested directory structures', async () => {
+    test('handle nested directory structures', async () => {
       const tarball = createTarball(
         createTarDirectory('package/src/'),
         createTarDirectory('package/src/utils/'),
@@ -194,7 +194,7 @@ describe('TarballExtractor', () => {
       expect(files.has('src/index.js')).toBe(true);
     });
 
-    it('should handle empty files', async () => {
+    test('handle empty files', async () => {
       const tarball = createTarball(createTarFile('package/empty.txt', ''));
 
       const files = await extractor.extract(tarball);
@@ -204,7 +204,7 @@ describe('TarballExtractor', () => {
       expect((file.content as Uint8Array).length).toBe(0);
     });
 
-    it('should handle files with special characters in name', async () => {
+    test('handle files with special characters in name', async () => {
       const tarball = createTarball(
         createTarFile('package/file-with-dashes.js', 'content'),
         createTarFile('package/file.name.with.dots.js', 'content'),
@@ -216,7 +216,7 @@ describe('TarballExtractor', () => {
       expect(files.has('file.name.with.dots.js')).toBe(true);
     });
 
-    it('should handle large files', async () => {
+    test('handle large files', async () => {
       const largeContent = 'a'.repeat(10000);
       const tarball = createTarball(createTarFile('package/large.txt', largeContent));
 
@@ -226,7 +226,7 @@ describe('TarballExtractor', () => {
       expect(new TextDecoder().decode(file.content as Uint8Array)).toBe(largeContent);
     });
 
-    it('should handle unicode characters in file content', async () => {
+    test('handle unicode characters in file content', async () => {
       const unicodeContent = 'Hello 世界 🌍';
       const tarball = createTarball(createTarFile('package/unicode.txt', unicodeContent));
 
@@ -236,7 +236,7 @@ describe('TarballExtractor', () => {
       expect(new TextDecoder().decode(file.content as Uint8Array)).toBe(unicodeContent);
     });
 
-    it('should skip entries with empty path after stripping prefix', async () => {
+    test('skip entries with empty path after stripping prefix', async () => {
       const header = createTarHeader('package/', 0, '5');
       const tarball = createTarball(header);
 
@@ -246,7 +246,7 @@ describe('TarballExtractor', () => {
       expect(files.size).toBe(0);
     });
 
-    it('should handle package.json file', async () => {
+    test('handle package.json file', async () => {
       const packageJson = JSON.stringify({
         name: 'test-package',
         version: '1.0.0',
@@ -264,7 +264,7 @@ describe('TarballExtractor', () => {
       expect(parsed.name).toBe('test-package');
     });
 
-    it('should handle typical npm package structure', async () => {
+    test('handle typical npm package structure', async () => {
       const tarball = createTarball(
         createTarFile('package/package.json', '{"name":"pkg"}'),
         createTarFile('package/index.js', 'module.exports = {};'),
@@ -289,7 +289,7 @@ describe('TarballExtractor', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle tar with only directories', async () => {
+    test('handle tar with only directories', async () => {
       const tarball = createTarball(
         createTarDirectory('package/src/'),
         createTarDirectory('package/lib/'),
@@ -302,7 +302,7 @@ describe('TarballExtractor', () => {
       expect(files.get('lib/')!.type).toBe('directory');
     });
 
-    it('should handle minimum valid tar.gz', async () => {
+    test('handle minimum valid tar.gz', async () => {
       // Just end markers
       const tarData = new Uint8Array(1024); // Two zero blocks
       const gzipped = pako.gzip(tarData);
@@ -312,7 +312,7 @@ describe('TarballExtractor', () => {
       expect(files.size).toBe(0);
     });
 
-    it('should handle files at root of package', async () => {
+    test('handle files at root of package', async () => {
       const tarball = createTarball(createTarFile('package/index.js', 'root level'));
 
       const files = await extractor.extract(tarball);
@@ -323,13 +323,13 @@ describe('TarballExtractor', () => {
   });
 
   describe('error handling', () => {
-    it('should throw error for invalid gzip data', async () => {
+    test('throw error for invalid gzip data', async () => {
       const invalidGzip = new ArrayBuffer(100);
 
       await expect(extractor.extract(invalidGzip)).rejects.toThrow();
     });
 
-    it('should handle corrupted tar data gracefully', async () => {
+    test('handle corrupted tar data gracefully', async () => {
       // Create valid gzip but with invalid tar content
       const invalidTarData = new Uint8Array(1024);
       invalidTarData[0] = 0xff; // Invalid tar header
@@ -345,7 +345,7 @@ describe('TarballExtractor', () => {
       }
     });
 
-    it('should handle empty ArrayBuffer', async () => {
+    test('handle empty ArrayBuffer', async () => {
       const empty = new ArrayBuffer(0);
 
       await expect(extractor.extract(empty)).rejects.toThrow();
@@ -353,7 +353,7 @@ describe('TarballExtractor', () => {
   });
 
   describe('real-world simulation', () => {
-    it('should extract a typical small package', async () => {
+    test('extract a typical small package', async () => {
       // Simulate a small utility package
       const tarball = createTarball(
         createTarFile(

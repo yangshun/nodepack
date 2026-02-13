@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { vol } from 'memfs';
 import { NodepackModuleLoader } from './loader.js';
 
@@ -12,7 +12,7 @@ describe('NodepackModuleLoader', () => {
   });
 
   describe('load()', () => {
-    it('should load file from filesystem', () => {
+    test('load file from filesystem', () => {
       vol.writeFileSync('/test.js', 'export default 42;');
 
       const content = loader.load('/test.js');
@@ -20,13 +20,13 @@ describe('NodepackModuleLoader', () => {
       expect(content).toBe('export default 42;');
     });
 
-    it('should throw error for non-existent file', () => {
+    test('throw error for non-existent file', () => {
       expect(() => {
         loader.load('/nonexistent.js');
       }).toThrow('Cannot find module');
     });
 
-    it('should load built-in modules', () => {
+    test('load built-in modules', () => {
       const fsModule = loader.load('fs');
 
       expect(fsModule).toBeDefined();
@@ -36,25 +36,25 @@ describe('NodepackModuleLoader', () => {
   });
 
   describe('normalize()', () => {
-    it('should resolve relative imports from root', () => {
+    test('resolve relative imports from root', () => {
       const result = loader.normalize('/main.js', './utils.js');
 
       expect(result).toBe('/utils.js');
     });
 
-    it('should resolve relative imports from subdirectory', () => {
+    test('resolve relative imports from subdirectory', () => {
       const result = loader.normalize('/src/main.js', './helper.js');
 
       expect(result).toBe('/src/helper.js');
     });
 
-    it('should resolve parent directory imports', () => {
+    test('resolve parent directory imports', () => {
       const result = loader.normalize('/src/sub/file.js', '../utils.js');
 
       expect(result).toBe('/src/utils.js');
     });
 
-    it('should handle npm package imports', () => {
+    test('handle npm package imports', () => {
       vol.mkdirSync('/node_modules/lodash', { recursive: true });
       vol.writeFileSync(
         '/node_modules/lodash/package.json',
@@ -69,7 +69,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/lodash/index.js');
     });
 
-    it('should handle scoped packages', () => {
+    test('handle scoped packages', () => {
       vol.mkdirSync('/node_modules/@babel/core/lib', { recursive: true });
       vol.writeFileSync(
         '/node_modules/@babel/core/package.json',
@@ -84,7 +84,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/@babel/core/lib/index.js');
     });
 
-    it('should resolve package subpaths', () => {
+    test('resolve package subpaths', () => {
       vol.mkdirSync('/node_modules/lodash', { recursive: true });
       vol.writeFileSync('/node_modules/lodash/add.js', 'export default function() {}');
 
@@ -93,7 +93,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/lodash/add.js');
     });
 
-    it('should add .js extension if missing', () => {
+    test('add .js extension if missing', () => {
       vol.writeFileSync('/utils.js', 'export default {}');
 
       const result = loader.normalize('/main.js', './utils');
@@ -101,13 +101,13 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/utils.js');
     });
 
-    it('should handle built-in modules', () => {
+    test('handle built-in modules', () => {
       const result = loader.normalize('/main.js', 'fs');
 
       expect(result).toBe('fs');
     });
 
-    it('should handle node: protocol', () => {
+    test('handle node: protocol', () => {
       const result = loader.normalize('/main.js', 'node:fs');
 
       expect(result).toBe('fs');
@@ -115,7 +115,7 @@ describe('NodepackModuleLoader', () => {
   });
 
   describe('Package resolution', () => {
-    it('should read package.json main field', () => {
+    test('read package.json main field', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -130,7 +130,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
-    it('should fallback to index.js if no main field', () => {
+    test('fallback to index.js if no main field', () => {
       vol.mkdirSync('/node_modules/mypackage', { recursive: true });
       vol.writeFileSync('/node_modules/mypackage/package.json', JSON.stringify({}));
       vol.writeFileSync('/node_modules/mypackage/index.js', 'export default {}');
@@ -140,7 +140,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/index.js');
     });
 
-    it('should use module field over main for ESM', () => {
+    test('use module field over main for ESM', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -156,7 +156,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/esm.js');
     });
 
-    it('should use module field when only module is specified', () => {
+    test('use module field when only module is specified', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -171,7 +171,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/esm.js');
     });
 
-    it('should use exports field as simple string', () => {
+    test('use exports field as simple string', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -187,7 +187,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
-    it('should use exports field with dot notation as string', () => {
+    test('use exports field with dot notation as string', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -205,7 +205,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
-    it('should use exports field with import condition', () => {
+    test('use exports field with import condition', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -226,7 +226,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/esm.js');
     });
 
-    it('should use exports field with nested import default', () => {
+    test('use exports field with nested import default', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -248,7 +248,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/esm.mjs');
     });
 
-    it('should use exports field with default condition', () => {
+    test('use exports field with default condition', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -268,7 +268,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
-    it('should use exports field with nested default default', () => {
+    test('use exports field with nested default default', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -290,7 +290,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/index.js');
     });
 
-    it('should prioritize exports over main', () => {
+    test('prioritize exports over main', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -306,7 +306,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/exports.js');
     });
 
-    it('should prioritize exports over module', () => {
+    test('prioritize exports over module', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -322,7 +322,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/exports.js');
     });
 
-    it('should prioritize exports over module and main', () => {
+    test('prioritize exports over module and main', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -339,7 +339,7 @@ describe('NodepackModuleLoader', () => {
       expect(result).toBe('/node_modules/mypackage/dist/exports.js');
     });
 
-    it('should prioritize module over main when exports is not present', () => {
+    test('prioritize module over main when exports is not present', () => {
       vol.mkdirSync('/node_modules/mypackage/dist', { recursive: true });
       vol.writeFileSync(
         '/node_modules/mypackage/package.json',
@@ -357,7 +357,7 @@ describe('NodepackModuleLoader', () => {
   });
 
   describe('Built-in modules', () => {
-    it('should provide fs module', () => {
+    test('provide fs module', () => {
       const content = loader.load('fs');
 
       expect(content).toContain('readFileSync');
@@ -365,7 +365,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('existsSync');
     });
 
-    it('should provide path module', () => {
+    test('provide path module', () => {
       const content = loader.load('path');
 
       expect(content).toContain('join');
@@ -373,7 +373,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('dirname');
     });
 
-    it('should provide process module', () => {
+    test('provide process module', () => {
       const content = loader.load('process');
 
       expect(content).toContain('cwd');
@@ -381,7 +381,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('exit');
     });
 
-    it('should provide timers module', () => {
+    test('provide timers module', () => {
       const content = loader.load('timers');
 
       expect(content).toContain('setTimeout');
@@ -390,7 +390,7 @@ describe('NodepackModuleLoader', () => {
   });
 
   describe('CommonJS/ESM interoperability', () => {
-    it('should detect and wrap CommonJS modules', () => {
+    test('detect and wrap CommonJS modules', () => {
       const cjsCode = `
         function greet(name) {
           return 'Hello, ' + name;
@@ -408,7 +408,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('const exports = module.exports');
     });
 
-    it('should wrap CJS modules with module.exports assignment', () => {
+    test('wrap CJS modules with module.exports assignment', () => {
       const cjsCode = `
         const value = 42;
         module.exports = { value };
@@ -422,7 +422,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain(cjsCode);
     });
 
-    it('should wrap CJS modules with exports shorthand', () => {
+    test('wrap CJS modules with exports shorthand', () => {
       const cjsCode = `
         exports.name = 'test';
         exports.value = 123;
@@ -436,7 +436,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('const exports = module.exports');
     });
 
-    it('should wrap CJS modules with require statements', () => {
+    test('wrap CJS modules with require statements', () => {
       const cjsCode = `
         const path = require('path');
         module.exports = path.join('a', 'b');
@@ -449,7 +449,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('export default module.exports');
     });
 
-    it('should include __dirname and __filename in wrapped CJS modules', () => {
+    test('include __dirname and __filename in wrapped CJS modules', () => {
       vol.mkdirSync('/subdir', { recursive: true });
       const cjsCode = `module.exports = __dirname;`;
       vol.writeFileSync('/subdir/cjs-dirname.js', cjsCode);
@@ -460,7 +460,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('const __filename = "/subdir/cjs-dirname.js"');
     });
 
-    it('should pass require, module, exports to wrapped CJS modules', () => {
+    test('pass require, module, exports to wrapped CJS modules', () => {
       const cjsCode = `
         module.exports = { test: true };
       `;
@@ -472,7 +472,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('})(exports, require, module, __filename, __dirname);');
     });
 
-    it('should set up module cache in wrapped CJS modules', () => {
+    test('set up module cache in wrapped CJS modules', () => {
       const cjsCode = `module.exports = 42;`;
       vol.writeFileSync('/cjs-cache.js', cjsCode);
 
@@ -482,7 +482,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('globalThis.__nodepack_module_cache["/cjs-cache.js"] = module');
     });
 
-    it('should not wrap ESM modules', () => {
+    test('not wrap ESM modules', () => {
       const esmCode = `
         export function greet(name) {
           return 'Hello, ' + name;
@@ -498,7 +498,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('export function greet');
     });
 
-    it('should not wrap ESM modules with export default', () => {
+    test('not wrap ESM modules with export default', () => {
       const esmCode = `export default function() { return 42; }`;
       vol.writeFileSync('/esm-default.js', esmCode);
 
@@ -508,7 +508,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).not.toContain('CommonJS module wrapper');
     });
 
-    it('should not wrap ESM modules with import statements', () => {
+    test('not wrap ESM modules with import statements', () => {
       const esmCode = `
         import path from 'path';
         export const result = path.join('a', 'b');
@@ -521,7 +521,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).not.toContain('CommonJS module wrapper');
     });
 
-    it('should handle mixed CJS/ESM detection correctly', () => {
+    test('handle mixed CJS/ESM detection correctly', () => {
       // Module with require but also export (should be detected as ESM)
       const mixedCode = `
         export const value = 42;
@@ -536,7 +536,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).not.toContain('CommonJS module wrapper');
     });
 
-    it('should wrap CJS with only require and no exports', () => {
+    test('wrap CJS with only require and no exports', () => {
       const cjsCode = `
         const fs = require('fs');
         console.log('test');
@@ -550,7 +550,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('export default module.exports');
     });
 
-    it('should preserve original code in wrapped CJS modules', () => {
+    test('preserve original code in wrapped CJS modules', () => {
       const cjsCode = `
         function add(a, b) {
           return a + b;
@@ -567,7 +567,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('return a + b;');
     });
 
-    it('should handle CJS modules in subdirectories', () => {
+    test('handle CJS modules in subdirectories', () => {
       vol.mkdirSync('/lib/utils', { recursive: true });
       const cjsCode = `module.exports = { test: true };`;
       vol.writeFileSync('/lib/utils/helper.js', cjsCode);
@@ -579,7 +579,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('const __filename = "/lib/utils/helper.js"');
     });
 
-    it('should mark module as loaded in wrapped CJS', () => {
+    test('mark module as loaded in wrapped CJS', () => {
       const cjsCode = `module.exports = 42;`;
       vol.writeFileSync('/cjs-loaded.js', cjsCode);
 
@@ -589,7 +589,7 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('module.loaded = true');
     });
 
-    it('should set current module directory in wrapped CJS', () => {
+    test('set current module directory in wrapped CJS', () => {
       vol.mkdirSync('/src', { recursive: true });
       const cjsCode = `module.exports = 42;`;
       vol.writeFileSync('/src/cjs-dir.js', cjsCode);

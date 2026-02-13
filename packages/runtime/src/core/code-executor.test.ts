@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { vol } from 'memfs';
 import type { IFs } from 'memfs';
@@ -46,7 +46,7 @@ describe('code-executor', () => {
   }, 30000);
 
   describe('shebang handling', () => {
-    it('should strip shebang from code', async () => {
+    test('strip shebang from code', async () => {
       const code = `#!/usr/bin/env node
 console.log('test');
 export default 42;`;
@@ -57,7 +57,7 @@ export default 42;`;
       expect(result.data).toBe(42);
     });
 
-    it('should handle code without shebang', async () => {
+    test('handle code without shebang', async () => {
       const code = `export default 'no shebang';`;
 
       const result = await executeCode(code, context);
@@ -66,7 +66,7 @@ export default 42;`;
       expect(result.data).toBe('no shebang');
     });
 
-    it('should handle different shebang formats', async () => {
+    test('handle different shebang formats', async () => {
       const code = `#!/bin/sh
 export default 'shell script';`;
 
@@ -78,7 +78,7 @@ export default 'shell script';`;
   });
 
   describe('ESM execution', () => {
-    it('should execute ES module code', async () => {
+    test('execute ES module code', async () => {
       const code = `
         const x = 10;
         const y = 20;
@@ -91,7 +91,7 @@ export default 'shell script';`;
       expect(result.data).toBe(30);
     });
 
-    it('should handle ES module with imports', async () => {
+    test('handle ES module with imports', async () => {
       const code = `
         import { join } from 'path';
         export default join('a', 'b');
@@ -103,7 +103,7 @@ export default 'shell script';`;
       expect(result.data).toBe('a/b');
     });
 
-    it('should return entire module if no default export', async () => {
+    test('return entire module if no default export', async () => {
       const code = `
         export const foo = 'bar';
         export const baz = 123;
@@ -117,7 +117,7 @@ export default 'shell script';`;
   });
 
   describe('CommonJS execution', () => {
-    it('should execute CommonJS module code', async () => {
+    test('execute CommonJS module code', async () => {
       const code = `
         const x = 5;
         module.exports = x * 2;
@@ -129,7 +129,7 @@ export default 'shell script';`;
       expect(result.data).toBe(10);
     });
 
-    it('should handle CommonJS with require', async () => {
+    test('handle CommonJS with require', async () => {
       const code = `
         const path = require('path');
         module.exports = path.join('x', 'y');
@@ -141,7 +141,7 @@ export default 'shell script';`;
       expect(result.data).toBe('x/y');
     });
 
-    it('should support exports object', async () => {
+    test('support exports object', async () => {
       const code = `
         exports.foo = 'bar';
         exports.baz = 123;
@@ -155,7 +155,7 @@ export default 'shell script';`;
   });
 
   describe('error handling', () => {
-    it('should handle syntax errors', async () => {
+    test('handle syntax errors', async () => {
       const code = `
         const x = ;
       `;
@@ -167,7 +167,7 @@ export default 'shell script';`;
       expect(result.logs).toEqual([]);
     });
 
-    it('should handle runtime errors', async () => {
+    test('handle runtime errors', async () => {
       const code = `
         const obj = null;
         obj.property;
@@ -179,7 +179,7 @@ export default 'shell script';`;
       expect(result.error).toBeDefined();
     });
 
-    it('should handle thrown errors', async () => {
+    test('handle thrown errors', async () => {
       const code = `
         throw new Error('Test error message');
       `;
@@ -190,7 +190,7 @@ export default 'shell script';`;
       expect(result.error).toContain('Test error message');
     });
 
-    it('should format error with name and message', async () => {
+    test('format error with name and message', async () => {
       const code = `
         class CustomError extends Error {
           constructor(message) {
@@ -210,7 +210,7 @@ export default 'shell script';`;
   });
 
   describe('filesystem integration', () => {
-    it('should write code to virtual filesystem', async () => {
+    test('write code to virtual filesystem', async () => {
       const code = `export default 'test';`;
 
       await executeCode(code, context);
@@ -219,7 +219,7 @@ export default 'shell script';`;
       expect(fileContent).toBe(code);
     });
 
-    it('should use custom filename option', async () => {
+    test('use custom filename option', async () => {
       const code = `export default 'custom';`;
 
       await executeCode(code, context, { filename: '/custom.js' });
@@ -228,7 +228,7 @@ export default 'shell script';`;
       expect(fileContent).toBe(code);
     });
 
-    it('should handle file in subdirectory', async () => {
+    test('handle file in subdirectory', async () => {
       vol.mkdirSync('/src', { recursive: true });
       const code = `export default 'subdir';`;
 
@@ -240,7 +240,7 @@ export default 'shell script';`;
   });
 
   describe('console logs', () => {
-    it('should capture console logs', async () => {
+    test('capture console logs', async () => {
       const code = `
         console.log('test message');
         export default 42;
@@ -252,7 +252,7 @@ export default 'shell script';`;
       expect(result.logs).toContain('test message');
     });
 
-    it('should capture multiple console logs', async () => {
+    test('capture multiple console logs', async () => {
       const code = `
         console.log('first');
         console.log('second');
@@ -267,7 +267,7 @@ export default 'shell script';`;
       expect(result.logs).toEqual(['first', 'second', 'third']);
     });
 
-    it('should include logs even on error', async () => {
+    test('include logs even on error', async () => {
       const code = `
         console.log('before error');
         throw new Error('boom');
@@ -281,7 +281,7 @@ export default 'shell script';`;
   });
 
   describe('timer handling', () => {
-    it('should wait for setTimeout to complete', async () => {
+    test('wait for setTimeout to complete', async () => {
       const code = `
         let result = 'initial';
         setTimeout(() => {
@@ -298,7 +298,7 @@ export default 'shell script';`;
       expect(context.timerTracker.pendingTimers.size).toBe(0);
     });
 
-    it('should cleanup timers on error', async () => {
+    test('cleanup timers on error', async () => {
       const code = `
         setTimeout(() => {
           console.log('should not run');
@@ -312,7 +312,7 @@ export default 'shell script';`;
       expect(context.timerTracker.pendingTimers.size).toBe(0);
     });
 
-    it('should respect timeout option', async () => {
+    test('respect timeout option', async () => {
       const code = `
         setTimeout(() => {
           console.log('long timer');
@@ -329,7 +329,7 @@ export default 'shell script';`;
   });
 
   describe('module format detection', () => {
-    it('should detect ES module with import', async () => {
+    test('detect ES module with import', async () => {
       const code = `
         import path from 'path';
         export default path.join('a', 'b');
@@ -340,7 +340,7 @@ export default 'shell script';`;
       expect(result.ok).toBe(true);
     });
 
-    it('should detect ES module with export', async () => {
+    test('detect ES module with export', async () => {
       const code = `
         export const value = 42;
       `;
@@ -351,7 +351,7 @@ export default 'shell script';`;
       expect(result.data.value).toBe(42);
     });
 
-    it('should detect CommonJS with require', async () => {
+    test('detect CommonJS with require', async () => {
       const code = `
         const path = require('path');
         module.exports = path;
@@ -363,7 +363,7 @@ export default 'shell script';`;
       expect(result.data).toBeDefined();
     });
 
-    it('should detect CommonJS with module.exports', async () => {
+    test('detect CommonJS with module.exports', async () => {
       const code = `
         module.exports = { test: 'value' };
       `;
@@ -376,7 +376,7 @@ export default 'shell script';`;
   });
 
   describe('resource cleanup', () => {
-    it('should dispose VM and runtime on success', async () => {
+    test('dispose VM and runtime on success', async () => {
       const code = `export default 42;`;
 
       await executeCode(code, context);
@@ -386,7 +386,7 @@ export default 'shell script';`;
       expect(true).toBe(true);
     });
 
-    it('should dispose VM and runtime on error', async () => {
+    test('dispose VM and runtime on error', async () => {
       const code = `throw new Error('test');`;
 
       await executeCode(code, context);
@@ -397,7 +397,7 @@ export default 'shell script';`;
   });
 
   describe('edge cases', () => {
-    it('should handle empty code', async () => {
+    test('handle empty code', async () => {
       const code = ``;
 
       const result = await executeCode(code, context);
@@ -406,7 +406,7 @@ export default 'shell script';`;
       expect(result.ok).toBe(true);
     });
 
-    it('should handle code with only comments', async () => {
+    test('handle code with only comments', async () => {
       const code = `
         // Just a comment
         /* Another comment */
@@ -417,7 +417,7 @@ export default 'shell script';`;
       expect(result.ok).toBe(true);
     });
 
-    it('should handle code with unicode characters', async () => {
+    test('handle code with unicode characters', async () => {
       const code = `
         const greeting = 'Hello 世界';
         export default greeting;
@@ -429,7 +429,7 @@ export default 'shell script';`;
       expect(result.data).toBe('Hello 世界');
     });
 
-    it('should handle large numbers', async () => {
+    test('handle large numbers', async () => {
       const code = `
         export default 9007199254740991; // Number.MAX_SAFE_INTEGER
       `;
@@ -440,7 +440,7 @@ export default 'shell script';`;
       expect(result.data).toBe(9007199254740991);
     });
 
-    it('should handle complex objects', async () => {
+    test('handle complex objects', async () => {
       const code = `
         export default {
           nested: {

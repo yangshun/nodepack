@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { vol } from 'memfs';
 import { createFsModule } from './fs.js';
@@ -8,7 +8,7 @@ describe('fs module', () => {
     vol.reset();
   });
 
-  it('should provide readFileSync', async () => {
+  test('provide readFileSync', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -37,7 +37,7 @@ describe('fs module', () => {
     runtime.dispose();
   });
 
-  it('should provide writeFileSync', async () => {
+  test('provide writeFileSync', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -64,7 +64,7 @@ describe('fs module', () => {
     runtime.dispose();
   });
 
-  it('should provide existsSync', async () => {
+  test('provide existsSync', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -97,7 +97,7 @@ describe('fs module', () => {
     runtime.dispose();
   });
 
-  it('should provide unlinkSync', async () => {
+  test('provide unlinkSync', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -123,7 +123,7 @@ describe('fs module', () => {
     runtime.dispose();
   });
 
-  it('should provide readdirSync', async () => {
+  test('provide readdirSync', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();

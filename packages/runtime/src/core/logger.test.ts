@@ -1,4 +1,4 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, test, expect, vi, beforeEach, afterEach } from 'vitest';
 import { createLogger, isLoggingEnabled } from './logger.js';
 
 describe('Logger', () => {
@@ -13,22 +13,22 @@ describe('Logger', () => {
   });
 
   describe('isLoggingEnabled', () => {
-    it('should return true in development environment', () => {
+    test('return true in development environment', () => {
       process.env.NODE_ENV = 'development';
       expect(isLoggingEnabled()).toBe(true);
     });
 
-    it('should return false in test environment', () => {
+    test('return false in test environment', () => {
       process.env.NODE_ENV = 'test';
       expect(isLoggingEnabled()).toBe(false);
     });
 
-    it('should return false in production environment', () => {
+    test('return false in production environment', () => {
       process.env.NODE_ENV = 'production';
       expect(isLoggingEnabled()).toBe(false);
     });
 
-    it('should return true when NODE_ENV is not set', () => {
+    test('return true when NODE_ENV is not set', () => {
       delete process.env.NODE_ENV;
       expect(isLoggingEnabled()).toBe(true);
     });
@@ -40,7 +40,7 @@ describe('Logger', () => {
         process.env.NODE_ENV = 'development';
       });
 
-      it('should log messages with prefix', () => {
+      test('log messages with prefix', () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -50,7 +50,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should log warnings with prefix', () => {
+      test('log warnings with prefix', () => {
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -60,7 +60,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should log errors with prefix', () => {
+      test('log errors with prefix', () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -70,7 +70,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should support multiple arguments', () => {
+      test('support multiple arguments', () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -80,7 +80,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should support different prefixes', () => {
+      test('support different prefixes', () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         const npmLogger = createLogger('[NPM]');
         const resolverLogger = createLogger('[Resolver]');
@@ -99,7 +99,7 @@ describe('Logger', () => {
         process.env.NODE_ENV = 'test';
       });
 
-      it('should suppress log messages', () => {
+      test('suppress log messages', () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -109,7 +109,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should suppress warnings', () => {
+      test('suppress warnings', () => {
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -119,7 +119,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should suppress errors', () => {
+      test('suppress errors', () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -135,7 +135,7 @@ describe('Logger', () => {
         process.env.NODE_ENV = 'production';
       });
 
-      it('should suppress log messages', () => {
+      test('suppress log messages', () => {
         const consoleSpy = vi.spyOn(console, 'log').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -145,7 +145,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should suppress warnings', () => {
+      test('suppress warnings', () => {
         const consoleSpy = vi.spyOn(console, 'warn').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 
@@ -155,7 +155,7 @@ describe('Logger', () => {
         consoleSpy.mockRestore();
       });
 
-      it('should suppress errors', () => {
+      test('suppress errors', () => {
         const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
         const logger = createLogger('[TEST]');
 

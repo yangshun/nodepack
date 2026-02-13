@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from '../../runtime.js';
 import { loadFixture, loadFixtureIntoFilesystem } from '../fixture-loader.js';
 
@@ -10,7 +10,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should allow ESM to import CJS module', async () => {
+  test('allow ESM to import CJS module', async () => {
     const fixture = loadFixture('interop/esm-import-cjs');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -20,7 +20,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     expect(result.data).toBe(42);
   });
 
-  it('should allow ESM to import CJS module with named exports', async () => {
+  test('allow ESM to import CJS module with named exports', async () => {
     const fixture = loadFixture('interop/esm-import-cjs-named');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -30,7 +30,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     expect(result.data).toEqual({ sum: 30, diff: 25, value: 100 });
   });
 
-  it('should allow CJS to require ESM module', async () => {
+  test('allow CJS to require ESM module', async () => {
     const fixture = loadFixture('interop/cjs-require-esm');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -40,7 +40,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     expect(result.data).toEqual({ formatted: '[test]', prefix: 'PREFIX' });
   });
 
-  it('should allow CJS to require ESM default export', async () => {
+  test('allow CJS to require ESM default export', async () => {
     const fixture = loadFixture('interop/cjs-require-esm-default');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -50,7 +50,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     expect(result.data).toBe('Hello, Alice');
   });
 
-  it('should handle mixed CJS and ESM in module chain', async () => {
+  test('handle mixed CJS and ESM in module chain', async () => {
     const fixture = loadFixture('interop/mixed-chain');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -60,7 +60,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     expect(result.data).toEqual({ count: 3, first: 'Alice' });
   });
 
-  it('should handle complex interoperability with multiple modules', async () => {
+  test('handle complex interoperability with multiple modules', async () => {
     const fixture = loadFixture('interop/complex-interop');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -73,7 +73,7 @@ describe('NodepackRuntime - CJS and ESM interoperability', () => {
     });
   });
 
-  it('should handle circular dependencies between CJS and ESM', async () => {
+  test('handle circular dependencies between CJS and ESM', async () => {
     const fixture = loadFixture('interop/circular-deps');
     loadFixtureIntoFilesystem(runtime, fixture);
 

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, test, expect, beforeEach, vi, afterEach } from 'vitest';
 import { NpmRegistry } from './npm-registry.js';
 import type { PackageMetadata, PackageManifest } from './types.js';
 
@@ -42,7 +42,7 @@ describe('NpmRegistry', () => {
   }
 
   describe('fetchPackageMetadata()', () => {
-    it('should fetch package metadata from npm registry', async () => {
+    test('fetch package metadata from npm registry', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -56,7 +56,7 @@ describe('NpmRegistry', () => {
       expect(result).toEqual(mockMetadata);
     });
 
-    it('should handle scoped packages', async () => {
+    test('handle scoped packages', async () => {
       const mockMetadata = createMockMetadata('@scope/package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -70,7 +70,7 @@ describe('NpmRegistry', () => {
       expect(result.name).toBe('@scope/package');
     });
 
-    it('should cache package metadata', async () => {
+    test('cache package metadata', async () => {
       const mockMetadata = createMockMetadata('cached-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -88,7 +88,7 @@ describe('NpmRegistry', () => {
       expect(result1).toBe(result2); // Same object reference
     });
 
-    it('should throw error when package not found', async () => {
+    test('throw error when package not found', async () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 404,
@@ -100,7 +100,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should throw error on network failure', async () => {
+    test('throw error on network failure', async () => {
       fetchMock.mockRejectedValue(new Error('Network error'));
 
       await expect(registry.fetchPackageMetadata('test-package')).rejects.toThrow(
@@ -108,7 +108,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should handle package with multiple versions', async () => {
+    test('handle package with multiple versions', async () => {
       const mockMetadata = createMockMetadata(
         'multi-version',
         ['1.0.0', '1.5.0', '2.0.0'],
@@ -128,7 +128,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('fetchManifest()', () => {
-    it('should fetch manifest for specific version', async () => {
+    test('fetch manifest for specific version', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0', '2.0.0'], '2.0.0');
 
       fetchMock.mockResolvedValue({
@@ -142,7 +142,7 @@ describe('NpmRegistry', () => {
       expect(manifest.version).toBe('1.0.0');
     });
 
-    it('should resolve "latest" tag to actual version', async () => {
+    test('resolve "latest" tag to actual version', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0', '2.0.0'], '2.0.0');
 
       fetchMock.mockResolvedValue({
@@ -155,7 +155,7 @@ describe('NpmRegistry', () => {
       expect(manifest.version).toBe('2.0.0');
     });
 
-    it('should resolve custom dist-tags', async () => {
+    test('resolve custom dist-tags', async () => {
       const mockMetadata: PackageMetadata = {
         name: 'test-package',
         versions: {
@@ -188,7 +188,7 @@ describe('NpmRegistry', () => {
       expect(manifest.version).toBe('2.0.0-beta');
     });
 
-    it('should throw error when version not found', async () => {
+    test('throw error when version not found', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -201,7 +201,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should include available versions in error message', async () => {
+    test('include available versions in error message', async () => {
       const mockMetadata = createMockMetadata(
         'test-package',
         ['1.0.0', '1.1.0', '1.2.0', '1.3.0', '1.4.0', '1.5.0'],
@@ -224,7 +224,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('getTarballInfo()', () => {
-    it('should return tarball URL for package version', async () => {
+    test('return tarball URL for package version', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -239,7 +239,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should include integrity and shasum when available', async () => {
+    test('include integrity and shasum when available', async () => {
       const mockMetadata: PackageMetadata = {
         name: 'test-package',
         versions: {
@@ -272,7 +272,7 @@ describe('NpmRegistry', () => {
       expect(tarballInfo.shasum).toBe('def456');
     });
 
-    it('should throw error when tarball URL missing', async () => {
+    test('throw error when tarball URL missing', async () => {
       const mockMetadata: PackageMetadata = {
         name: 'test-package',
         versions: {
@@ -299,7 +299,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('downloadTarball()', () => {
-    it('should download tarball as ArrayBuffer', async () => {
+    test('download tarball as ArrayBuffer', async () => {
       const mockBuffer = new ArrayBuffer(1024);
 
       fetchMock.mockResolvedValue({
@@ -313,7 +313,7 @@ describe('NpmRegistry', () => {
       expect(result).toBe(mockBuffer);
     });
 
-    it('should throw error on failed download', async () => {
+    test('throw error on failed download', async () => {
       fetchMock.mockResolvedValue({
         ok: false,
         status: 404,
@@ -324,7 +324,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should throw error on network failure', async () => {
+    test('throw error on network failure', async () => {
       fetchMock.mockRejectedValue(new Error('Connection timeout'));
 
       await expect(registry.downloadTarball('https://example.com/package.tgz')).rejects.toThrow(
@@ -332,7 +332,7 @@ describe('NpmRegistry', () => {
       );
     });
 
-    it('should handle large tarballs', async () => {
+    test('handle large tarballs', async () => {
       const largeBuffer = new ArrayBuffer(10 * 1024 * 1024); // 10MB
 
       fetchMock.mockResolvedValue({
@@ -347,7 +347,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('clearCache()', () => {
-    it('should clear cached manifests', async () => {
+    test('clear cached manifests', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -367,7 +367,7 @@ describe('NpmRegistry', () => {
       expect(fetchMock).toHaveBeenCalledTimes(2);
     });
 
-    it('should not throw when clearing empty cache', () => {
+    test('not throw when clearing empty cache', () => {
       expect(() => {
         registry.clearCache();
       }).not.toThrow();
@@ -375,7 +375,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('real-world scenarios', () => {
-    it('should fetch React metadata structure', async () => {
+    test('fetch React metadata structure', async () => {
       const reactMetadata: PackageMetadata = {
         name: 'react',
         versions: {
@@ -421,7 +421,7 @@ describe('NpmRegistry', () => {
       expect(manifest.dependencies).toHaveProperty('loose-envify');
     });
 
-    it('should handle scoped TypeScript package', async () => {
+    test('handle scoped TypeScript package', async () => {
       const tsMetadata: PackageMetadata = {
         name: '@types/node',
         versions: {
@@ -451,7 +451,7 @@ describe('NpmRegistry', () => {
   });
 
   describe('edge cases', () => {
-    it('should handle package with no dist-tags', async () => {
+    test('handle package with no dist-tags', async () => {
       const mockMetadata: PackageMetadata = {
         name: 'no-tags',
         versions: {
@@ -473,7 +473,7 @@ describe('NpmRegistry', () => {
       expect(metadata.versions).toHaveProperty('1.0.0');
     });
 
-    it('should handle package with special characters in name', async () => {
+    test('handle package with special characters in name', async () => {
       const mockMetadata = createMockMetadata('package-with-dashes', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({
@@ -485,7 +485,7 @@ describe('NpmRegistry', () => {
       expect(result.name).toBe('package-with-dashes');
     });
 
-    it('should handle empty version string', async () => {
+    test('handle empty version string', async () => {
       const mockMetadata = createMockMetadata('test-package', ['1.0.0'], '1.0.0');
 
       fetchMock.mockResolvedValue({

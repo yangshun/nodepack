@@ -1,9 +1,9 @@
-import { describe, it, expect } from 'vitest';
+import { describe, test, expect } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { setupConsole } from './console-handler.js';
 
 describe('Console Handler', () => {
-  it('should capture console.log output', async () => {
+  test('capture console.log output', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -22,7 +22,7 @@ describe('Console Handler', () => {
     runtime.dispose();
   });
 
-  it('should join multiple arguments with spaces', async () => {
+  test('join multiple arguments with spaces', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -41,7 +41,7 @@ describe('Console Handler', () => {
     runtime.dispose();
   });
 
-  it('should call onLog callback when provided', async () => {
+  test('call onLog callback when provided', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -66,7 +66,7 @@ describe('Console Handler', () => {
     runtime.dispose();
   });
 
-  it('should handle multiple console.log calls', async () => {
+  test('handle multiple console.log calls', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();
@@ -91,7 +91,7 @@ describe('Console Handler', () => {
     runtime.dispose();
   });
 
-  it('should handle objects and arrays', async () => {
+  test('handle objects and arrays', async () => {
     const QuickJS = await newQuickJSWASMModule();
     const runtime = QuickJS.newRuntime();
     const vm = runtime.newContext();

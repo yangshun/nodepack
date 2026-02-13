@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from '../../runtime.js';
 import { loadFixture, loadFixtureIntoFilesystem } from '../fixture-loader.js';
 
@@ -10,7 +10,7 @@ describe('NodepackRuntime - Multi-file CommonJS modules', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should handle CJS requiring another CJS module', async () => {
+  test('handle CJS requiring another CJS module', async () => {
     const fixture = loadFixture('cjs/require-cjs');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -23,7 +23,7 @@ describe('NodepackRuntime - Multi-file CommonJS modules', () => {
     });
   });
 
-  it('should handle CJS with exports shorthand', async () => {
+  test('handle CJS with exports shorthand', async () => {
     const fixture = loadFixture('cjs/exports-shorthand');
     loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -33,7 +33,7 @@ describe('NodepackRuntime - Multi-file CommonJS modules', () => {
     expect(result.data).toBe('NodePack v1.0.0');
   });
 
-  it('should handle nested CJS requires', async () => {
+  test('handle nested CJS requires', async () => {
     const fixture = loadFixture('cjs/nested');
     loadFixtureIntoFilesystem(runtime, fixture);
 

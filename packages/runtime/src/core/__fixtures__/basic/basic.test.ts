@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from '../../runtime.js';
 import { loadFixture } from '../fixture-loader.js';
 
@@ -10,7 +10,7 @@ describe('NodepackRuntime - Basic execution', () => {
     await runtime.initialize();
   }, 30000);
 
-  it('should execute simple JavaScript code', async () => {
+  test('execute simple JavaScript code', async () => {
     const fixture = loadFixture('basic/simple');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -18,7 +18,7 @@ describe('NodepackRuntime - Basic execution', () => {
     expect(result.data).toBe(8);
   });
 
-  it('should capture console.log output', async () => {
+  test('capture console.log output', async () => {
     const fixture = loadFixture('basic/console');
     const result = await runtime.execute(fixture.mainFile);
 
@@ -26,7 +26,7 @@ describe('NodepackRuntime - Basic execution', () => {
     expect(result.logs).toContain('Hello from test');
   });
 
-  it('should handle errors gracefully', async () => {
+  test('handle errors gracefully', async () => {
     const fixture = loadFixture('basic/error');
     const result = await runtime.execute(fixture.mainFile);
 

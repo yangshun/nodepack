@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { createUrlModule } from './url.js';
 
@@ -14,7 +14,7 @@ describe('url module', () => {
   }, 30000);
 
   describe('fileURLToPath', () => {
-    it('should provide fileURLToPath function', () => {
+    test('provide fileURLToPath function', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -29,7 +29,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should convert file:// URL to path', () => {
+    test('convert file:// URL to path', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -51,7 +51,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle file:// URL with localhost', () => {
+    test('handle file:// URL with localhost', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -73,7 +73,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle regular path without file:// prefix', () => {
+    test('handle regular path without file:// prefix', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -95,7 +95,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle relative paths', () => {
+    test('handle relative paths', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -117,7 +117,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle undefined input', () => {
+    test('handle undefined input', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -139,7 +139,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle null input', () => {
+    test('handle null input', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -161,7 +161,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle empty string input', () => {
+    test('handle empty string input', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -183,7 +183,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle Windows-style file:// URLs', () => {
+    test('handle Windows-style file:// URLs', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -206,7 +206,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle URLs with query parameters', () => {
+    test('handle URLs with query parameters', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -228,7 +228,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle URLs with hash fragments', () => {
+    test('handle URLs with hash fragments', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -250,7 +250,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle percent-encoded URLs', () => {
+    test('handle percent-encoded URLs', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -272,7 +272,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should convert object to string', () => {
+    test('convert object to string', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -298,7 +298,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle deep paths', () => {
+    test('handle deep paths', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -322,7 +322,7 @@ describe('url module', () => {
       runtime.dispose();
     });
 
-    it('should handle special characters in path', () => {
+    test('handle special characters in path', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, 'url', urlHandle);
       urlHandle.dispose();
@@ -346,7 +346,7 @@ describe('url module', () => {
   });
 
   describe('module integration', () => {
-    it('should be usable with require', () => {
+    test('be usable with require', () => {
       const urlHandle = createUrlModule(vm);
       vm.setProp(vm.global, '__nodepack_url', urlHandle);
       urlHandle.dispose();

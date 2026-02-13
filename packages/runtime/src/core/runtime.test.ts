@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeAll } from 'vitest';
+import { describe, test, expect, beforeAll } from 'vitest';
 import { NodepackRuntime } from './runtime.js';
 
 describe('NodepackRuntime - API', () => {
@@ -10,7 +10,7 @@ describe('NodepackRuntime - API', () => {
   }, 30000); // Allow more time for WASM initialization
 
   describe('Built-in modules', () => {
-    it('should provide fs module', async () => {
+    test('provide fs module', async () => {
       const code = `
         const fs = require('fs');
         fs.writeFileSync('/test.txt', 'hello');
@@ -24,7 +24,7 @@ describe('NodepackRuntime - API', () => {
       expect(result.data).toBe('hello');
     });
 
-    it('should provide process module', async () => {
+    test('provide process module', async () => {
       const code = `
         const process = require('process');
         export default process.cwd();
@@ -38,14 +38,14 @@ describe('NodepackRuntime - API', () => {
   });
 
   describe('Filesystem access', () => {
-    it('should provide filesystem instance', () => {
+    test('provide filesystem instance', () => {
       const fs = runtime.getFilesystem();
       expect(fs).toBeDefined();
       expect(typeof fs.writeFileSync).toBe('function');
       expect(typeof fs.readFileSync).toBe('function');
     });
 
-    it('should persist files across executions', async () => {
+    test('persist files across executions', async () => {
       // First execution: write file
       const writeCode = `
         const fs = require('fs');
@@ -68,7 +68,7 @@ describe('NodepackRuntime - API', () => {
   });
 
   describe('NPM package management', () => {
-    it('should expose npm API', () => {
+    test('expose npm API', () => {
       const npm = runtime.npm;
       expect(npm).toBeDefined();
       expect(typeof npm.install).toBe('function');

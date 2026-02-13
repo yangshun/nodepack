@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect } from 'vitest';
+import { describe, beforeEach, test, expect } from 'vitest';
 import { VersionResolver } from './version-resolver.js';
 import type { PackageMetadata } from './types.js';
 
@@ -72,22 +72,22 @@ describe('VersionResolver', () => {
 
   describe('resolve()', () => {
     describe('dist-tags', () => {
-      it('should resolve "latest" tag', () => {
+      test('resolve "latest" tag', () => {
         const version = resolver.resolve('latest', mockMetadata);
         expect(version).toBe('2.1.0');
       });
 
-      it('should resolve "next" tag', () => {
+      test('resolve "next" tag', () => {
         const version = resolver.resolve('next', mockMetadata);
         expect(version).toBe('3.0.0-beta.1');
       });
 
-      it('should resolve custom tag', () => {
+      test('resolve custom tag', () => {
         const version = resolver.resolve('canary', mockMetadata);
         expect(version).toBe('3.0.0-canary.5');
       });
 
-      it('should prioritize dist-tags over semver ranges', () => {
+      test('prioritize dist-tags over semver ranges', () => {
         // "latest" is a dist-tag, not a semver range
         const version = resolver.resolve('latest', mockMetadata);
         expect(version).toBe('2.1.0');
@@ -95,17 +95,17 @@ describe('VersionResolver', () => {
     });
 
     describe('exact versions', () => {
-      it('should resolve exact version', () => {
+      test('resolve exact version', () => {
         const version = resolver.resolve('2.0.0', mockMetadata);
         expect(version).toBe('2.0.0');
       });
 
-      it('should resolve exact prerelease version', () => {
+      test('resolve exact prerelease version', () => {
         const version = resolver.resolve('3.0.0-beta.1', mockMetadata);
         expect(version).toBe('3.0.0-beta.1');
       });
 
-      it('should throw for non-existent exact version', () => {
+      test('throw for non-existent exact version', () => {
         expect(() => {
           resolver.resolve('9.9.9', mockMetadata);
         }).toThrow();
@@ -113,47 +113,47 @@ describe('VersionResolver', () => {
     });
 
     describe('semver ranges', () => {
-      it('should resolve caret range (^)', () => {
+      test('resolve caret range (^)', () => {
         const version = resolver.resolve('^2.0.0', mockMetadata);
         expect(version).toBe('2.2.0');
       });
 
-      it('should resolve tilde range (~)', () => {
+      test('resolve tilde range (~)', () => {
         const version = resolver.resolve('~2.1.0', mockMetadata);
         expect(version).toBe('2.1.0');
       });
 
-      it('should resolve greater than (>)', () => {
+      test('resolve greater than (>)', () => {
         const version = resolver.resolve('>2.0.0', mockMetadata);
         expect(version).toBe('2.2.0');
       });
 
-      it('should resolve greater than or equal (>=)', () => {
+      test('resolve greater than or equal (>=)', () => {
         const version = resolver.resolve('>=2.1.0', mockMetadata);
         expect(version).toBe('2.2.0');
       });
 
-      it('should resolve less than (<)', () => {
+      test('resolve less than (<)', () => {
         const version = resolver.resolve('<2.0.0', mockMetadata);
         expect(version).toBe('1.5.0');
       });
 
-      it('should resolve less than or equal (<=)', () => {
+      test('resolve less than or equal (<=)', () => {
         const version = resolver.resolve('<=2.0.0', mockMetadata);
         expect(version).toBe('2.0.0');
       });
 
-      it('should resolve range (1.0.0 - 2.0.0)', () => {
+      test('resolve range (1.0.0 - 2.0.0)', () => {
         const version = resolver.resolve('1.0.0 - 2.0.0', mockMetadata);
         expect(version).toBe('2.0.0');
       });
 
-      it('should resolve OR range (||)', () => {
+      test('resolve OR range (||)', () => {
         const version = resolver.resolve('1.0.0 || 2.2.0', mockMetadata);
         expect(version).toBe('2.2.0');
       });
 
-      it('should throw for unsatisfiable range', () => {
+      test('throw for unsatisfiable range', () => {
         expect(() => {
           resolver.resolve('^9.0.0', mockMetadata);
         }).toThrow('No version matching');
@@ -161,32 +161,32 @@ describe('VersionResolver', () => {
     });
 
     describe('wildcard', () => {
-      it('should resolve asterisk (*) to latest', () => {
+      test('resolve asterisk (*) to latest', () => {
         const version = resolver.resolve('*', mockMetadata);
         expect(version).toBe('2.1.0');
       });
 
-      it('should resolve empty string to latest', () => {
+      test('resolve empty string to latest', () => {
         const version = resolver.resolve('', mockMetadata);
         expect(version).toBe('2.1.0');
       });
     });
 
     describe('prerelease versions', () => {
-      it('should not include prereleases in stable ranges', () => {
+      test('not include prereleases in stable ranges', () => {
         // Should not match 3.0.0-beta.1 or 3.0.0-canary.5
         // Will throw since no stable 3.x version exists
         expect(() => resolver.resolve('^3.0.0', mockMetadata)).toThrow();
       });
 
-      it('should include prereleases when explicitly requested', () => {
+      test('include prereleases when explicitly requested', () => {
         const version = resolver.resolve('3.0.0-beta.1', mockMetadata);
         expect(version).toBe('3.0.0-beta.1');
       });
     });
 
     describe('edge cases', () => {
-      it('should handle package with only one version', () => {
+      test('handle package with only one version', () => {
         const singleVersionMetadata: PackageMetadata = {
           name: 'single-version',
           'dist-tags': {
@@ -207,7 +207,7 @@ describe('VersionResolver', () => {
         expect(version).toBe('1.0.0');
       });
 
-      it('should throw with helpful error message', () => {
+      test('throw with helpful error message', () => {
         expect(() => {
           resolver.resolve('^9.0.0', mockMetadata);
         }).toThrow('No version matching "^9.0.0"');
@@ -216,7 +216,7 @@ describe('VersionResolver', () => {
         }).toThrow('test-package');
       });
 
-      it('should show available versions in error', () => {
+      test('show available versions in error', () => {
         try {
           resolver.resolve('^9.0.0', mockMetadata);
           throw new Error('Should have thrown');
@@ -227,19 +227,19 @@ describe('VersionResolver', () => {
     });
 
     describe('major version ranges', () => {
-      it('should resolve major version 1.x', () => {
+      test('resolve major version 1.x', () => {
         const version = resolver.resolve('1.x', mockMetadata);
         expect(version).toBe('1.5.0');
       });
 
-      it('should resolve major version 2.x', () => {
+      test('resolve major version 2.x', () => {
         const version = resolver.resolve('2.x', mockMetadata);
         expect(version).toBe('2.2.0');
       });
     });
 
     describe('version with build metadata', () => {
-      it('should handle versions without build metadata', () => {
+      test('handle versions without build metadata', () => {
         const version = resolver.resolve('2.0.0', mockMetadata);
         expect(version).toBe('2.0.0');
       });
@@ -247,59 +247,59 @@ describe('VersionResolver', () => {
   });
 
   describe('satisfies()', () => {
-    it('should return true for exact match', () => {
+    test('return true for exact match', () => {
       const result = resolver.satisfies('2.0.0', '2.0.0');
       expect(result).toBe(true);
     });
 
-    it('should return true for caret range match', () => {
+    test('return true for caret range match', () => {
       const result = resolver.satisfies('2.1.0', '^2.0.0');
       expect(result).toBe(true);
     });
 
-    it('should return false for caret range mismatch', () => {
+    test('return false for caret range mismatch', () => {
       const result = resolver.satisfies('3.0.0', '^2.0.0');
       expect(result).toBe(false);
     });
 
-    it('should return true for tilde range match', () => {
+    test('return true for tilde range match', () => {
       const result = resolver.satisfies('2.0.5', '~2.0.0');
       expect(result).toBe(true);
     });
 
-    it('should return false for tilde range mismatch', () => {
+    test('return false for tilde range mismatch', () => {
       const result = resolver.satisfies('2.1.0', '~2.0.0');
       expect(result).toBe(false);
     });
 
-    it('should return true for greater than match', () => {
+    test('return true for greater than match', () => {
       const result = resolver.satisfies('2.1.0', '>2.0.0');
       expect(result).toBe(true);
     });
 
-    it('should return false for greater than mismatch', () => {
+    test('return false for greater than mismatch', () => {
       const result = resolver.satisfies('1.9.0', '>2.0.0');
       expect(result).toBe(false);
     });
 
-    it('should return true for wildcard', () => {
+    test('return true for wildcard', () => {
       const result = resolver.satisfies('1.2.3', '*');
       expect(result).toBe(true);
     });
 
-    it('should handle prerelease versions', () => {
+    test('handle prerelease versions', () => {
       const result = resolver.satisfies('3.0.0-beta.1', '3.0.0-beta.1');
       expect(result).toBe(true);
     });
 
-    it('should handle complex ranges', () => {
+    test('handle complex ranges', () => {
       const result = resolver.satisfies('2.0.0', '>=1.0.0 <3.0.0');
       expect(result).toBe(true);
     });
   });
 
   describe('real-world scenarios', () => {
-    it('should resolve React-style version range', () => {
+    test('resolve React-style version range', () => {
       const reactMetadata: PackageMetadata = {
         name: 'react',
         'dist-tags': {
@@ -328,7 +328,7 @@ describe('VersionResolver', () => {
       expect(version).toBe('18.2.0');
     });
 
-    it('should resolve TypeScript-style version range', () => {
+    test('resolve TypeScript-style version range', () => {
       const tsMetadata: PackageMetadata = {
         name: 'typescript',
         'dist-tags': {

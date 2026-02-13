@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { createEventsModule } from './events.js';
 
@@ -14,7 +14,7 @@ describe('events module', () => {
   }, 30000);
 
   describe('EventEmitter class', () => {
-    it('should provide EventEmitter class', () => {
+    test('provide EventEmitter class', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -29,7 +29,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should be constructable', () => {
+    test('be constructable', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -43,7 +43,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should initialize with empty events object', () => {
+    test('initialize with empty events object', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -62,7 +62,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should set default max listeners', () => {
+    test('set default max listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -83,7 +83,7 @@ describe('events module', () => {
   });
 
   describe('on() method', () => {
-    it('should register event listener', () => {
+    test('register event listener', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -103,7 +103,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should allow multiple listeners for same event', () => {
+    test('allow multiple listeners for same event', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -125,7 +125,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return emitter for chaining', () => {
+    test('return emitter for chaining', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -147,7 +147,7 @@ describe('events module', () => {
   });
 
   describe('emit() method', () => {
-    it('should call registered listeners', () => {
+    test('call registered listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -171,7 +171,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should pass arguments to listeners', () => {
+    test('pass arguments to listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -195,7 +195,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should pass multiple arguments to listeners', () => {
+    test('pass multiple arguments to listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -219,7 +219,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should call all listeners in order', () => {
+    test('call all listeners in order', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -243,7 +243,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return true if listeners exist', () => {
+    test('return true if listeners exist', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -263,7 +263,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return false if no listeners exist', () => {
+    test('return false if no listeners exist', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -284,7 +284,7 @@ describe('events module', () => {
   });
 
   describe('once() method', () => {
-    it('should call listener only once', () => {
+    test('call listener only once', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -310,7 +310,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should pass arguments to listener', () => {
+    test('pass arguments to listener', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -334,7 +334,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return emitter for chaining', () => {
+    test('return emitter for chaining', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -356,7 +356,7 @@ describe('events module', () => {
   });
 
   describe('removeListener() method', () => {
-    it('should remove specific listener', () => {
+    test('remove specific listener', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -378,7 +378,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should only remove first matching listener', () => {
+    test('only remove first matching listener', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -401,7 +401,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return emitter for chaining', () => {
+    test('return emitter for chaining', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -423,7 +423,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should handle removing non-existent listener', () => {
+    test('handle removing non-existent listener', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -443,7 +443,7 @@ describe('events module', () => {
   });
 
   describe('removeAllListeners() method', () => {
-    it('should remove all listeners for specific event', () => {
+    test('remove all listeners for specific event', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -465,7 +465,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should remove all listeners for all events', () => {
+    test('remove all listeners for all events', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -487,7 +487,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return emitter for chaining', () => {
+    test('return emitter for chaining', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -509,7 +509,7 @@ describe('events module', () => {
   });
 
   describe('setMaxListeners() and getMaxListeners() methods', () => {
-    it('should set max listeners', () => {
+    test('set max listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -529,7 +529,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should get max listeners', () => {
+    test('get max listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -549,7 +549,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return emitter for chaining', () => {
+    test('return emitter for chaining', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -571,7 +571,7 @@ describe('events module', () => {
   });
 
   describe('listeners() method', () => {
-    it('should return array of listeners', () => {
+    test('return array of listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -592,7 +592,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return empty array for non-existent event', () => {
+    test('return empty array for non-existent event', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -613,7 +613,7 @@ describe('events module', () => {
   });
 
   describe('listenerCount() method', () => {
-    it('should return count of listeners', () => {
+    test('return count of listeners', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -635,7 +635,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should return zero for non-existent event', () => {
+    test('return zero for non-existent event', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -656,7 +656,7 @@ describe('events module', () => {
   });
 
   describe('inheritance', () => {
-    it('should be extendable', () => {
+    test('be extendable', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();
@@ -680,7 +680,7 @@ describe('events module', () => {
       runtime.dispose();
     });
 
-    it('should work when extended', () => {
+    test('work when extended', () => {
       const eventsHandle = createEventsModule(vm);
       vm.setProp(vm.global, 'events', eventsHandle);
       eventsHandle.dispose();

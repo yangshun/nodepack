@@ -129,7 +129,7 @@ To add a new test fixture:
 3. Use the fixture in your test:
 
    ```typescript
-   it('should handle my new test case', async () => {
+   test('handle my new test case', async () => {
      const fixture = loadFixture('esm/my-new-test');
      loadFixtureIntoFilesystem(runtime, fixture);
 
@@ -149,6 +149,7 @@ The `fixture-loader.ts` module provides:
 Loads a fixture by name or path from the `__fixtures__` directory. Supports subdirectories for organization.
 
 Examples:
+
 - `loadFixture('basic/simple')` - loads from `__fixtures__/basic/simple/`
 - `loadFixture('esm/import-esm')` - loads from `__fixtures__/esm/import-esm/`
 

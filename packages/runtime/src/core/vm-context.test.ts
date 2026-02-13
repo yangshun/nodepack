@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, test, expect, beforeEach } from 'vitest';
 import { newQuickJSWASMModule } from 'quickjs-emscripten';
 import { vol } from 'memfs';
 import type { IFs } from 'memfs';
@@ -27,7 +27,7 @@ describe('vm-context', () => {
   }, 30000);
 
   describe('built-in module injection', () => {
-    it('should inject fs module', () => {
+    test('inject fs module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_fs');
@@ -37,7 +37,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject path module', () => {
+    test('inject path module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_path');
@@ -47,7 +47,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject process module', () => {
+    test('inject process module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_process');
@@ -57,7 +57,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject timers module', () => {
+    test('inject timers module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_timers');
@@ -67,7 +67,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject module builtin', () => {
+    test('inject module builtin', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_module');
@@ -77,7 +77,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject url module', () => {
+    test('inject url module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_url');
@@ -87,7 +87,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject events module', () => {
+    test('inject events module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_events');
@@ -97,7 +97,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should inject child_process module', () => {
+    test('inject child_process module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_child_process');
@@ -109,7 +109,7 @@ describe('vm-context', () => {
   });
 
   describe('global object setup', () => {
-    it('should expose process as global', () => {
+    test('expose process as global', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof process');
@@ -119,7 +119,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should expose setTimeout as global', () => {
+    test('expose setTimeout as global', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof setTimeout');
@@ -129,7 +129,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should expose setInterval as global', () => {
+    test('expose setInterval as global', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof setInterval');
@@ -139,7 +139,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should expose clearTimeout as global', () => {
+    test('expose clearTimeout as global', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof clearTimeout');
@@ -149,7 +149,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should expose clearInterval as global', () => {
+    test('expose clearInterval as global', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof clearInterval');
@@ -161,7 +161,7 @@ describe('vm-context', () => {
   });
 
   describe('CommonJS support', () => {
-    it('should initialize require function', () => {
+    test('initialize require function', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof require');
@@ -171,7 +171,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should set up module cache', () => {
+    test('set up module cache', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_module_cache');
@@ -181,7 +181,7 @@ describe('vm-context', () => {
       expect(type).toBe('object');
     });
 
-    it('should set up CommonJS executor function', () => {
+    test('set up CommonJS executor function', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_execute_commonjs_module');
@@ -191,7 +191,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should set up ES module require function', () => {
+    test('set up ES module require function', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof __nodepack_require_es_module');
@@ -203,7 +203,7 @@ describe('vm-context', () => {
   });
 
   describe('require() functionality', () => {
-    it('should require built-in fs module', () => {
+    test('require built-in fs module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode(`
@@ -223,7 +223,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should require built-in path module', () => {
+    test('require built-in path module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode(`
@@ -243,7 +243,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should require built-in process module', () => {
+    test('require built-in process module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode(`
@@ -263,7 +263,7 @@ describe('vm-context', () => {
       expect(type).toBe('function');
     });
 
-    it('should cache required modules', () => {
+    test('cache required modules', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode(`
@@ -286,7 +286,7 @@ describe('vm-context', () => {
   });
 
   describe('runtime options', () => {
-    it('should pass env variables to process module', () => {
+    test('pass env variables to process module', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {
         env: { TEST_VAR: 'test_value' },
       });
@@ -305,7 +305,7 @@ describe('vm-context', () => {
       expect(value).toBe('test_value');
     });
 
-    it('should handle missing env option', () => {
+    test('handle missing env option', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode('typeof process.env');
@@ -324,7 +324,7 @@ describe('vm-context', () => {
   });
 
   describe('module loader', () => {
-    it('should configure module loader', () => {
+    test('configure module loader', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       // Module loader should be set up on the runtime
@@ -342,7 +342,7 @@ describe('vm-context', () => {
       }
     });
 
-    it('should load built-in modules via module loader', () => {
+    test('load built-in modules via module loader', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       const result = vm.evalCode(`import('fs')`);
@@ -357,7 +357,7 @@ describe('vm-context', () => {
   });
 
   describe('error handling', () => {
-    it('should handle errors in CommonJS module execution', () => {
+    test('handle errors in CommonJS module execution', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       filesystem.writeFileSync(
@@ -389,7 +389,7 @@ describe('vm-context', () => {
   });
 
   describe('cleanup', () => {
-    it('should properly dispose all resources', () => {
+    test('properly dispose all resources', () => {
       setupVMContext(vm, runtime, filesystem, timerTracker, {});
 
       // Test that we can dispose without errors

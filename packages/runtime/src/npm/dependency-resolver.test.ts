@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach, vi } from 'vitest';
+import { describe, test, expect, beforeEach, vi } from 'vitest';
 import { DependencyResolver } from './dependency-resolver.js';
 import { NpmRegistry } from './npm-registry.js';
 import type { PackageMetadata, PackageManifest } from './types.js';
@@ -58,7 +58,7 @@ describe('DependencyResolver', () => {
 
   describe('resolve()', () => {
     describe('simple packages', () => {
-      it('should resolve package with no dependencies', async () => {
+      test('resolve package with no dependencies', async () => {
         const metadata = createMockMetadata('simple-package', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('simple-package', '1.0.0');
 
@@ -82,7 +82,7 @@ describe('DependencyResolver', () => {
         expect(dep.dependencies.size).toBe(0);
       });
 
-      it('should resolve latest version when using "latest" tag', async () => {
+      test('resolve latest version when using "latest" tag', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0', '2.0.0'], '2.0.0');
         const manifest = createMockManifest('pkg', '2.0.0');
 
@@ -99,7 +99,7 @@ describe('DependencyResolver', () => {
         expect(dep.version).toBe('2.0.0');
       });
 
-      it('should resolve version range', async () => {
+      test('resolve version range', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0', '1.5.0', '2.0.0'], '2.0.0');
         const manifest = createMockManifest('pkg', '1.5.0');
 
@@ -118,7 +118,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('nested dependencies', () => {
-      it('should resolve package with one dependency', async () => {
+      test('resolve package with one dependency', async () => {
         // Parent package
         const parentMetadata = createMockMetadata('parent', ['1.0.0'], '1.0.0');
         const parentManifest = createMockManifest('parent', '1.0.0', {
@@ -162,7 +162,7 @@ describe('DependencyResolver', () => {
         expect(childDep.version).toBe('1.5.0');
       });
 
-      it('should resolve deeply nested dependencies', async () => {
+      test('resolve deeply nested dependencies', async () => {
         // A -> B -> C chain
         const aMetadata = createMockMetadata('a', ['1.0.0'], '1.0.0');
         const aManifest = createMockManifest('a', '1.0.0', { b: '^1.0.0' });
@@ -203,7 +203,7 @@ describe('DependencyResolver', () => {
         expect(result.has('c')).toBe(true);
       });
 
-      it('should resolve package with multiple dependencies', async () => {
+      test('resolve package with multiple dependencies', async () => {
         // Parent depends on both child1 and child2
         const parentMetadata = createMockMetadata('parent', ['1.0.0'], '1.0.0');
         const parentManifest = createMockManifest('parent', '1.0.0', {
@@ -249,7 +249,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('circular dependencies', () => {
-      it('should handle circular dependencies without infinite loop', async () => {
+      test('handle circular dependencies without infinite loop', async () => {
         // A -> B -> A (circular)
         const aMetadata = createMockMetadata('a', ['1.0.0'], '1.0.0');
         const aManifest = createMockManifest('a', '1.0.0', { b: '^1.0.0' });
@@ -285,7 +285,7 @@ describe('DependencyResolver', () => {
         expect(result.has('b')).toBe(true);
       });
 
-      it('should handle self-referencing dependencies', async () => {
+      test('handle self-referencing dependencies', async () => {
         // Package that depends on itself
         const metadata = createMockMetadata('self', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('self', '1.0.0', { self: '^1.0.0' });
@@ -303,7 +303,7 @@ describe('DependencyResolver', () => {
         expect(result.has('self')).toBe(true);
       });
 
-      it('should handle complex circular dependency graph', async () => {
+      test('handle complex circular dependency graph', async () => {
         // A -> B -> C -> B (B and C form a cycle)
         const aMetadata = createMockMetadata('a', ['1.0.0'], '1.0.0');
         const aManifest = createMockManifest('a', '1.0.0', { b: '^1.0.0' });
@@ -346,7 +346,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('dev dependencies', () => {
-      it('should not include dev dependencies by default', async () => {
+      test('not include dev dependencies by default', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('pkg', '1.0.0', { prod: '^1.0.0' }, { dev: '^1.0.0' });
 
@@ -386,7 +386,7 @@ describe('DependencyResolver', () => {
         expect(result.has('dev')).toBe(false);
       });
 
-      it('should include dev dependencies when includeDev is true', async () => {
+      test('include dev dependencies when includeDev is true', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('pkg', '1.0.0', { prod: '^1.0.0' }, { dev: '^1.0.0' });
 
@@ -426,7 +426,7 @@ describe('DependencyResolver', () => {
         expect(result.has('dev')).toBe(true);
       });
 
-      it('should handle package with only dev dependencies', async () => {
+      test('handle package with only dev dependencies', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('pkg', '1.0.0', undefined, { dev: '^1.0.0' });
 
@@ -464,7 +464,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('shared dependencies', () => {
-      it('should resolve shared dependency only once', async () => {
+      test('resolve shared dependency only once', async () => {
         // A -> C, B -> C (C is shared)
         const aMetadata = createMockMetadata('a', ['1.0.0'], '1.0.0');
         const aManifest = createMockManifest('a', '1.0.0', { c: '^1.0.0' });
@@ -538,7 +538,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('cache management', () => {
-      it('should clear cache', () => {
+      test('clear cache', () => {
         expect(() => {
           resolver.clearCache();
         }).not.toThrow();
@@ -546,13 +546,13 @@ describe('DependencyResolver', () => {
     });
 
     describe('error handling', () => {
-      it('should propagate registry errors', async () => {
+      test('propagate registry errors', async () => {
         vi.mocked(mockRegistry.fetchPackageMetadata).mockRejectedValue(new Error('Network error'));
 
         await expect(resolver.resolve('pkg', '1.0.0')).rejects.toThrow('Network error');
       });
 
-      it('should propagate version resolution errors', async () => {
+      test('propagate version resolution errors', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         vi.mocked(mockRegistry.fetchPackageMetadata).mockResolvedValue(metadata);
 
@@ -560,7 +560,7 @@ describe('DependencyResolver', () => {
         await expect(resolver.resolve('pkg', '^9.0.0')).rejects.toThrow();
       });
 
-      it('should propagate manifest fetch errors', async () => {
+      test('propagate manifest fetch errors', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         vi.mocked(mockRegistry.fetchPackageMetadata).mockResolvedValue(metadata);
         vi.mocked(mockRegistry.fetchManifest).mockRejectedValue(new Error('Manifest error'));
@@ -568,7 +568,7 @@ describe('DependencyResolver', () => {
         await expect(resolver.resolve('pkg', '1.0.0')).rejects.toThrow('Manifest error');
       });
 
-      it('should propagate tarball info errors', async () => {
+      test('propagate tarball info errors', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
         const manifest = createMockManifest('pkg', '1.0.0');
 
@@ -581,7 +581,7 @@ describe('DependencyResolver', () => {
     });
 
     describe('real-world scenarios', () => {
-      it('should resolve a React-like dependency tree', async () => {
+      test('resolve a React-like dependency tree', async () => {
         // React depends on loose-envify and js-tokens
         const reactMetadata = createMockMetadata('react', ['18.2.0'], '18.2.0');
         const reactManifest = createMockManifest('react', '18.2.0', {
