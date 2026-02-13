@@ -43,7 +43,8 @@ export class NodepackModuleLoader {
         return this.wrapCommonJSModule(code, moduleName);
       }
 
-      return code;
+      // Transform ESM code to handle destructuring exports
+      return this.transformESMCode(code);
     }
 
     // 3. Not found
@@ -115,6 +116,30 @@ export class NodepackModuleLoader {
         }
       }
     `;
+  }
+
+  /**
+   * Transform ESM code to handle syntax QuickJS doesn't support
+   * Currently handles: export const { a, b } = obj -> const { a, b } = obj; export { a, b };
+   */
+  private transformESMCode(code: string): string {
+    // Match: export const { ...destructured vars... } = expression;
+    // Pattern handles multi-line destructuring with optional trailing comma
+    const destructuringExportPattern = /export\s+const\s+\{([^}]+)\}\s*=\s*([^;]+);/g;
+
+    return code.replace(destructuringExportPattern, (_match, destructuredVars, expression) => {
+      // Extract variable names from destructuring pattern
+      // Handle cases like: " program, hello " or " program,\n  hello,\n "
+      const varNames = destructuredVars
+        .split(',')
+        .map((v: string) => v.trim())
+        .filter((v: string) => v.length > 0);
+
+      // Generate the transformed code:
+      // const { program, hello } = commander;
+      // export { program, hello };
+      return `const {${destructuredVars}} = ${expression};\nexport { ${varNames.join(', ')} };`;
+    });
   }
 
   /**

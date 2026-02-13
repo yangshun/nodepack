@@ -51,4 +51,17 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.ok).toBe(true);
     expect(result.data).toEqual({ sum: 15, diff: 5, product: 50 });
   });
+
+  it('should handle ESM exports destructure', async () => {
+    const fixture = loadFixture('esm/exports-destructure');
+    loadFixtureIntoFilesystem(runtime, fixture);
+
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('ESM wrapper error:', result.error);
+    }
+    expect(result.ok).toBe(true);
+    expect(result.data).toEqual({ hello: 'world' });
+  });
 });
