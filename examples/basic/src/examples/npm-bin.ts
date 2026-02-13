@@ -41,7 +41,7 @@ export default {
         version: '1.0.0',
         scripts: {
           check: 'echo "Bin executables are available in npm scripts"',
-          format: "prettier --write .",
+          format: 'prettier --write .',
           list: 'ls -la /node_modules/.bin/',
         },
         dependencies: {
@@ -51,7 +51,7 @@ export default {
         },
       },
       null,
-      2
+      2,
     ),
   },
 };

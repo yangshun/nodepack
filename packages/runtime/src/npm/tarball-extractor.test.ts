@@ -63,11 +63,7 @@ describe('TarballExtractor', () => {
     return header;
   }
 
-  function createTarFile(
-    fileName: string,
-    content: string,
-    mode: number = 0o644,
-  ): Uint8Array {
+  function createTarFile(fileName: string, content: string, mode: number = 0o644): Uint8Array {
     const contentBytes = new TextEncoder().encode(content);
     const header = createTarHeader(fileName, contentBytes.length, '0', mode);
 

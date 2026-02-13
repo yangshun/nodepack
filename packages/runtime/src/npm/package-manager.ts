@@ -221,9 +221,7 @@ export class NpmPackageManager {
 
     // Normalize bin field to object format
     const binEntries: Record<string, string> =
-      typeof packageJson.bin === 'string'
-        ? { [packageName]: packageJson.bin }
-        : packageJson.bin;
+      typeof packageJson.bin === 'string' ? { [packageName]: packageJson.bin } : packageJson.bin;
 
     this.logger.log(`Normalized bin entries:`, binEntries);
 

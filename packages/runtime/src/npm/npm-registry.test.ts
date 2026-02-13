@@ -18,11 +18,7 @@ describe('NpmRegistry', () => {
     vi.restoreAllMocks();
   });
 
-  function createMockMetadata(
-    name: string,
-    versions: string[],
-    latest: string,
-  ): PackageMetadata {
+  function createMockMetadata(name: string, versions: string[], latest: string): PackageMetadata {
     const versionMap: Record<string, PackageManifest> = {};
 
     for (const version of versions) {
@@ -322,17 +318,17 @@ describe('NpmRegistry', () => {
         status: 404,
       });
 
-      await expect(
-        registry.downloadTarball('https://example.com/missing.tgz'),
-      ).rejects.toThrow('Failed to download tarball: 404');
+      await expect(registry.downloadTarball('https://example.com/missing.tgz')).rejects.toThrow(
+        'Failed to download tarball: 404',
+      );
     });
 
     it('should throw error on network failure', async () => {
       fetchMock.mockRejectedValue(new Error('Connection timeout'));
 
-      await expect(
-        registry.downloadTarball('https://example.com/package.tgz'),
-      ).rejects.toThrow('Failed to download tarball: Connection timeout');
+      await expect(registry.downloadTarball('https://example.com/package.tgz')).rejects.toThrow(
+        'Failed to download tarball: Connection timeout',
+      );
     });
 
     it('should handle large tarballs', async () => {

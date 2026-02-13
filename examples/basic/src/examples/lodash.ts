@@ -29,12 +29,16 @@ export default {
   doubled: _.map(numbers, n => n * 2)
 };`,
   files: {
-    'package.json': JSON.stringify({
-      name: 'lodash-example',
-      version: '1.0.0',
-      dependencies: {
-        'lodash-es': '^4.17.21',
+    'package.json': JSON.stringify(
+      {
+        name: 'lodash-example',
+        version: '1.0.0',
+        dependencies: {
+          'lodash-es': '^4.17.21',
+        },
       },
-    }, null, 2),
+      null,
+      2,
+    ),
   },
 };

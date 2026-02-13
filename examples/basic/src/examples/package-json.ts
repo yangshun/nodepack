@@ -21,12 +21,16 @@ export default {
   classes,
 };`,
   files: {
-    'package.json': JSON.stringify({
-      name: 'example-project',
-      version: '1.0.0',
-      dependencies: {
-        clsx: '^2.1.0',
+    'package.json': JSON.stringify(
+      {
+        name: 'example-project',
+        version: '1.0.0',
+        dependencies: {
+          clsx: '^2.1.0',
+        },
       },
-    }, null, 2),
+      null,
+      2,
+    ),
   },
 };

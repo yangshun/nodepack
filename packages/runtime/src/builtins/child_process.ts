@@ -38,9 +38,14 @@ export function createChildProcessModule(vm: QuickJSContext): QuickJSHandle {
   });
 
   // exec() - stub that calls callback with empty result
-  addModuleFunction(vm, childProcessObj, 'exec', (commandHandle, optionsOrCallbackHandle, callbackHandle) => {
-    return vm.undefined;
-  });
+  addModuleFunction(
+    vm,
+    childProcessObj,
+    'exec',
+    (commandHandle, optionsOrCallbackHandle, callbackHandle) => {
+      return vm.undefined;
+    },
+  );
 
   // execSync() - returns empty string
   addModuleFunction(vm, childProcessObj, 'execSync', (commandHandle, optionsHandle) => {
@@ -63,9 +68,14 @@ export function createChildProcessModule(vm: QuickJSContext): QuickJSHandle {
   });
 
   // execFile() - stub
-  addModuleFunction(vm, childProcessObj, 'execFile', (fileHandle, argsHandle, optionsHandle, callbackHandle) => {
-    return vm.undefined;
-  });
+  addModuleFunction(
+    vm,
+    childProcessObj,
+    'execFile',
+    (fileHandle, argsHandle, optionsHandle, callbackHandle) => {
+      return vm.undefined;
+    },
+  );
 
   return childProcessObj;
 }

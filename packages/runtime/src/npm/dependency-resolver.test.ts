@@ -17,11 +17,7 @@ describe('DependencyResolver', () => {
     vi.spyOn(mockRegistry, 'getTarballInfo');
   });
 
-  function createMockMetadata(
-    name: string,
-    versions: string[],
-    latest: string,
-  ): PackageMetadata {
+  function createMockMetadata(name: string, versions: string[], latest: string): PackageMetadata {
     const versionMap: Record<string, PackageManifest> = {};
 
     for (const version of versions) {
@@ -133,13 +129,11 @@ describe('DependencyResolver', () => {
         const childMetadata = createMockMetadata('child', ['1.0.0', '1.5.0'], '1.5.0');
         const childManifest = createMockManifest('child', '1.5.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'parent') return parentMetadata;
-            if (name === 'child') return childMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'parent') return parentMetadata;
+          if (name === 'child') return childMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -179,14 +173,12 @@ describe('DependencyResolver', () => {
         const cMetadata = createMockMetadata('c', ['1.0.0'], '1.0.0');
         const cManifest = createMockManifest('c', '1.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'a') return aMetadata;
-            if (name === 'b') return bMetadata;
-            if (name === 'c') return cMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'a') return aMetadata;
+          if (name === 'b') return bMetadata;
+          if (name === 'c') return cMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -225,14 +217,12 @@ describe('DependencyResolver', () => {
         const child2Metadata = createMockMetadata('child2', ['2.0.0'], '2.0.0');
         const child2Manifest = createMockManifest('child2', '2.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'parent') return parentMetadata;
-            if (name === 'child1') return child1Metadata;
-            if (name === 'child2') return child2Metadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'parent') return parentMetadata;
+          if (name === 'child1') return child1Metadata;
+          if (name === 'child2') return child2Metadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -267,13 +257,11 @@ describe('DependencyResolver', () => {
         const bMetadata = createMockMetadata('b', ['1.0.0'], '1.0.0');
         const bManifest = createMockManifest('b', '1.0.0', { a: '^1.0.0' });
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'a') return aMetadata;
-            if (name === 'b') return bMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'a') return aMetadata;
+          if (name === 'b') return bMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -326,14 +314,12 @@ describe('DependencyResolver', () => {
         const cMetadata = createMockMetadata('c', ['1.0.0'], '1.0.0');
         const cManifest = createMockManifest('c', '1.0.0', { b: '^1.0.0' });
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'a') return aMetadata;
-            if (name === 'b') return bMetadata;
-            if (name === 'c') return cMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'a') return aMetadata;
+          if (name === 'b') return bMetadata;
+          if (name === 'c') return cMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -362,12 +348,7 @@ describe('DependencyResolver', () => {
     describe('dev dependencies', () => {
       it('should not include dev dependencies by default', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
-        const manifest = createMockManifest(
-          'pkg',
-          '1.0.0',
-          { prod: '^1.0.0' },
-          { dev: '^1.0.0' },
-        );
+        const manifest = createMockManifest('pkg', '1.0.0', { prod: '^1.0.0' }, { dev: '^1.0.0' });
 
         const prodMetadata = createMockMetadata('prod', ['1.0.0'], '1.0.0');
         const prodManifest = createMockManifest('prod', '1.0.0');
@@ -375,14 +356,12 @@ describe('DependencyResolver', () => {
         const devMetadata = createMockMetadata('dev', ['1.0.0'], '1.0.0');
         const devManifest = createMockManifest('dev', '1.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'pkg') return metadata;
-            if (name === 'prod') return prodMetadata;
-            if (name === 'dev') return devMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'pkg') return metadata;
+          if (name === 'prod') return prodMetadata;
+          if (name === 'dev') return devMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -409,12 +388,7 @@ describe('DependencyResolver', () => {
 
       it('should include dev dependencies when includeDev is true', async () => {
         const metadata = createMockMetadata('pkg', ['1.0.0'], '1.0.0');
-        const manifest = createMockManifest(
-          'pkg',
-          '1.0.0',
-          { prod: '^1.0.0' },
-          { dev: '^1.0.0' },
-        );
+        const manifest = createMockManifest('pkg', '1.0.0', { prod: '^1.0.0' }, { dev: '^1.0.0' });
 
         const prodMetadata = createMockMetadata('prod', ['1.0.0'], '1.0.0');
         const prodManifest = createMockManifest('prod', '1.0.0');
@@ -422,14 +396,12 @@ describe('DependencyResolver', () => {
         const devMetadata = createMockMetadata('dev', ['1.0.0'], '1.0.0');
         const devManifest = createMockManifest('dev', '1.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'pkg') return metadata;
-            if (name === 'prod') return prodMetadata;
-            if (name === 'dev') return devMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'pkg') return metadata;
+          if (name === 'prod') return prodMetadata;
+          if (name === 'dev') return devMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -461,13 +433,11 @@ describe('DependencyResolver', () => {
         const devMetadata = createMockMetadata('dev', ['1.0.0'], '1.0.0');
         const devManifest = createMockManifest('dev', '1.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'pkg') return metadata;
-            if (name === 'dev') return devMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'pkg') return metadata;
+          if (name === 'dev') return devMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -506,14 +476,12 @@ describe('DependencyResolver', () => {
         const cManifest = createMockManifest('c', '1.0.0');
 
         // Start with resolving 'a'
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'a') return aMetadata;
-            if (name === 'b') return bMetadata;
-            if (name === 'c') return cMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'a') return aMetadata;
+          if (name === 'b') return bMetadata;
+          if (name === 'c') return cMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -537,15 +505,13 @@ describe('DependencyResolver', () => {
           b: '^1.0.0',
         });
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'parent') return parentMetadata;
-            if (name === 'a') return aMetadata;
-            if (name === 'b') return bMetadata;
-            if (name === 'c') return cMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'parent') return parentMetadata;
+          if (name === 'a') return aMetadata;
+          if (name === 'b') return bMetadata;
+          if (name === 'c') return cMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {
@@ -581,9 +547,7 @@ describe('DependencyResolver', () => {
 
     describe('error handling', () => {
       it('should propagate registry errors', async () => {
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockRejectedValue(
-          new Error('Network error'),
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockRejectedValue(new Error('Network error'));
 
         await expect(resolver.resolve('pkg', '1.0.0')).rejects.toThrow('Network error');
       });
@@ -610,9 +574,7 @@ describe('DependencyResolver', () => {
 
         vi.mocked(mockRegistry.fetchPackageMetadata).mockResolvedValue(metadata);
         vi.mocked(mockRegistry.fetchManifest).mockResolvedValue(manifest);
-        vi.mocked(mockRegistry.getTarballInfo).mockRejectedValue(
-          new Error('Tarball not found'),
-        );
+        vi.mocked(mockRegistry.getTarballInfo).mockRejectedValue(new Error('Tarball not found'));
 
         await expect(resolver.resolve('pkg', '1.0.0')).rejects.toThrow('Tarball not found');
       });
@@ -634,14 +596,12 @@ describe('DependencyResolver', () => {
         const jsTokensMetadata = createMockMetadata('js-tokens', ['4.0.0'], '4.0.0');
         const jsTokensManifest = createMockManifest('js-tokens', '4.0.0');
 
-        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(
-          async (name: string) => {
-            if (name === 'react') return reactMetadata;
-            if (name === 'loose-envify') return looseEnvifyMetadata;
-            if (name === 'js-tokens') return jsTokensMetadata;
-            throw new Error(`Unknown package: ${name}`);
-          },
-        );
+        vi.mocked(mockRegistry.fetchPackageMetadata).mockImplementation(async (name: string) => {
+          if (name === 'react') return reactMetadata;
+          if (name === 'loose-envify') return looseEnvifyMetadata;
+          if (name === 'js-tokens') return jsTokensMetadata;
+          throw new Error(`Unknown package: ${name}`);
+        });
 
         vi.mocked(mockRegistry.fetchManifest).mockImplementation(
           async (name: string, version: string) => {

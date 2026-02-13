@@ -34,10 +34,7 @@ describe('NpmPackageManager', () => {
     vi.mocked(mockExtractor.extract).mockResolvedValue(new Map());
   });
 
-  function createMockResolvedDependency(
-    name: string,
-    version: string,
-  ): ResolvedDependency {
+  function createMockResolvedDependency(name: string, version: string): ResolvedDependency {
     return {
       name,
       version,
