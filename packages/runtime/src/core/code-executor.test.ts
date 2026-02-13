@@ -457,4 +457,117 @@ export default 'shell script';`;
       expect(result.data.nested.object.key).toBe('value');
     });
   });
+
+  describe('promise and async/await support', () => {
+    test('execute code with Promise.resolve', async () => {
+      const code = `
+        const value = await Promise.resolve(42);
+        export default value;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toBe(42);
+    });
+
+    test('execute code with async function', async () => {
+      const code = `
+        async function getValue() {
+          return 'hello';
+        }
+        export default await getValue();
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toBe('hello');
+    });
+
+    test('execute code with chained promises', async () => {
+      const code = `
+        const result = await Promise.resolve(10)
+          .then(x => x * 2)
+          .then(x => x + 5);
+        export default result;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toBe(25);
+    });
+
+    test('execute code with Promise.all', async () => {
+      const code = `
+        const results = await Promise.all([
+          Promise.resolve(1),
+          Promise.resolve(2),
+          Promise.resolve(3)
+        ]);
+        export default results;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toEqual([1, 2, 3]);
+    });
+
+    test('handle rejected promises', async () => {
+      const code = `
+        await Promise.reject(new Error('Test error'));
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toContain('Test error');
+    });
+
+    test('handle errors in async functions', async () => {
+      const code = `
+        async function throwError() {
+          throw new Error('Async error');
+        }
+        await throwError();
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(false);
+      expect(result.error).toContain('Async error');
+    });
+
+    test('execute CommonJS with synchronous export', async () => {
+      const code = `
+        function getValue() {
+          return 'world';
+        }
+
+        module.exports = getValue();
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toBe('world');
+    });
+
+    test('handle multiple sequential promises', async () => {
+      const code = `
+        let count = 0;
+        await Promise.resolve().then(() => count++);
+        await Promise.resolve().then(() => count++);
+        await Promise.resolve().then(() => count++);
+        export default count;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toBe(3);
+    });
+  });
 });

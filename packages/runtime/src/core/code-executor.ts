@@ -62,10 +62,17 @@ export async function executeCode(
     let result;
 
     if (format === 'esm') {
-      // Execute as ES module (existing behavior)
+      // Execute as ES module with error handling for top-level await failures
       const wrapperCode = `
-        import * as mod from '${filepath}';
-        globalThis.__result = mod.default !== undefined ? mod.default : mod;
+        (async () => {
+          try {
+            const mod = await import('${filepath}');
+            globalThis.__result = mod.default !== undefined ? mod.default : mod;
+          } catch (error) {
+            globalThis.__importError = error;
+            throw error;
+          }
+        })();
       `;
       result = vm.evalCode(wrapperCode);
     } else {
@@ -92,6 +99,25 @@ export async function executeCode(
       result = vm.evalCode(cjsExecutionCode);
     }
 
+    // Execute pending jobs immediately after code execution
+    // This is critical for ES modules with top-level await
+    // If the module has a rejected promise, it will fail here
+    if (!result.error) {
+      const jobResult = await executePendingJobs(runtime, vm);
+      if (!jobResult.ok) {
+        result.value.dispose();
+        cleanupTimers(timerTracker);
+        vm.dispose();
+        runtime.dispose();
+
+        return {
+          ok: false,
+          error: jobResult.error,
+          logs: consoleLogs,
+        };
+      }
+    }
+
     if (result.error) {
       const error = vm.dump(result.error);
       result.error.dispose();
@@ -111,6 +137,26 @@ export async function executeCode(
         logs: consoleLogs,
       };
     }
+
+    // Check for import errors (from top-level await failures in ES modules)
+    const importErrorHandle = vm.getProp(vm.global, '__importError');
+    const importErrorType = vm.typeof(importErrorHandle);
+    if (importErrorType !== 'undefined') {
+      const error = vm.dump(importErrorHandle);
+      importErrorHandle.dispose();
+      result.value.dispose();
+
+      cleanupTimers(timerTracker);
+      vm.dispose();
+      runtime.dispose();
+
+      return {
+        ok: false,
+        error: formatError(error),
+        logs: consoleLogs,
+      };
+    }
+    importErrorHandle.dispose();
 
     // Get the result from global
     const resultHandle = vm.getProp(vm.global, '__result');
@@ -153,6 +199,33 @@ function cleanupTimers(timerTracker: TimerTracker): void {
     clearInterval(timerId);
   });
   timerTracker.pendingTimers.clear();
+}
+
+/**
+ * Execute all pending jobs (promises, async/await) in the QuickJS runtime
+ */
+async function executePendingJobs(
+  runtime: any,
+  vm: QuickJSContext,
+): Promise<{ ok: true } | { ok: false; error: string }> {
+  // Keep executing jobs while there are pending jobs
+  while (runtime.hasPendingJob()) {
+    const result = runtime.executePendingJobs();
+
+    // Check if execution resulted in an error
+    if (result.error) {
+      const errorHandle = result.error;
+      const error = vm.dump(errorHandle);
+      errorHandle.dispose();
+
+      return {
+        ok: false,
+        error: formatError(error),
+      };
+    }
+  }
+
+  return { ok: true };
 }
 
 /**
