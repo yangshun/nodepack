@@ -67,7 +67,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
           red: '#cd3131',
           green: '#0dbc79',
           yellow: '#e5e510',
-          blue: '#2472c8',
+          blue: '#ffedd5', // Orange
           magenta: '#bc3fbc',
           cyan: '#11a8cd',
           white: '#e5e5e5',

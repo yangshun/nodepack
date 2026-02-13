@@ -127,7 +127,7 @@ function FileTreeNode({
           className={clsx(
             'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm',
             {
-              'bg-gray-500/20 text-purple-400': isSelected,
+              'bg-gray-500/20 text-orange-400': isSelected,
               'hover:bg-dark-hover': !isSelected && !isExpanded,
             },
           )}
@@ -163,7 +163,7 @@ function FileTreeNode({
       className={clsx(
         'flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm',
         {
-          'bg-gray-500/20 text-purple-400': isSelected,
+          'bg-gray-500/20 text-orange-400': isSelected,
           'hover:bg-dark-hover': !isSelected,
         },
       )}

@@ -15,15 +15,14 @@ console.log('  Layer 4: api/users.js (ES) → require(services)');
 console.log('  Layer 3: services/user-service.js (CJS) → require(data)');
 console.log('  Layer 2: data/store.js (CJS) → require(logger)');
 console.log('  Layer 1: base/logger.js (CJS) → base utilities');
-
-console.log('\\nModule type:');
+console.log('');
+console.log('Module type:');
 console.log('  Top layer is ES module, lower layers are CommonJS');
-
-console.log('\\nCreating users...');
+console.log('');
+console.log('Creating users...');
 const user1 = registerUser(1, 'Alice');
 const user2 = registerUser(2, 'Bob');
 const user3 = registerUser(1, 'Charlie'); // Duplicate
-
 console.log('');
 console.log('Results:');
 console.log('  User 1:', user1.status, user1.user ? user1.user.name : user1.message);

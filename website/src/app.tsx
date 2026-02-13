@@ -485,7 +485,7 @@ export function App() {
 
         if (terminalRef.current) {
           terminalRef.current.writeOutput('Successfully installed all packages');
-          terminalRef.current.writeOutput('Check the file tree to see node_modules/');
+          terminalRef.current.writeOutput('Check `node_modules` in the files explorer');
           terminalRef.current.writeOutput('');
         }
       } else {
@@ -550,7 +550,9 @@ export function App() {
 
         if (terminalRef.current) {
           terminalRef.current.writeOutput(`Successfully installed ${packageName}`);
-          terminalRef.current.writeOutput(`Check the file tree to see node_modules/${packageName}`);
+          terminalRef.current.writeOutput(
+            `Check node_modules/${packageName} in the files explorer`,
+          );
           terminalRef.current.writeOutput('');
         }
       }
