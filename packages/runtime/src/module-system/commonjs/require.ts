@@ -75,7 +75,39 @@ export function createRequireFunction(): string {
       );
     } else {
       // npm package - look in /node_modules
-      resolvedPath = '/node_modules/' + modulePath + '/index.js';
+      // Parse package name and subpath, handling scoped packages (@scope/name)
+      let packageName, subpath;
+
+      if (modulePath.startsWith('@')) {
+        // Scoped package: @scope/name or @scope/name/subpath
+        const parts = modulePath.split('/');
+        if (parts.length >= 2) {
+          packageName = parts[0] + '/' + parts[1]; // @scope/name
+          subpath = parts.slice(2).join('/'); // everything after package name
+        } else {
+          packageName = modulePath;
+          subpath = '';
+        }
+      } else {
+        // Regular package: name or name/subpath
+        const slashIndex = modulePath.indexOf('/');
+        if (slashIndex === -1) {
+          packageName = modulePath;
+          subpath = '';
+        } else {
+          packageName = modulePath.substring(0, slashIndex);
+          subpath = modulePath.substring(slashIndex + 1);
+        }
+      }
+
+      // Build resolved path
+      if (subpath) {
+        // Has subpath - resolve to the specific file/directory
+        resolvedPath = '/node_modules/' + packageName + '/' + subpath;
+      } else {
+        // No subpath - resolve to package's index.js
+        resolvedPath = '/node_modules/' + packageName + '/index.js';
+      }
     }
 
     // 4. Add .js extension if missing (try multiple patterns)
