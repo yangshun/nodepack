@@ -136,7 +136,7 @@ export function createRequireFunction(): string {
 
     // 11. Detect if this is an ES module (has export/import statements)
     // Use word boundary \\b to avoid matching "exports" or "imported"
-    const isESModule = /^\s*(export|import)\b/m.test(code);
+    const isESModule = /^\\s*(export|import)\\b/m.test(code);
 
     if (isESModule) {
       // ES module - use dynamic import via helper

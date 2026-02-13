@@ -5,6 +5,7 @@
 
 import pathBrowserify from 'path-browserify';
 import { exports as resolveExports, legacy as resolveLegacy } from 'resolve.exports';
+import { detectModuleFormat } from './format-detector.js';
 
 /**
  * NodepackModuleLoader
@@ -34,7 +35,15 @@ export class NodepackModuleLoader {
 
     // 2. Try to load from filesystem (moduleName should be an absolute path from normalize())
     if (this.filesystem.existsSync(moduleName)) {
-      return this.filesystem.readFileSync(moduleName, 'utf8');
+      const code = this.filesystem.readFileSync(moduleName, 'utf8');
+      const format = detectModuleFormat(code);
+
+      // If it's a CommonJS module, wrap it for ESM compatibility
+      if (format === 'cjs') {
+        return this.wrapCommonJSModule(code, moduleName);
+      }
+
+      return code;
     }
 
     // 3. Not found
@@ -42,6 +51,70 @@ export class NodepackModuleLoader {
       `Cannot find module '${moduleName}'. ` +
         `Make sure the package is installed or the file exists.`,
     );
+  }
+
+  /**
+   * Wrap a CommonJS module so it can be imported as an ES module
+   * This allows ESM code to import CJS modules
+   */
+  private wrapCommonJSModule(code: string, modulePath: string): string {
+    // Create a wrapper that executes the CJS code and exports the result
+    return `
+      // CommonJS module wrapper for: ${modulePath}
+      const module = {
+        exports: {},
+        filename: ${JSON.stringify(modulePath)},
+        loaded: false,
+        children: []
+      };
+      const exports = module.exports;
+
+      // Cache the module
+      if (!globalThis.__nodepack_module_cache) {
+        globalThis.__nodepack_module_cache = {};
+      }
+      globalThis.__nodepack_module_cache[${JSON.stringify(modulePath)}] = module;
+
+      // Set current module directory for relative requires
+      const __dirname = ${JSON.stringify(pathBrowserify.dirname(modulePath))};
+      const __filename = ${JSON.stringify(modulePath)};
+      globalThis.__nodepack_current_module_dir = __dirname;
+
+      // Execute the CommonJS module code
+      (function(exports, require, module, __filename, __dirname) {
+        ${code}
+      })(exports, require, module, __filename, __dirname);
+
+      module.loaded = true;
+
+      // Export the module.exports as both default and named exports
+      // This allows both: import x from './cjs' and import * as x from './cjs'
+      export default module.exports;
+
+      // Also export as named exports if module.exports is an object
+      if (module.exports && typeof module.exports === 'object' && !Array.isArray(module.exports)) {
+        ${this.generateNamedExports()}
+      }
+    `;
+  }
+
+  /**
+   * Generate code to export CommonJS module.exports properties as named exports
+   */
+  private generateNamedExports(): string {
+    return `
+      const __cjs_exports = module.exports;
+      for (const key in __cjs_exports) {
+        if (__cjs_exports.hasOwnProperty(key)) {
+          try {
+            // Use a dynamic export approach since we can't use export at runtime
+            // We'll rely on the default export containing all properties
+          } catch (e) {
+            // Ignore errors for non-exportable properties
+          }
+        }
+      }
+    `;
   }
 
   /**

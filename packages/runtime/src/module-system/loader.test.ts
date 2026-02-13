@@ -388,4 +388,216 @@ describe('NodepackModuleLoader', () => {
       expect(content).toContain('setInterval');
     });
   });
+
+  describe('CommonJS/ESM interoperability', () => {
+    it('should detect and wrap CommonJS modules', () => {
+      const cjsCode = `
+        function greet(name) {
+          return 'Hello, ' + name;
+        }
+        module.exports = greet;
+      `;
+      vol.writeFileSync('/cjs-module.js', cjsCode);
+
+      const content = loader.load('/cjs-module.js');
+
+      // Should wrap the CJS code for ESM compatibility
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('export default module.exports');
+      expect(content).toContain('const module = {');
+      expect(content).toContain('const exports = module.exports');
+    });
+
+    it('should wrap CJS modules with module.exports assignment', () => {
+      const cjsCode = `
+        const value = 42;
+        module.exports = { value };
+      `;
+      vol.writeFileSync('/cjs-exports.js', cjsCode);
+
+      const content = loader.load('/cjs-exports.js');
+
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('export default module.exports');
+      expect(content).toContain(cjsCode);
+    });
+
+    it('should wrap CJS modules with exports shorthand', () => {
+      const cjsCode = `
+        exports.name = 'test';
+        exports.value = 123;
+      `;
+      vol.writeFileSync('/cjs-shorthand.js', cjsCode);
+
+      const content = loader.load('/cjs-shorthand.js');
+
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('export default module.exports');
+      expect(content).toContain('const exports = module.exports');
+    });
+
+    it('should wrap CJS modules with require statements', () => {
+      const cjsCode = `
+        const path = require('path');
+        module.exports = path.join('a', 'b');
+      `;
+      vol.writeFileSync('/cjs-require.js', cjsCode);
+
+      const content = loader.load('/cjs-require.js');
+
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('export default module.exports');
+    });
+
+    it('should include __dirname and __filename in wrapped CJS modules', () => {
+      vol.mkdirSync('/subdir', { recursive: true });
+      const cjsCode = `module.exports = __dirname;`;
+      vol.writeFileSync('/subdir/cjs-dirname.js', cjsCode);
+
+      const content = loader.load('/subdir/cjs-dirname.js');
+
+      expect(content).toContain('const __dirname = "/subdir"');
+      expect(content).toContain('const __filename = "/subdir/cjs-dirname.js"');
+    });
+
+    it('should pass require, module, exports to wrapped CJS modules', () => {
+      const cjsCode = `
+        module.exports = { test: true };
+      `;
+      vol.writeFileSync('/cjs-params.js', cjsCode);
+
+      const content = loader.load('/cjs-params.js');
+
+      expect(content).toContain('(function(exports, require, module, __filename, __dirname)');
+      expect(content).toContain('})(exports, require, module, __filename, __dirname);');
+    });
+
+    it('should set up module cache in wrapped CJS modules', () => {
+      const cjsCode = `module.exports = 42;`;
+      vol.writeFileSync('/cjs-cache.js', cjsCode);
+
+      const content = loader.load('/cjs-cache.js');
+
+      expect(content).toContain('globalThis.__nodepack_module_cache');
+      expect(content).toContain('globalThis.__nodepack_module_cache["/cjs-cache.js"] = module');
+    });
+
+    it('should not wrap ESM modules', () => {
+      const esmCode = `
+        export function greet(name) {
+          return 'Hello, ' + name;
+        }
+      `;
+      vol.writeFileSync('/esm-module.js', esmCode);
+
+      const content = loader.load('/esm-module.js');
+
+      // Should return the ESM code as-is
+      expect(content).toBe(esmCode);
+      expect(content).not.toContain('CommonJS module wrapper');
+      expect(content).toContain('export function greet');
+    });
+
+    it('should not wrap ESM modules with export default', () => {
+      const esmCode = `export default function() { return 42; }`;
+      vol.writeFileSync('/esm-default.js', esmCode);
+
+      const content = loader.load('/esm-default.js');
+
+      expect(content).toBe(esmCode);
+      expect(content).not.toContain('CommonJS module wrapper');
+    });
+
+    it('should not wrap ESM modules with import statements', () => {
+      const esmCode = `
+        import path from 'path';
+        export const result = path.join('a', 'b');
+      `;
+      vol.writeFileSync('/esm-import.js', esmCode);
+
+      const content = loader.load('/esm-import.js');
+
+      expect(content).toBe(esmCode);
+      expect(content).not.toContain('CommonJS module wrapper');
+    });
+
+    it('should handle mixed CJS/ESM detection correctly', () => {
+      // Module with require but also export (should be detected as ESM)
+      const mixedCode = `
+        export const value = 42;
+        const helper = require('./helper');
+      `;
+      vol.writeFileSync('/mixed.js', mixedCode);
+
+      const content = loader.load('/mixed.js');
+
+      // Should not wrap because it has export statement
+      expect(content).toBe(mixedCode);
+      expect(content).not.toContain('CommonJS module wrapper');
+    });
+
+    it('should wrap CJS with only require and no exports', () => {
+      const cjsCode = `
+        const fs = require('fs');
+        console.log('test');
+      `;
+      vol.writeFileSync('/cjs-no-exports.js', cjsCode);
+
+      const content = loader.load('/cjs-no-exports.js');
+
+      // Should wrap because it has require but no export
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('export default module.exports');
+    });
+
+    it('should preserve original code in wrapped CJS modules', () => {
+      const cjsCode = `
+        function add(a, b) {
+          return a + b;
+        }
+        module.exports = add;
+      `;
+      vol.writeFileSync('/cjs-preserve.js', cjsCode);
+
+      const content = loader.load('/cjs-preserve.js');
+
+      // Original code should be preserved inside the wrapper
+      expect(content).toContain(cjsCode);
+      expect(content).toContain('function add(a, b)');
+      expect(content).toContain('return a + b;');
+    });
+
+    it('should handle CJS modules in subdirectories', () => {
+      vol.mkdirSync('/lib/utils', { recursive: true });
+      const cjsCode = `module.exports = { test: true };`;
+      vol.writeFileSync('/lib/utils/helper.js', cjsCode);
+
+      const content = loader.load('/lib/utils/helper.js');
+
+      expect(content).toContain('CommonJS module wrapper');
+      expect(content).toContain('const __dirname = "/lib/utils"');
+      expect(content).toContain('const __filename = "/lib/utils/helper.js"');
+    });
+
+    it('should mark module as loaded in wrapped CJS', () => {
+      const cjsCode = `module.exports = 42;`;
+      vol.writeFileSync('/cjs-loaded.js', cjsCode);
+
+      const content = loader.load('/cjs-loaded.js');
+
+      expect(content).toContain('loaded: false');
+      expect(content).toContain('module.loaded = true');
+    });
+
+    it('should set current module directory in wrapped CJS', () => {
+      vol.mkdirSync('/src', { recursive: true });
+      const cjsCode = `module.exports = 42;`;
+      vol.writeFileSync('/src/cjs-dir.js', cjsCode);
+
+      const content = loader.load('/src/cjs-dir.js');
+
+      expect(content).toContain('const __dirname = "/src"');
+      expect(content).toContain('globalThis.__nodepack_current_module_dir = __dirname');
+    });
+  });
 });

@@ -11,6 +11,7 @@ describe('NpmRegistry', () => {
 
     // Mock global fetch
     fetchMock = vi.fn();
+    // @ts-expect-error
     global.fetch = fetchMock;
   });
 

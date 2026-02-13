@@ -2,11 +2,11 @@
 
 This file contains project-specific coding standards, conventions, and architectural decisions for the Nodepack project.
 
-## Project Overview
+## Project overview
 
 Nodepack is a browser-based Node.js runtime that allows running Node.js code directly in the browser using QuickJS WASM.
 
-## Code Style & Conventions
+## Coding style & conventions
 
 ### General
 

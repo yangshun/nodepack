@@ -1,4 +1,4 @@
-import { describe, it, expect } from 'vitest';
+import { describe, beforeEach, it, expect } from 'vitest';
 import { VersionResolver } from './version-resolver.js';
 import type { PackageMetadata } from './types.js';
 

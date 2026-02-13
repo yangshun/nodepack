@@ -137,7 +137,9 @@ export function setupVMContext(
     const wrapperPath = '/' + wrapperId + '.js';
     const wrapperCode = `
         import * as mod from ${JSON.stringify(modulePath)};
-        globalThis.${wrapperId} = mod.default !== undefined ? mod.default : mod;
+        // Return the full module namespace object (matches Node.js behavior)
+        // This allows accessing both named exports and default export via .default
+        globalThis.${wrapperId} = mod;
       `;
 
     filesystem.writeFileSync(wrapperPath, wrapperCode);
