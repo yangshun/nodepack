@@ -33,6 +33,7 @@ export function App() {
   const [isRunning, setIsRunning] = useState(false);
   const [usingWorker, setUsingWorker] = useState(false);
 
+  const [session, setSession] = useState<number>(0);
   const [files, setFiles] = useState<FileMap>({ 'main.js': defaultCode });
   const [currentFile, setCurrentFile] = useState('main.js');
   const [currentFileContent, setCurrentFileContent] = useState(defaultCode);
@@ -66,7 +67,7 @@ export function App() {
 
         // Write welcome message to terminal
         if (terminalRef.current) {
-          terminalRef.current.writeOutput('✅ Nodepack initialized successfully!');
+          terminalRef.current.writeOutput('Nodepack initialized successfully!');
           terminalRef.current.writeOutput(
             `🔧 Mode: ${isWorker ? 'Web Worker (isolated)' : 'Direct runtime'}`,
           );
@@ -93,8 +94,9 @@ export function App() {
 
   // Write initial files to filesystem when nodepack becomes available
   useEffect(() => {
-    if (!nodepack) return;
-
+    if (!nodepack) {
+      return;
+    }
     const fs = nodepack.getFilesystem();
     if (!fs) return;
 
@@ -107,9 +109,11 @@ export function App() {
     }
   }, [nodepack]);
 
-  const handleSelectExample = (exampleId: string) => {
+  function handleSelectExample(exampleId: string) {
     const example = examples.find((ex) => ex.id === exampleId);
-    if (!example) return;
+    if (!example) {
+      return;
+    }
 
     const newFiles = example.files
       ? { 'main.js': example.code, ...example.files }
@@ -118,6 +122,7 @@ export function App() {
     setFiles(newFiles);
     setCurrentFile('main.js');
     setCurrentFileContent(example.code);
+    setSession((s) => s + 1);
 
     // Clear terminal when switching examples
     if (terminalRef.current) {
@@ -188,7 +193,7 @@ export function App() {
         });
       }
     }
-  };
+  }
 
   // Load file content from filesystem when currentFile changes
   useEffect(() => {
@@ -363,15 +368,8 @@ export function App() {
       return;
     }
 
-    // Clear terminal before running
-    if (terminalRef.current) {
-      terminalRef.current.clear();
-    }
-
     setIsRunning(true);
     setStatus('running');
-
-    const startTime = performance.now();
 
     try {
       // Write all files except main.js to virtual filesystem
@@ -412,35 +410,14 @@ export function App() {
           }
         },
       });
-      const duration = Math.round(performance.now() - startTime);
 
-      if (result.ok) {
-        // Add spacing after logs (if any were output)
-        if (result.logs && result.logs.length > 0) {
-          if (terminalRef.current) {
-            terminalRef.current.writeOutput('');
-          }
-        }
-
-        if (terminalRef.current) {
-          terminalRef.current.writeOutput(`✅ Execution completed in ${duration}ms`);
-        }
-
-        // Display returned value
-        if (result.data !== undefined) {
-          if (terminalRef.current) {
-            terminalRef.current.writeOutput('');
-            terminalRef.current.writeOutput('Returned value:');
-            terminalRef.current.writeOutput(JSON.stringify(result.data, null, 2));
-          }
-        }
-      } else {
+      if (!result.ok) {
         if (terminalRef.current) {
           const errorMsg =
             typeof result.error === 'object'
               ? JSON.stringify(result.error, null, 2)
               : String(result.error);
-          terminalRef.current.writeOutput(`❌ Error: ${errorMsg}`);
+          terminalRef.current.writeOutput(`Error: ${errorMsg}`);
         }
 
         // Display any logs that occurred before the error
@@ -458,7 +435,7 @@ export function App() {
       }
     } catch (error: any) {
       if (terminalRef.current) {
-        terminalRef.current.writeOutput(`❌ Execution failed: ${error.message}`);
+        terminalRef.current.writeOutput(`Execution failed: ${error.message}`);
       }
       console.error('Execution error:', error);
     } finally {
@@ -659,6 +636,7 @@ export function App() {
           {/* Terminal */}
           <div className="w-1/3 h-full">
             <Terminal
+              key={session}
               ref={terminalRef}
               filesystem={nodepack?.getFilesystem() || undefined}
               onExecuteFile={handleExecuteFile}
