@@ -9,7 +9,23 @@ export function createProcessModule(
   vm: QuickJSContext,
   options: RuntimeOptions = {},
 ): QuickJSHandle {
-  const processObj = vm.newObject();
+  // Create process as an EventEmitter instance
+  const processCode = `
+    new globalThis.__nodepack_events.EventEmitter();
+  `;
+  const processResult = vm.evalCode(processCode);
+
+  if (processResult.error) {
+    const error = vm.dump(processResult.error);
+    processResult.error.dispose();
+    const errorMsg =
+      typeof error === 'object' && error.message
+        ? error.message
+        : JSON.stringify(error, null, 2) || String(error);
+    throw new Error(`Failed to create process EventEmitter: ${errorMsg}`);
+  }
+
+  const processObj = processResult.value;
 
   // process.env - environment variables
   const envObj = vm.newObject();

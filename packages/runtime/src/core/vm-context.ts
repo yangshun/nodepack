@@ -42,6 +42,11 @@ export function setupVMContext(
   vm.setProp(vm.global, '__nodepack_path', pathHandle);
   pathHandle.dispose();
 
+  // Set up events builtin before process (process extends EventEmitter)
+  const eventsHandle = createEventsModule(vm);
+  vm.setProp(vm.global, '__nodepack_events', eventsHandle);
+  eventsHandle.dispose();
+
   const processHandle = createProcessModule(vm, options);
   vm.setProp(vm.global, '__nodepack_process', processHandle);
   // Also set process as a global for npm packages that expect it
@@ -72,11 +77,6 @@ export function setupVMContext(
   const urlHandle = createUrlModule(vm);
   vm.setProp(vm.global, '__nodepack_url', urlHandle);
   urlHandle.dispose();
-
-  // Set up events builtin
-  const eventsHandle = createEventsModule(vm);
-  vm.setProp(vm.global, '__nodepack_events', eventsHandle);
-  eventsHandle.dispose();
 
   // Set up buffer builtin
   const bufferHandle = createBufferModule(vm);
