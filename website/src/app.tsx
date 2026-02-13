@@ -13,7 +13,7 @@ import { examples } from './examples';
 import { FileMap, RuntimeStatus } from './types';
 
 // Import worker
-import nodepackWorkerUrl from '../../../packages/worker/dist/runtime-worker.js?worker&url';
+import nodepackWorkerUrl from '../../packages/worker/dist/runtime-worker.js?worker&url';
 
 // Set up Node.js globals
 (globalThis as any).Buffer = Buffer;

@@ -27,14 +27,80 @@ importers:
         specifier: ^1.2.1
         version: 1.6.1(@types/node@20.19.33)
 
-  examples/basic:
+  packages/client:
+    dependencies:
+      '@nodepack/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      '@nodepack/worker':
+        specifier: workspace:*
+        version: link:../worker
+      comlink:
+        specifier: ^4.4.1
+        version: 4.4.2
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  packages/runtime:
+    dependencies:
+      '@jitl/quickjs-wasmfile-release-sync':
+        specifier: ^0.31.0
+        version: 0.31.0
+      memfs:
+        specifier: ^4.56.10
+        version: 4.56.10(tslib@2.8.1)
+      pako:
+        specifier: ^2.1.0
+        version: 2.1.0
+      path-browserify:
+        specifier: ^1.0.1
+        version: 1.0.1
+      quickjs-emscripten:
+        specifier: ^0.31.0
+        version: 0.31.0
+      resolve.exports:
+        specifier: ^2.0.2
+        version: 2.0.3
+      semver:
+        specifier: ^7.6.0
+        version: 7.7.4
+    devDependencies:
+      '@types/pako':
+        specifier: ^2.0.3
+        version: 2.0.4
+      '@types/path-browserify':
+        specifier: ^1.0.3
+        version: 1.0.3
+      '@types/semver':
+        specifier: ^7.5.8
+        version: 7.7.1
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  packages/worker:
+    dependencies:
+      '@nodepack/runtime':
+        specifier: workspace:*
+        version: link:../runtime
+      comlink:
+        specifier: ^4.4.1
+        version: 4.4.2
+    devDependencies:
+      typescript:
+        specifier: ^5.3.3
+        version: 5.9.3
+
+  website:
     dependencies:
       '@monaco-editor/react':
         specifier: ^4.7.0
         version: 4.7.0(monaco-editor@0.55.1)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@nodepack/client':
         specifier: workspace:*
-        version: link:../../packages/client
+        version: link:../packages/client
       '@xterm/addon-fit':
         specifier: ^0.10.0
         version: 0.10.0(@xterm/xterm@5.5.0)
@@ -111,72 +177,6 @@ importers:
       vite:
         specifier: ^5.0.12
         version: 5.4.21(@types/node@20.19.33)
-
-  packages/client:
-    dependencies:
-      '@nodepack/runtime':
-        specifier: workspace:*
-        version: link:../runtime
-      '@nodepack/worker':
-        specifier: workspace:*
-        version: link:../worker
-      comlink:
-        specifier: ^4.4.1
-        version: 4.4.2
-    devDependencies:
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
-  packages/runtime:
-    dependencies:
-      '@jitl/quickjs-wasmfile-release-sync':
-        specifier: ^0.31.0
-        version: 0.31.0
-      memfs:
-        specifier: ^4.56.10
-        version: 4.56.10(tslib@2.8.1)
-      pako:
-        specifier: ^2.1.0
-        version: 2.1.0
-      path-browserify:
-        specifier: ^1.0.1
-        version: 1.0.1
-      quickjs-emscripten:
-        specifier: ^0.31.0
-        version: 0.31.0
-      resolve.exports:
-        specifier: ^2.0.2
-        version: 2.0.3
-      semver:
-        specifier: ^7.6.0
-        version: 7.7.4
-    devDependencies:
-      '@types/pako':
-        specifier: ^2.0.3
-        version: 2.0.4
-      '@types/path-browserify':
-        specifier: ^1.0.3
-        version: 1.0.3
-      '@types/semver':
-        specifier: ^7.5.8
-        version: 7.7.1
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
-
-  packages/worker:
-    dependencies:
-      '@nodepack/runtime':
-        specifier: workspace:*
-        version: link:../runtime
-      comlink:
-        specifier: ^4.4.1
-        version: 4.4.2
-    devDependencies:
-      typescript:
-        specifier: ^5.3.3
-        version: 5.9.3
 
 packages:
 
@@ -408,13 +408,9 @@ packages:
     cpu: [x64]
     os: [win32]
 
-  '@isaacs/balanced-match@4.0.1':
-    resolution: {integrity: sha512-yzMTt9lEb8Gv7zRioUilSglI0c0smZ9k5D65677DLWLtWJaXIS3CqcGyUFByYKlnUj6TkjLVs54fBl6+TiGQDQ==}
-    engines: {node: 20 || >=22}
-
-  '@isaacs/brace-expansion@5.0.1':
-    resolution: {integrity: sha512-WMz71T1JS624nWj2n2fnYAuPovhv7EUhk69R6i9dsVyzxt5eM3bjwvgk9L+APE1TRscGysAVMANkB0jh0LQZrQ==}
-    engines: {node: 20 || >=22}
+  '@isaacs/cliui@9.0.0':
+    resolution: {integrity: sha512-AokJm4tuBHillT+FpMtxQ60n8ObyXBatq7jD2/JA9dxbDDokKQm8KMht5ibGzLVU9IJDIKK4TPKgMHEYMn3lMg==}
+    engines: {node: '>=18'}
 
   '@jest/schemas@29.6.3':
     resolution: {integrity: sha512-mo5j5X+jIZmJQveBKeS/clAueipV7KgiX1vMgCxam1RNYiqE1w62n0/tJJnHtjW8ZHcQco5gY85jA3mi0L+nSA==}
@@ -1086,6 +1082,10 @@ packages:
     resolution: {integrity: sha512-wvUjBtSGN7+7SjNpq/9M2Tg350UZD3q62IFZLbRAR1bSMlCo1ZaeW+BJ+D090e4hIIZLBcTDWe4Mh4jvUDajzQ==}
     engines: {node: '>= 0.4'}
 
+  balanced-match@4.0.2:
+    resolution: {integrity: sha512-x0K50QvKQ97fdEz2kPehIerj+YTeptKF9hyYkKf6egnwmMWAkADiO0QCzSp0R5xN8FTZgYaBfSaue46Ej62nMg==}
+    engines: {node: 20 || >=22}
+
   base64-js@1.5.1:
     resolution: {integrity: sha512-AKpaYlHn8t4SVbOHCy+b5+KKgvR4vrsD8vbvrbiQJps7fKDTkjkDry6ji0rUJjC0kzbNePLwzxq8iypo41qeWA==}
 
@@ -1103,6 +1103,10 @@ packages:
   body-parser@2.2.2:
     resolution: {integrity: sha512-oP5VkATKlNwcgvxi0vM0p/D3n2C3EReYVX+DNYs5TjZFn/oQt2j+4sVJtSMr18pdRr8wjTcBl6LoV+FUwzPmNA==}
     engines: {node: '>=18'}
+
+  brace-expansion@5.0.2:
+    resolution: {integrity: sha512-Pdk8c9poy+YhOgVWw1JNN22/HcivgKWwpxKq04M/jTmHyCZn12WPJebZxdjSa5TmBqISrUSgNYU3eRORljfCCw==}
+    engines: {node: 20 || >=22}
 
   braces@3.0.3:
     resolution: {integrity: sha512-yQbXgO/OSZVD2IsiLlro+7Hf6Q18EJrKSEsdoMzKePKXct3gvD8oLcOQdIzGupr5Fj+EDe8gO/lxc1BzfMpxvA==}
@@ -1533,6 +1537,10 @@ packages:
   isexe@2.0.0:
     resolution: {integrity: sha512-RHxMLp9lnKHGHRng9QFhRCMbYAcVpn69smSGcq3f36xjgVVWThj4qqLbTLlq7Ssj8B+fIQ1EuCEGI2lKsyQeIw==}
 
+  jackspeak@4.2.3:
+    resolution: {integrity: sha512-ykkVRwrYvFm1nb2AJfKKYPr0emF6IiXDYUaFx4Zn9ZuIH7MrzEZ3sD5RlqGXNRpHtvUHJyOnCEFxOlNDtGo7wg==}
+    engines: {node: 20 || >=22}
+
   jiti@1.21.7:
     resolution: {integrity: sha512-/imKNG4EbWNrVjoNC/1H5/9GFy+tqjGBHCaSsN+P2RnPqjsLmv6UD3Ej+Kj8nBWaRAwyk7kK5ZUc+OEatnTR3A==}
     hasBin: true
@@ -1630,8 +1638,8 @@ packages:
     resolution: {integrity: sha512-z0yWI+4FDrrweS8Zmt4Ej5HdJmky15+L2e6Wgn3+iK5fWzb6T3fhNFq2+MeTRb064c6Wr4N/wv0DzQTjNzHNGQ==}
     engines: {node: '>=10'}
 
-  minimatch@10.1.2:
-    resolution: {integrity: sha512-fu656aJ0n2kcXwsnwnv9g24tkU5uSmOlTjd6WyyaKm2Z+h1qmY6bAjrcaIxF/BslFqbZ8UBtbJi7KgQOZD2PTw==}
+  minimatch@10.2.0:
+    resolution: {integrity: sha512-ugkC31VaVg9cF0DFVoADH12k6061zNZkZON+aX8AWsR9GhPcErkcMBceb6znR8wLERM2AkkOxy2nWRLpT9Jq5w==}
     engines: {node: 20 || >=22}
 
   minimist@1.2.8:
@@ -1874,8 +1882,8 @@ packages:
     resolution: {integrity: sha512-RUSVJlhQdfWfgO9hVHCiXoG+nVZQRS5D9FzgpLJ/VcgGBLSAKoPL8kTiOikxbHQm1kRISeWUBdulEgO26qpSRA==}
     engines: {node: '>=18.0.0'}
 
-  qs@6.14.1:
-    resolution: {integrity: sha512-4EK3+xJl8Ts67nLYNwqw/dsFVnCf+qR7RgXSK9jEEm9unao3njwMDdmsdvoKBKHzxd7tCYz5e5M+SnMjdtXGQQ==}
+  qs@6.14.2:
+    resolution: {integrity: sha512-V/yCWTTF7VJ9hIh18Ugr2zhJMP01MY7c5kh4J870L7imm6/DIzBsNLTXzMwUA3yZ5b/KBqLx8Kp3uRvd7xSe3Q==}
     engines: {node: '>=0.6'}
 
   queue-microtask@1.2.3:
@@ -2045,8 +2053,8 @@ packages:
   sprintf-js@1.1.3:
     resolution: {integrity: sha512-Oo+0REFV59/rz3gfJNKQiBlwfHaSESl1pcGyABQsnnIfWOFt6JNj5gCog2U6MLZ//IGYD+nA8nI+mTShREReaA==}
 
-  sql.js@1.13.0:
-    resolution: {integrity: sha512-RJbVP1HRDlUUXahJ7VMTcu9Rm1Nzw+EBpoPr94vnbD4LwR715F3CcxE2G2k45PewcaZ57pjetYa+LoSJLAASgA==}
+  sql.js@1.14.0:
+    resolution: {integrity: sha512-NXYh+kFqLiYRCNAaHD0PcbjFgXyjuolEKLMk5vRt2DgPENtF1kkNzzMlg42dUk5wIsH8MhUzsRhaUxIisoSlZQ==}
 
   stackback@0.0.2:
     resolution: {integrity: sha512-1XMJE5fQo1jGH6Y/7ebnwPOBEkIEnT4QF32d5R1+VXdXveM0IBMJt8zfaxX1P3QhVwrYe+576+jkANtSS2mBbw==}
@@ -2504,11 +2512,7 @@ snapshots:
   '@esbuild/win32-x64@0.21.5':
     optional: true
 
-  '@isaacs/balanced-match@4.0.1': {}
-
-  '@isaacs/brace-expansion@5.0.1':
-    dependencies:
-      '@isaacs/balanced-match': 4.0.1
+  '@isaacs/cliui@9.0.0': {}
 
   '@jest/schemas@29.6.3':
     dependencies:
@@ -3048,6 +3052,10 @@ snapshots:
     dependencies:
       possible-typed-array-names: 1.1.0
 
+  balanced-match@4.0.2:
+    dependencies:
+      jackspeak: 4.2.3
+
   base64-js@1.5.1: {}
 
   baseline-browser-mapping@2.9.19: {}
@@ -3069,11 +3077,15 @@ snapshots:
       http-errors: 2.0.1
       iconv-lite: 0.7.2
       on-finished: 2.4.1
-      qs: 6.14.1
+      qs: 6.14.2
       raw-body: 3.0.2
       type-is: 2.0.1
     transitivePeerDependencies:
       - supports-color
+
+  brace-expansion@5.0.2:
+    dependencies:
+      balanced-match: 4.0.2
 
   braces@3.0.3:
     dependencies:
@@ -3332,7 +3344,7 @@ snapshots:
       once: 1.4.0
       parseurl: 1.3.3
       proxy-addr: 2.0.7
-      qs: 6.14.1
+      qs: 6.14.2
       range-parser: 1.2.1
       router: 2.2.0
       send: 1.2.1
@@ -3539,6 +3551,10 @@ snapshots:
 
   isexe@2.0.0: {}
 
+  jackspeak@4.2.3:
+    dependencies:
+      '@isaacs/cliui': 9.0.0
+
   jiti@1.21.7: {}
 
   js-tokens@4.0.0: {}
@@ -3556,14 +3572,14 @@ snapshots:
       fast-xml-parser: 5.3.5
       file-type: 21.3.0
       ini: 6.0.0
-      minimatch: 10.1.2
+      minimatch: 10.2.0
       modern-tar: 0.7.3
       papaparse: 5.5.3
       pyodide: 0.27.7
       re2js: 1.2.1
       smol-toml: 1.6.0
       sprintf-js: 1.1.3
-      sql.js: 1.13.0
+      sql.js: 1.14.0
       turndown: 7.2.2
       yaml: 2.8.2
     optionalDependencies:
@@ -3644,9 +3660,9 @@ snapshots:
   mimic-response@3.1.0:
     optional: true
 
-  minimatch@10.1.2:
+  minimatch@10.2.0:
     dependencies:
-      '@isaacs/brace-expansion': 5.0.1
+      brace-expansion: 5.0.2
 
   minimist@1.2.8:
     optional: true
@@ -3898,7 +3914,7 @@ snapshots:
       - bufferutil
       - utf-8-validate
 
-  qs@6.14.1:
+  qs@6.14.2:
     dependencies:
       side-channel: 1.1.0
 
@@ -4130,7 +4146,7 @@ snapshots:
 
   sprintf-js@1.1.3: {}
 
-  sql.js@1.13.0: {}
+  sql.js@1.14.0: {}
 
   stackback@0.0.2: {}
 

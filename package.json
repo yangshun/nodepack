@@ -14,14 +14,14 @@
   "author": "",
   "type": "module",
   "scripts": {
-    "dev": "pnpm --filter @nodepack/client dev",
+    "dev": "pnpm -r dev",
+    "dev:website": "pnpm --filter website dev",
     "build": "pnpm -r --filter './packages/*' build",
     "typecheck": "tsc --noEmit",
     "test": "vitest --run",
     "test:watch": "vitest",
     "lint": "oxlint",
     "lint:fix": "oxlint --fix",
-    "example:basic": "pnpm --filter basic dev",
     "fmt": "oxfmt"
   },
   "devDependencies": {
