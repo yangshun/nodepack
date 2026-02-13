@@ -22,6 +22,7 @@ Fixtures are organized into the following categories:
 - **interop/** - CJS/ESM interoperability tests
 - **errors/** - Error handling tests
 - **console/** - Console output tests
+- **builtins/** - Built-in Node.js module tests
 
 Each fixture directory must contain:
 
@@ -84,6 +85,26 @@ esm/import-esm/
 - **clear-second** - Second execution for log clearing test
 - **stream** - Multiple console.log statements for streaming test
 - **from-module** - Console.log calls from imported modules
+
+### builtins/
+
+- **path** - Path module (join, resolve, basename, dirname, extname)
+  - `main.js` - ESM version
+  - `main-cjs.js` - CJS version
+- **events** - EventEmitter functionality
+  - `main.js` - ESM version
+  - `main-cjs.js` - CJS version
+- **util** - Utility functions (inspect, format, types)
+  - `main.js` - ESM version
+  - `main-cjs.js` - CJS version
+- **buffer** - Buffer creation and manipulation
+  - `main.js` - ESM version
+  - `main-cjs.js` - CJS version
+- **url** - URL and URLSearchParams parsing
+  - `main.js` - ESM version
+  - `main-cjs.js` - CJS version
+
+Note: Each builtin module has both ESM and CJS versions to test both module systems. All builtin modules are now fully implemented and tested.
 
 ## Adding New Fixtures
 

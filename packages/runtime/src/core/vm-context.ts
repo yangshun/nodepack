@@ -14,6 +14,8 @@ import {
   createModuleBuiltin,
   createUrlModule,
   createEventsModule,
+  createBufferModule,
+  createUtilModule,
   createChildProcessModule,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
@@ -75,6 +77,16 @@ export function setupVMContext(
   const eventsHandle = createEventsModule(vm);
   vm.setProp(vm.global, '__nodepack_events', eventsHandle);
   eventsHandle.dispose();
+
+  // Set up buffer builtin
+  const bufferHandle = createBufferModule(vm);
+  vm.setProp(vm.global, '__nodepack_buffer', bufferHandle);
+  bufferHandle.dispose();
+
+  // Set up util builtin
+  const utilHandle = createUtilModule(vm);
+  vm.setProp(vm.global, '__nodepack_util', utilHandle);
+  utilHandle.dispose();
 
   // Set up child_process builtin
   const childProcessHandle = createChildProcessModule(vm);

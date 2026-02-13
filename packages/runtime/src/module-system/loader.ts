@@ -246,6 +246,46 @@ export class NodepackModuleLoader {
     `,
     );
 
+    // events module
+    modules.set(
+      'events',
+      `
+      export const EventEmitter = globalThis.__nodepack_events.EventEmitter;
+      export default globalThis.__nodepack_events;
+    `,
+    );
+
+    // url module
+    modules.set(
+      'url',
+      `
+      export const URL = globalThis.URL;
+      export const URLSearchParams = globalThis.URLSearchParams;
+      export const fileURLToPath = globalThis.__nodepack_url.fileURLToPath;
+      export default globalThis.__nodepack_url;
+    `,
+    );
+
+    // buffer module
+    modules.set(
+      'buffer',
+      `
+      export const Buffer = globalThis.__nodepack_buffer.Buffer;
+      export default globalThis.__nodepack_buffer;
+    `,
+    );
+
+    // util module
+    modules.set(
+      'util',
+      `
+      export const inspect = globalThis.__nodepack_util.inspect;
+      export const format = globalThis.__nodepack_util.format;
+      export const types = globalThis.__nodepack_util.types;
+      export default globalThis.__nodepack_util;
+    `,
+    );
+
     return modules;
   }
 

@@ -43,7 +43,7 @@ export function createRequireFunction(): string {
   }
 
   // List of builtin modules
-  const BUILTIN_MODULES = ['fs', 'path', 'process', 'timers', 'module', 'url', 'events', 'child_process'];
+  const BUILTIN_MODULES = ['fs', 'path', 'process', 'timers', 'module', 'url', 'events', 'buffer', 'util', 'child_process'];
 
   /**
    * Main require function
