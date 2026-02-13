@@ -259,6 +259,16 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
       export const readdirSync = globalThis.__nodepack_fs.readdirSync;
       export const mkdirSync = globalThis.__nodepack_fs.mkdirSync;
       export const unlinkSync = globalThis.__nodepack_fs.unlinkSync;
+      export const statSync = globalThis.__nodepack_fs.statSync;
+      export const lstatSync = globalThis.__nodepack_fs.lstatSync;
+      export const appendFileSync = globalThis.__nodepack_fs.appendFileSync;
+      export const copyFileSync = globalThis.__nodepack_fs.copyFileSync;
+      export const renameSync = globalThis.__nodepack_fs.renameSync;
+      export const rmdirSync = globalThis.__nodepack_fs.rmdirSync;
+      export const rmSync = globalThis.__nodepack_fs.rmSync;
+      export const accessSync = globalThis.__nodepack_fs.accessSync;
+      export const realpathSync = globalThis.__nodepack_fs.realpathSync;
+      export const constants = globalThis.__nodepack_fs.constants;
       export default globalThis.__nodepack_fs;
     `,
     );
