@@ -43,8 +43,8 @@ export class NodepackModuleLoader {
         return this.wrapCommonJSModule(code, moduleName);
       }
 
-      // Transform ESM code to handle destructuring exports
-      return this.transformESMCode(code);
+      // Transform ESM code to handle destructuring exports and inject import.meta
+      return this.transformESMCode(code, moduleName);
     }
 
     // 3. Not found
@@ -120,26 +120,59 @@ export class NodepackModuleLoader {
 
   /**
    * Transform ESM code to handle syntax QuickJS doesn't support
-   * Currently handles: export const { a, b } = obj -> const { a, b } = obj; export { a, b };
+   * Currently handles:
+   * - export const { a, b } = obj -> const { a, b } = obj; export { a, b };
+   * - Injects import.meta.url with the correct module path (only if import.meta is used)
    */
-  private transformESMCode(code: string): string {
+  private transformESMCode(code: string, moduleName: string): string {
+    let transformedCode = code;
+    let hasTransformations = false;
+
+    // 1. Transform destructuring exports
     // Match: export const { ...destructured vars... } = expression;
     // Pattern handles multi-line destructuring with optional trailing comma
     const destructuringExportPattern = /export\s+const\s+\{([^}]+)\}\s*=\s*([^;]+);/g;
 
-    return code.replace(destructuringExportPattern, (_match, destructuredVars, expression) => {
-      // Extract variable names from destructuring pattern
-      // Handle cases like: " program, hello " or " program,\n  hello,\n "
-      const varNames = destructuredVars
-        .split(',')
-        .map((v: string) => v.trim())
-        .filter((v: string) => v.length > 0);
+    if (destructuringExportPattern.test(code)) {
+      hasTransformations = true;
+      destructuringExportPattern.lastIndex = 0; // Reset regex state
+      transformedCode = code.replace(
+        destructuringExportPattern,
+        (_match, destructuredVars, expression) => {
+          // Extract variable names from destructuring pattern
+          // Handle cases like: " program, hello " or " program,\n  hello,\n "
+          const varNames = destructuredVars
+            .split(',')
+            .map((v: string) => v.trim())
+            .filter((v: string) => v.length > 0);
 
-      // Generate the transformed code:
-      // const { program, hello } = commander;
-      // export { program, hello };
-      return `const {${destructuredVars}} = ${expression};\nexport { ${varNames.join(', ')} };`;
-    });
+          // Generate the transformed code:
+          // const { program, hello } = commander;
+          // export { program, hello };
+          return `const {${destructuredVars}} = ${expression};\nexport { ${varNames.join(', ')} };`;
+        },
+      );
+    }
+
+    // 2. Inject import.meta if the code uses it
+    // Only inject if import.meta is referenced in the code
+    if (code.includes('import.meta')) {
+      hasTransformations = true;
+      const importMetaInjection = `
+// Set up import.meta for this module
+if (typeof import.meta === 'undefined' || !import.meta.url) {
+  Object.defineProperty(import.meta, 'url', {
+    value: 'file://${moduleName}',
+    writable: false,
+    enumerable: true,
+    configurable: false
+  });
+}
+`;
+      transformedCode = importMetaInjection + transformedCode;
+    }
+
+    return hasTransformations ? transformedCode : code;
   }
 
   /**

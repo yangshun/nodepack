@@ -27,7 +27,7 @@ function getAllFiles(dir: string, baseDir: string = dir): FixtureFile[] {
 
     if (stat.isDirectory()) {
       files.push(...getAllFiles(fullPath, baseDir));
-    } else if (stat.isFile() && entry.endsWith('.js')) {
+    } else if (stat.isFile() && (entry.endsWith('.js') || entry.endsWith('.json'))) {
       const relativePath = '/' + fullPath.substring(baseDir.length + 1);
       const content = readFileSync(fullPath, 'utf8');
       files.push({ path: relativePath, content });
@@ -62,6 +62,11 @@ export function loadFixture(name: string): Fixture {
 export function loadFixtureIntoFilesystem(runtime: NodepackRuntime, fixture: Fixture): void {
   const fs = runtime.getFilesystem();
   for (const file of fixture.files) {
+    // Create parent directories if they don't exist
+    const parentDir = file.path.substring(0, file.path.lastIndexOf('/'));
+    if (parentDir && !fs.existsSync(parentDir)) {
+      fs.mkdirSync(parentDir, { recursive: true });
+    }
     fs.writeFileSync(file.path, file.content);
   }
 }

@@ -20,6 +20,20 @@ describe('NodepackRuntime - Multi-file ESM modules', () => {
     expect(result.data).toEqual({ sum: 8, product: 28 });
   });
 
+  it('should handle import.meta', async () => {
+    const fixture = loadFixture('esm/import-meta');
+    loadFixtureIntoFilesystem(runtime, fixture);
+
+    const result = await runtime.execute(fixture.mainFile);
+
+    expect(result.ok).toBe(true);
+    expect(result.data).toEqual({
+      filename: '/bin/index.js',
+      dirname: '/bin',
+      version: '9.8.7',
+    });
+  });
+
   it('should handle ESM with default and named exports', async () => {
     const fixture = loadFixture('esm/default-named');
     loadFixtureIntoFilesystem(runtime, fixture);
