@@ -81,6 +81,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
           brightWhite: '#e5e5e5',
         },
         allowProposedApi: true,
+        rightClickSelectsWord: true,
       });
 
       // Add addons
@@ -345,9 +346,9 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       fitAddonRef.current = fitAddon;
 
       // Handle window resize
-      const handleResize = () => {
+      function handleResize() {
         fitAddon.fit();
-      };
+      }
       window.addEventListener('resize', handleResize);
 
       // Notify parent that terminal is ready

@@ -74,8 +74,11 @@ export class TerminalController {
     }
 
     // Regular character input
-    if (data.length === 1 && code >= 32 && code < 127) {
-      this.insertChar(data);
+    for (let i = 0; i < data.length; i++) {
+      const char = data[i];
+      if (char && code >= 32 && code < 127) {
+        this.insertChar(char);
+      }
     }
   }
 
