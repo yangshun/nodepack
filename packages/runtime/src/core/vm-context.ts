@@ -46,6 +46,16 @@ export function setupVMContext(
   vm.setProp(vm.global, 'process', processHandle);
   processHandle.dispose();
 
+  // Set environment flag for logger
+  const env = options.env || { NODE_ENV: 'development' };
+  const envCode = `globalThis.__NODEPACK_ENV__ = ${JSON.stringify(env.NODE_ENV || 'development')};`;
+  const envResult = vm.evalCode(envCode);
+  if (envResult.error) {
+    envResult.error.dispose();
+  } else {
+    envResult.value.dispose();
+  }
+
   // Set up timers module
   const timersHandle = createTimersModule(vm, timerTracker);
   vm.setProp(vm.global, '__nodepack_timers', timersHandle);

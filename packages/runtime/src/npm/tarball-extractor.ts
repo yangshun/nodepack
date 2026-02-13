@@ -5,25 +5,27 @@
 
 import * as pako from 'pako';
 import type { ExtractedFile } from './types.js';
+import { createLogger } from '../core/logger.js';
 
 export class TarballExtractor {
+  private logger = createLogger('[Tarball]');
   /**
    * Extract .tar.gz tarball to file map
    * Returns map of relative paths to content
    */
   async extract(tarballBuffer: ArrayBuffer): Promise<Map<string, ExtractedFile>> {
-    console.log(`[Tarball] Extracting tarball (${tarballBuffer.byteLength} bytes)`);
+    this.logger.log(`Extracting tarball (${tarballBuffer.byteLength} bytes)`);
 
     // Step 1: Decompress gzip
     const gzipped = new Uint8Array(tarballBuffer);
     const tarBuffer = pako.ungzip(gzipped);
 
-    console.log(`[Tarball] Decompressed to ${tarBuffer.byteLength} bytes`);
+    this.logger.log(`Decompressed to ${tarBuffer.byteLength} bytes`);
 
     // Step 2: Parse tar format
     const files = this.parseTar(tarBuffer);
 
-    console.log(`[Tarball] Extracted ${files.size} files`);
+    this.logger.log(`Extracted ${files.size} files`);
 
     return files;
   }

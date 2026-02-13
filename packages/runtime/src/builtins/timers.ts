@@ -1,4 +1,7 @@
 import type { QuickJSContext, QuickJSHandle } from 'quickjs-emscripten';
+import { createLogger } from '../core/logger.js';
+
+const logger = createLogger('[Timer]');
 
 export interface TimerTracker {
   pendingTimers: Set<number>;
@@ -17,7 +20,7 @@ export function createTimersModule(vm: QuickJSContext, tracker: TimerTracker): Q
     // Generate unique callback name
     const counterResult = vm.evalCode('globalThis.__nodepack_timer_callback_counter++');
     if (counterResult.error) {
-      console.error('[Timer] Failed to get counter');
+      logger.error('Failed to get counter');
       counterResult.error.dispose();
       return vm.newNumber(-1);
     }
@@ -44,13 +47,13 @@ export function createTimersModule(vm: QuickJSContext, tracker: TimerTracker): Q
 
         if (result.error) {
           const error = vm.dump(result.error);
-          console.error('[Timer] Callback error:', error);
+          logger.error('Callback error:', error);
           result.error.dispose();
         } else {
           result.value.dispose();
         }
       } catch (error) {
-        console.error('[Timer] Failed to execute callback:', error);
+        logger.error('Failed to execute callback:', error);
       } finally {
         tracker.pendingTimers.delete(timerId);
       }
@@ -69,7 +72,7 @@ export function createTimersModule(vm: QuickJSContext, tracker: TimerTracker): Q
     // Generate unique callback name
     const counterResult = vm.evalCode('globalThis.__nodepack_timer_callback_counter++');
     if (counterResult.error) {
-      console.error('[Timer] Failed to get counter');
+      logger.error('Failed to get counter');
       counterResult.error.dispose();
       return vm.newNumber(-1);
     }
@@ -92,13 +95,13 @@ export function createTimersModule(vm: QuickJSContext, tracker: TimerTracker): Q
 
         if (result.error) {
           const error = vm.dump(result.error);
-          console.error('[Timer] Callback error:', error);
+          logger.error('Callback error:', error);
           result.error.dispose();
         } else {
           result.value.dispose();
         }
       } catch (error) {
-        console.error('[Timer] Failed to execute callback:', error);
+        logger.error('Failed to execute callback:', error);
       }
     }, delay) as unknown as number;
 

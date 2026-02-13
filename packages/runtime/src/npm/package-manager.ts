@@ -7,6 +7,7 @@ import { NpmRegistry } from './npm-registry.js';
 import { TarballExtractor } from './tarball-extractor.js';
 import { DependencyResolver } from './dependency-resolver.js';
 import type { InstallOptions, PackageCache } from './types.js';
+import { createLogger } from '../core/logger.js';
 
 export class NpmPackageManager {
   private filesystem: any;
@@ -14,6 +15,7 @@ export class NpmPackageManager {
   private extractor: TarballExtractor;
   private resolver: DependencyResolver;
   private cache: PackageCache;
+  private logger = createLogger('[NPM]');
 
   constructor(filesystem: any) {
     this.filesystem = filesystem;
@@ -36,7 +38,7 @@ export class NpmPackageManager {
   ): Promise<void> {
     const key = `${packageName}@${versionRange}`;
 
-    console.log(`[NPM] Installing ${key}`);
+    this.logger.log(`Installing ${key}`);
 
     // Resolve dependency tree (this will determine the exact version)
     const resolved = await this.resolver.resolve(packageName, versionRange, options);
@@ -44,7 +46,7 @@ export class NpmPackageManager {
     // Check if already installed in filesystem (unless force option)
     const mainPackage = resolved.get(packageName);
     if (!options.force && mainPackage && this.isInstalled(packageName, mainPackage.version)) {
-      console.log(`[NPM] Package ${packageName}@${mainPackage.version} already installed`);
+      this.logger.log(`Package ${packageName}@${mainPackage.version} already installed`);
       return;
     }
 
@@ -55,7 +57,7 @@ export class NpmPackageManager {
 
     await Promise.all(installPromises);
 
-    console.log(`[NPM] Successfully installed ${key} and ${resolved.size - 1} dependencies`);
+    this.logger.log(`Successfully installed ${key} and ${resolved.size - 1} dependencies`);
   }
 
   /**
@@ -65,7 +67,7 @@ export class NpmPackageManager {
     packageJsonContent: string,
     options: InstallOptions = {},
   ): Promise<void> {
-    console.log('[NPM] Installing from package.json');
+    this.logger.log('Installing from package.json');
 
     const packageJson = JSON.parse(packageJsonContent);
     const deps = packageJson.dependencies || {};
@@ -75,11 +77,11 @@ export class NpmPackageManager {
     const depCount = Object.keys(allDeps).length;
 
     if (depCount === 0) {
-      console.log('[NPM] No dependencies to install');
+      this.logger.log('No dependencies to install');
       return;
     }
 
-    console.log(`[NPM] Found ${depCount} dependencies`);
+    this.logger.log(`Found ${depCount} dependencies`);
 
     // Install all dependencies in parallel
     const installPromises = Object.entries(allDeps).map(([name, version]) =>
@@ -88,7 +90,7 @@ export class NpmPackageManager {
 
     await Promise.all(installPromises);
 
-    console.log('[NPM] All dependencies installed');
+    this.logger.log('All dependencies installed');
   }
 
   /**
@@ -106,7 +108,7 @@ export class NpmPackageManager {
       return;
     }
 
-    console.log(`[NPM] Installing ${installKey}`);
+    this.logger.log(`Installing ${installKey}`);
 
     // Download tarball
     const tarballBuffer = await this.registry.downloadTarball(tarballUrl);
@@ -149,7 +151,7 @@ export class NpmPackageManager {
     // Mark as installed
     this.cache.installed.set(installKey, packageDir);
 
-    console.log(`[NPM] Installed ${installKey} to ${packageDir}`);
+    this.logger.log(`Installed ${installKey} to ${packageDir}`);
   }
 
   /**
@@ -184,12 +186,12 @@ export class NpmPackageManager {
    * Creates symlinks in /node_modules/.bin/ for executables defined in package.json bin field
    */
   private setupBinLinks(packageName: string, packageDir: string): void {
-    console.log(`[NPM] Setting up bin links for ${packageName} at ${packageDir}`);
+    this.logger.log(`Setting up bin links for ${packageName} at ${packageDir}`);
 
     // Read package.json to get bin field
     const packageJsonPath = `${packageDir}/package.json`;
     if (!this.filesystem.existsSync(packageJsonPath)) {
-      console.log(`[NPM] No package.json found at ${packageJsonPath}`);
+      this.logger.log(`No package.json found at ${packageJsonPath}`);
       return;
     }
 
@@ -197,23 +199,23 @@ export class NpmPackageManager {
     try {
       const content = this.filesystem.readFileSync(packageJsonPath, 'utf8');
       packageJson = JSON.parse(content);
-      console.log(`[NPM] Read package.json for ${packageName}, bin field:`, packageJson.bin);
+      this.logger.log(`Read package.json for ${packageName}, bin field:`, packageJson.bin);
     } catch (e) {
-      console.warn(`[NPM] Failed to read package.json for ${packageName}:`, e);
+      this.logger.warn(`Failed to read package.json for ${packageName}:`, e);
       return;
     }
 
     if (!packageJson.bin) {
-      console.log(`[NPM] No bin field in ${packageName}`);
+      this.logger.log(`No bin field in ${packageName}`);
       return; // No bin field, nothing to do
     }
 
-    console.log(`[NPM] Found bin field in ${packageName}:`, packageJson.bin);
+    this.logger.log(`Found bin field in ${packageName}:`, packageJson.bin);
 
     // Ensure .bin directory exists
     const binDir = '/node_modules/.bin';
     if (!this.filesystem.existsSync(binDir)) {
-      console.log(`[NPM] Creating ${binDir} directory`);
+      this.logger.log(`Creating ${binDir} directory`);
       this.filesystem.mkdirSync(binDir, { recursive: true });
     }
 
@@ -223,31 +225,31 @@ export class NpmPackageManager {
         ? { [packageName]: packageJson.bin }
         : packageJson.bin;
 
-    console.log(`[NPM] Normalized bin entries:`, binEntries);
+    this.logger.log(`Normalized bin entries:`, binEntries);
 
     // Create symlinks for each bin entry
     for (const [cmdName, binPath] of Object.entries(binEntries)) {
       const targetPath = `${packageDir}/${binPath}`;
       const linkPath = `${binDir}/${cmdName}`;
 
-      console.log(`[NPM] Processing bin entry: ${cmdName} -> ${binPath}`);
-      console.log(`[NPM] Target path: ${targetPath}, Link path: ${linkPath}`);
+      this.logger.log(`Processing bin entry: ${cmdName} -> ${binPath}`);
+      this.logger.log(`Target path: ${targetPath}, Link path: ${linkPath}`);
 
       // Check if target file exists
       if (!this.filesystem.existsSync(targetPath)) {
-        console.warn(`[NPM] Bin target not found: ${targetPath} for command ${cmdName}`);
+        this.logger.warn(`Bin target not found: ${targetPath} for command ${cmdName}`);
         continue;
       }
 
-      console.log(`[NPM] Target file exists: ${targetPath}`);
+      this.logger.log(`Target file exists: ${targetPath}`);
 
       // Remove existing link if it exists
       if (this.filesystem.existsSync(linkPath)) {
         try {
-          console.log(`[NPM] Removing existing link: ${linkPath}`);
+          this.logger.log(`Removing existing link: ${linkPath}`);
           this.filesystem.unlinkSync(linkPath);
         } catch (e) {
-          console.warn(`[NPM] Failed to remove existing bin link: ${linkPath}`, e);
+          this.logger.warn(`Failed to remove existing bin link: ${linkPath}`, e);
         }
       }
 
@@ -256,9 +258,9 @@ export class NpmPackageManager {
       try {
         const wrapperScript = `#!/usr/bin/env node\nrequire('${targetPath}');\n`;
         this.filesystem.writeFileSync(linkPath, wrapperScript);
-        console.log(`[NPM] ✓ Created bin wrapper: ${cmdName} -> ${targetPath}`);
+        this.logger.log(`✓ Created bin wrapper: ${cmdName} -> ${targetPath}`);
       } catch (e: any) {
-        console.warn(`[NPM] Failed to create bin wrapper for ${cmdName}: ${e.message}`, e);
+        this.logger.warn(`Failed to create bin wrapper for ${cmdName}: ${e.message}`, e);
       }
     }
   }

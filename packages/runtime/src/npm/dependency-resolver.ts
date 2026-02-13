@@ -6,11 +6,13 @@
 import type { ResolvedDependency, InstallOptions } from './types.js';
 import { NpmRegistry } from './npm-registry.js';
 import { VersionResolver } from './version-resolver.js';
+import { createLogger } from '../core/logger.js';
 
 export class DependencyResolver {
   private registry: NpmRegistry;
   private versionResolver: VersionResolver;
   private resolutionCache = new Map<string, ResolvedDependency>();
+  private logger = createLogger('[Resolver]');
 
   constructor(registry: NpmRegistry) {
     this.registry = registry;
@@ -26,14 +28,14 @@ export class DependencyResolver {
     versionRange: string,
     options: InstallOptions = {},
   ): Promise<Map<string, ResolvedDependency>> {
-    console.log(`[Resolver] Resolving dependencies for ${packageName}@${versionRange}`);
+    this.logger.log(`Resolving dependencies for ${packageName}@${versionRange}`);
 
     const resolved = new Map<string, ResolvedDependency>();
     const visited = new Set<string>(); // Prevent infinite loops
 
     await this.resolveRecursive(packageName, versionRange, resolved, visited, options);
 
-    console.log(`[Resolver] Resolved ${resolved.size} total dependencies`);
+    this.logger.log(`Resolved ${resolved.size} total dependencies`);
 
     return resolved;
   }
