@@ -62,21 +62,24 @@ export async function executeCode(
     let result;
 
     if (format === 'esm') {
-      // Execute as ES module with error handling for top-level await failures
+      // Execute as ES module
+      // For modules with top-level await, errors will be caught during job execution
       const wrapperCode = `
-        (async () => {
-          try {
-            const mod = await import('${filepath}');
+        globalThis.__moduleLoaded = false;
+        import('${filepath}').then(
+          (mod) => {
             globalThis.__result = mod.default !== undefined ? mod.default : mod;
-          } catch (error) {
+            globalThis.__moduleLoaded = true;
+          },
+          (error) => {
             globalThis.__importError = error;
-            throw error;
+            globalThis.__moduleLoaded = true;
           }
-        })();
+        );
       `;
       result = vm.evalCode(wrapperCode);
     } else {
-      // Execute as CommonJS module
+      // Execute as CommonJS module (synchronous)
       const cjsExecutionCode = `
         (function() {
           const module = {
@@ -94,6 +97,7 @@ export async function executeCode(
 
           module.loaded = true;
           globalThis.__result = module.exports;
+          globalThis.__moduleLoaded = true; // CommonJS loads synchronously
         })();
       `;
       result = vm.evalCode(cjsExecutionCode);
@@ -138,13 +142,21 @@ export async function executeCode(
       };
     }
 
+    // Dispose the initial result
+    result.value.dispose();
+
+    // Wait for pending timers and jobs to complete
+    // This includes waiting for ES module loading (which may have top-level await)
+    // Timers may create new promise callbacks, and promise callbacks may create new timers
+    // So we need to loop until both are done
+    await waitForTimersAndJobs(runtime, vm, timerTracker, options);
+
     // Check for import errors (from top-level await failures in ES modules)
     const importErrorHandle = vm.getProp(vm.global, '__importError');
     const importErrorType = vm.typeof(importErrorHandle);
     if (importErrorType !== 'undefined') {
       const error = vm.dump(importErrorHandle);
       importErrorHandle.dispose();
-      result.value.dispose();
 
       cleanupTimers(timerTracker);
       vm.dispose();
@@ -158,14 +170,10 @@ export async function executeCode(
     }
     importErrorHandle.dispose();
 
-    // Get the result from global
+    // Get the result from global (after module has fully loaded)
     const resultHandle = vm.getProp(vm.global, '__result');
     const data = vm.dump(resultHandle);
     resultHandle.dispose();
-    result.value.dispose();
-
-    // Wait for pending timers to complete
-    await waitForTimers(timerTracker, options);
 
     vm.dispose();
     runtime.dispose();
@@ -229,33 +237,55 @@ async function executePendingJobs(
 }
 
 /**
- * Wait for all pending timers to complete
+ * Wait for all pending timers and jobs to complete
+ * Timers can create new promise jobs, and promise jobs can create new timers
+ * So we need to loop until both are done
  */
-async function waitForTimers(timerTracker: TimerTracker, options: RuntimeOptions): Promise<void> {
-  if (timerTracker.pendingTimers.size === 0) {
-    return;
-  }
-
+async function waitForTimersAndJobs(
+  runtime: any,
+  vm: QuickJSContext,
+  timerTracker: TimerTracker,
+  options: RuntimeOptions,
+): Promise<void> {
   const maxWaitTime = options.timeout || 30000; // Default 30 seconds
   const startTime = Date.now();
 
-  await new Promise<void>((resolve) => {
-    const checkInterval = setInterval(() => {
-      // Check if all timers are done
-      if (timerTracker.pendingTimers.size === 0) {
-        clearInterval(checkInterval);
-        resolve();
-      }
+  // Helper to check if module has finished loading
+  function isModuleLoaded(): boolean {
+    const handle = vm.getProp(vm.global, '__moduleLoaded');
+    const loaded = vm.dump(handle);
+    handle.dispose();
+    return loaded === true;
+  }
 
-      // Check timeout
-      if (Date.now() - startTime > maxWaitTime) {
-        clearInterval(checkInterval);
-        // Clear all pending timers
-        cleanupTimers(timerTracker);
-        resolve();
+  while (true) {
+    // Execute any pending jobs (promise callbacks)
+    while (runtime.hasPendingJob()) {
+      const result = runtime.executePendingJobs();
+
+      // Note: We don't throw errors here because promise callbacks
+      // might have intentional error handling with .catch()
+      if (result.error) {
+        result.error.dispose();
       }
-    }, 100);
-  });
+    }
+
+    // Check if module is loaded and no more work to do
+    if (isModuleLoaded() && timerTracker.pendingTimers.size === 0) {
+      // Module loaded, no pending timers, no pending jobs - we're done
+      break;
+    }
+
+    // Check timeout
+    if (Date.now() - startTime > maxWaitTime) {
+      cleanupTimers(timerTracker);
+      break;
+    }
+
+    // Wait a bit for timers to fire and module to load
+    // Timer callbacks will create new pending jobs
+    await new Promise((resolve) => setTimeout(resolve, 50));
+  }
 }
 
 /**

@@ -569,5 +569,64 @@ export default 'shell script';`;
       expect(result.ok).toBe(true);
       expect(result.data).toBe(3);
     });
+
+    test('handle promises created in timer callbacks', async () => {
+      const code = `
+        let results = [];
+
+        setTimeout(() => {
+          Promise.resolve('from timer 1').then((value) => {
+            results.push(value);
+          });
+        }, 50);
+
+        setTimeout(() => {
+          Promise.resolve('from timer 2').then((value) => {
+            results.push(value);
+          });
+        }, 100);
+
+        // Give timers time to execute
+        await new Promise(resolve => setTimeout(resolve, 200));
+
+        export default results;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toHaveLength(2);
+      expect(result.data).toContain('from timer 1');
+      expect(result.data).toContain('from timer 2');
+    });
+
+    test('handle timers created in promise callbacks', async () => {
+      const code = `
+        let output = [];
+
+        Promise.resolve('start')
+          .then((value) => {
+            output.push(value);
+            return new Promise((resolve) => {
+              setTimeout(() => {
+                resolve('from promise timer');
+              }, 50);
+            });
+          })
+          .then((value) => {
+            output.push(value);
+          });
+
+        // Give time for everything to complete
+        await new Promise(resolve => setTimeout(resolve, 150));
+
+        export default output;
+      `;
+
+      const result = await executeCode(code, context);
+
+      expect(result.ok).toBe(true);
+      expect(result.data).toEqual(['start', 'from promise timer']);
+    });
   });
 });
