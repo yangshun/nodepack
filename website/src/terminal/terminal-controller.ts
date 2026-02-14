@@ -41,15 +41,9 @@ export class TerminalController {
   async handleData(data: string): Promise<void> {
     const code = data.charCodeAt(0);
 
-    // Enter key (execute command)
-    if (code === 13) {
-      await this.executeCommand();
-      return;
-    }
-
-    // Backspace
-    if (code === 127) {
-      this.handleBackspace();
+    // Ctrl+A (move to beginning of line)
+    if (code === 1) {
+      this.handleCtrlA();
       return;
     }
 
@@ -59,9 +53,21 @@ export class TerminalController {
       return;
     }
 
-    // Escape sequences (arrow keys, etc.)
-    if (code === 27) {
-      this.handleEscapeSequence(data);
+    // Ctrl+D (delete character forward)
+    if (code === 4) {
+      this.handleCtrlD();
+      return;
+    }
+
+    // Ctrl+E (move to end of line)
+    if (code === 5) {
+      this.handleCtrlE();
+      return;
+    }
+
+    // Ctrl+K (delete from cursor to end of line)
+    if (code === 11) {
+      this.handleCtrlK();
       return;
     }
 
@@ -70,6 +76,36 @@ export class TerminalController {
       this.terminal.clear();
       this.writePrompt();
       this.terminal.write(this.currentLine);
+      return;
+    }
+
+    // Enter key (execute command)
+    if (code === 13) {
+      await this.executeCommand();
+      return;
+    }
+
+    // Ctrl+U (delete from cursor to beginning of line)
+    if (code === 21) {
+      this.handleCtrlU();
+      return;
+    }
+
+    // Ctrl+W (delete word before cursor)
+    if (code === 23) {
+      this.handleCtrlW();
+      return;
+    }
+
+    // Escape sequences (arrow keys, Alt+key, etc.)
+    if (code === 27) {
+      this.handleEscapeSequence(data);
+      return;
+    }
+
+    // Backspace
+    if (code === 127) {
+      this.handleBackspace();
       return;
     }
 
@@ -83,7 +119,7 @@ export class TerminalController {
   }
 
   /**
-   * Handle escape sequences (arrow keys)
+   * Handle escape sequences (arrow keys, Alt+key, Ctrl+Arrow)
    */
   private handleEscapeSequence(data: string): void {
     // Arrow Up
@@ -113,6 +149,30 @@ export class TerminalController {
         this.cursorPosition++;
         this.terminal.write('\x1b[C');
       }
+      return;
+    }
+
+    // Ctrl+Left Arrow (move word backward)
+    if (data === '\x1b[1;5D') {
+      this.moveWordBackward();
+      return;
+    }
+
+    // Ctrl+Right Arrow (move word forward)
+    if (data === '\x1b[1;5C') {
+      this.moveWordForward();
+      return;
+    }
+
+    // Alt+B (move word backward)
+    if (data === '\x1bb') {
+      this.moveWordBackward();
+      return;
+    }
+
+    // Alt+F (move word forward)
+    if (data === '\x1bf') {
+      this.moveWordForward();
       return;
     }
 
@@ -313,6 +373,144 @@ export class TerminalController {
     const diff = this.currentLine.length - savedCursor;
     if (diff > 0) {
       this.terminal.write(`\x1b[${diff}D`);
+    }
+  }
+
+  /**
+   * Find word boundary in the specified direction
+   * Words are defined as sequences of alphanumeric characters or underscores
+   */
+  private findWordBoundary(position: number, direction: 'forward' | 'backward'): number {
+    const isWordChar = (char: string): boolean => /[a-zA-Z0-9_]/.test(char);
+
+    if (direction === 'backward') {
+      let pos = position;
+
+      // Skip whitespace/non-word chars immediately before cursor
+      while (pos > 0 && !isWordChar(this.currentLine[pos - 1])) {
+        pos--;
+      }
+
+      // Skip word characters to find start of word
+      while (pos > 0 && isWordChar(this.currentLine[pos - 1])) {
+        pos--;
+      }
+
+      return pos;
+    } else {
+      // forward
+      let pos = position;
+
+      // Skip word characters to find end of current word
+      while (pos < this.currentLine.length && isWordChar(this.currentLine[pos])) {
+        pos++;
+      }
+
+      // Skip whitespace/non-word chars to find start of next word
+      while (pos < this.currentLine.length && !isWordChar(this.currentLine[pos])) {
+        pos++;
+      }
+
+      return pos;
+    }
+  }
+
+  /**
+   * Move cursor to beginning of line (Ctrl+A)
+   */
+  private handleCtrlA(): void {
+    while (this.cursorPosition > 0) {
+      this.cursorPosition--;
+      this.terminal.write('\x1b[D');
+    }
+  }
+
+  /**
+   * Move cursor to end of line (Ctrl+E)
+   */
+  private handleCtrlE(): void {
+    while (this.cursorPosition < this.currentLine.length) {
+      this.cursorPosition++;
+      this.terminal.write('\x1b[C');
+    }
+  }
+
+  /**
+   * Delete from cursor to end of line (Ctrl+K)
+   */
+  private handleCtrlK(): void {
+    if (this.cursorPosition >= this.currentLine.length) return;
+
+    this.currentLine = this.currentLine.slice(0, this.cursorPosition);
+    // Clear to end of line
+    this.terminal.write('\x1b[K');
+  }
+
+  /**
+   * Delete from cursor to beginning of line (Ctrl+U)
+   */
+  private handleCtrlU(): void {
+    if (this.cursorPosition === 0) return;
+
+    this.currentLine = this.currentLine.slice(this.cursorPosition);
+    this.cursorPosition = 0;
+    this.redrawLine();
+  }
+
+  /**
+   * Delete character under cursor (Ctrl+D)
+   */
+  private handleCtrlD(): void {
+    if (this.cursorPosition >= this.currentLine.length) return;
+
+    this.currentLine =
+      this.currentLine.slice(0, this.cursorPosition) +
+      this.currentLine.slice(this.cursorPosition + 1);
+    this.redrawLine();
+  }
+
+  /**
+   * Delete word before cursor (Ctrl+W)
+   */
+  private handleCtrlW(): void {
+    if (this.cursorPosition === 0) return;
+
+    const wordStart = this.findWordBoundary(this.cursorPosition, 'backward');
+
+    this.currentLine =
+      this.currentLine.slice(0, wordStart) + this.currentLine.slice(this.cursorPosition);
+
+    this.cursorPosition = wordStart;
+    this.redrawLine();
+  }
+
+  /**
+   * Move cursor backward one word (Alt+B, Ctrl+Left)
+   */
+  private moveWordBackward(): void {
+    if (this.cursorPosition === 0) return;
+
+    const targetPos = this.findWordBoundary(this.cursorPosition, 'backward');
+    const diff = this.cursorPosition - targetPos;
+
+    if (diff > 0) {
+      this.terminal.write(`\x1b[${diff}D`);
+      this.cursorPosition = targetPos;
+    }
+  }
+
+  /**
+   * Move cursor forward one word (Alt+F, Ctrl+Right)
+   */
+  private moveWordForward(): void {
+    if (this.cursorPosition >= this.currentLine.length) return;
+
+    const targetPos = this.findWordBoundary(this.cursorPosition, 'forward');
+    const diff = targetPos - this.cursorPosition;
+
+    if (diff > 0) {
+      this.terminal.write(`\x1b[${diff}C`);
+      this.cursorPosition = targetPos;
     }
   }
 
