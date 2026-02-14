@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback, useRef, useMemo } from "react";
 import { Buffer } from "buffer";
 import process from "process";
 import { Nodepack } from "@nodepack/client";
@@ -19,14 +19,6 @@ import nodepackWorkerUrl from "../../packages/worker/dist/runtime-worker.js?work
 (globalThis as any).Buffer = Buffer;
 (globalThis as any).process = process;
 
-const defaultCode = `// Welcome to Nodepack!
-// This is a browser-based Node.js runtime
-
-console.log('Hello from Node.js in the browser!');
-console.log('Current time:', new Date().toISOString());
-
-export default { status: 'ok' };`;
-
 export function App() {
   const [nodepack, setNodepack] = useState<Nodepack | null>(null);
   const [status, setStatus] = useState<RuntimeStatus>("initializing");
@@ -35,13 +27,30 @@ export function App() {
   const handleRunRef = useRef<((filepath: string) => Promise<ExecutionResult>) | null>(null);
 
   const [session, setSession] = useState<number>(0);
-  const [files, setFiles] = useState<FileMap>({ "main.js": defaultCode });
+  const [files, setFiles] = useState<FileMap>({});
   const [currentFile, setCurrentFile] = useState("main.js");
-  const [currentFileContent, setCurrentFileContent] = useState(defaultCode);
+  const [currentFileVersion, setCurrentFileVersion] = useState(0);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
   const [customPackageName, setCustomPackageName] = useState("");
 
   const terminalRef = useRef<TerminalHandle>(null);
+
+  // Derive current file content from filesystem
+  const currentFileContent = useMemo(() => {
+    if (!nodepack || !currentFile) {
+      return "";
+    }
+    const fs = nodepack.getFilesystem();
+    if (!fs) {
+      return "";
+    }
+
+    try {
+      return fs.readFileSync(`/${currentFile}`, "utf8");
+    } catch {
+      return ""; // File doesn't exist yet
+    }
+  }, [nodepack, currentFile, currentFileVersion]);
 
   // Initialize Nodepack
   useEffect(() => {
@@ -59,7 +68,9 @@ export function App() {
           workerUrl: nodepackWorkerUrl,
         });
 
-        if (cancelled) return;
+        if (cancelled) {
+          return;
+        }
 
         const isWorker = runtime.isUsingWorker();
         setNodepack(runtime);
@@ -93,21 +104,14 @@ export function App() {
     };
   }, []);
 
-  // Write initial files to filesystem when nodepack becomes available
+  // Load first example when nodepack becomes available
   useEffect(() => {
     if (!nodepack) {
       return;
     }
-    const fs = nodepack.getFilesystem();
-    if (!fs) return;
 
-    // Write initial main.js file to filesystem
-    try {
-      fs.writeFileSync("/main.js", defaultCode);
-      setFilesystemVersion((v) => v + 1);
-    } catch (error) {
-      console.error("Failed to write initial file:", error);
-    }
+    // Load the first example (hello) on initial mount
+    handleSelectExample(examples[0].id);
   }, [nodepack]);
 
   function handleSelectExample(exampleId: string) {
@@ -122,7 +126,6 @@ export function App() {
 
     setFiles(newFiles);
     setCurrentFile("main.js");
-    setCurrentFileContent(example.code);
     setSession((s) => s + 1);
 
     // Clear terminal when switching examples
@@ -184,6 +187,7 @@ export function App() {
       });
 
       setFilesystemVersion((v) => v + 1);
+      setCurrentFileVersion((v) => v + 1);
 
       // Auto-install packages if package.json exists
       if ("package.json" in newFiles) {
@@ -196,33 +200,6 @@ export function App() {
     }
   }
 
-  // Load file content from filesystem when currentFile changes
-  useEffect(() => {
-    if (!nodepack || !currentFile) {
-      return;
-    }
-
-    const fs = nodepack.getFilesystem();
-    if (!fs) {
-      return;
-    }
-
-    try {
-      // Try to read from filesystem first
-      const content = fs.readFileSync(`/${currentFile}`, "utf8");
-      setCurrentFileContent(content);
-
-      // Also update the files state if it's a user file (not in node_modules)
-      if (!currentFile.startsWith("node_modules/")) {
-        setFiles((prev) => ({ ...prev, [currentFile]: content }));
-      }
-    } catch (error) {
-      // File doesn't exist in filesystem, use empty content
-      console.warn(`Could not read ${currentFile}:`, error);
-      setCurrentFileContent("");
-    }
-  }, [currentFile, nodepack]);
-
   const handleSelectFile = (filename: string) => {
     setCurrentFile(filename);
   };
@@ -233,27 +210,24 @@ export function App() {
       return;
     }
 
-    if (files[filename]) {
+    // Check filesystem for file existence
+    const fs = nodepack?.getFilesystem();
+    if (fs && fs.existsSync(`/${filename}`)) {
       alert("File already exists!");
       return;
     }
 
     const content = `// ${filename}\n\nexport default {};\n`;
-    const newFiles = {
-      ...files,
-      [filename]: content,
-    };
 
-    setFiles(newFiles);
+    setFiles((prev) => ({ ...prev, [filename]: content }));
     setCurrentFile(filename);
-    setCurrentFileContent(content);
 
     // Write new file to filesystem
-    const fs = nodepack?.getFilesystem();
     if (fs) {
       try {
         fs.writeFileSync(`/${filename}`, content);
         setFilesystemVersion((v) => v + 1);
+        setCurrentFileVersion((v) => v + 1);
       } catch (error) {
         console.error("Failed to write file to filesystem:", error);
       }
@@ -296,19 +270,13 @@ export function App() {
   }, []);
 
   function handleCodeChange(code: string) {
-    // Update current file content state
-    setCurrentFileContent(code);
-
-    // Update files state for user files (not node_modules)
-    if (!currentFile.startsWith("node_modules/")) {
-      setFiles((prev) => ({ ...prev, [currentFile]: code }));
-    }
-
-    // Write to filesystem (but don't increment version since file structure hasn't changed)
+    // Write to filesystem
     const fs = nodepack?.getFilesystem();
     if (fs) {
       try {
         fs.writeFileSync(`/${currentFile}`, code);
+        // Increment version to trigger re-read of content
+        setCurrentFileVersion((v) => v + 1);
       } catch (error) {
         console.error(`Failed to write ${currentFile}:`, error);
       }
@@ -327,45 +295,25 @@ export function App() {
       let result: ExecutionResult | null = null;
 
       try {
-        // Write all files except main.js to virtual filesystem
         const fs = nodepack.getFilesystem();
         if (!fs) {
           throw new Error("Filesystem not available");
         }
 
-        // Write each file, creating parent directories as needed
-        Object.entries(files).forEach(([filename, content]) => {
-          const fullPath = `/${filename}`;
+        // Read file content from filesystem
+        const normalizedPath = filepath.startsWith("/") ? filepath : `/${filepath}`;
+        const fileContent = fs.readFileSync(normalizedPath, "utf8");
 
-          // Create parent directories if needed
-          const lastSlashIndex = filename.lastIndexOf("/");
-          if (lastSlashIndex !== -1) {
-            const dirPath = "/" + filename.substring(0, lastSlashIndex);
-            try {
-              fs.mkdirSync(dirPath, { recursive: true });
-            } catch (err) {
-              // Directory might already exist
+        // Execute the file with streaming logs
+        result = await nodepack.execute(fileContent, {
+          filename: normalizedPath,
+          onLog: (message) => {
+            // Stream logs to terminal in real-time
+            if (terminalRef.current) {
+              terminalRef.current.writeOutput(message);
             }
-          }
-
-          // Write the file
-          fs.writeFileSync(fullPath, content);
-        });
-
-        // Execute the main file with streaming logs
-        result = await nodepack.execute(
-          // TODO: Make file paths consistent across the app (sometimes with leading slash, sometimes without)
-          files[filepath.startsWith("/") ? filepath.slice(1) : filepath],
-          {
-            filename: filepath.startsWith("/") ? filepath : `/${filepath}`,
-            onLog: (message) => {
-              // Stream logs to terminal in real-time
-              if (terminalRef.current) {
-                terminalRef.current.writeOutput(message);
-              }
-            },
           },
-        );
+        });
 
         if (!result.ok) {
           if (terminalRef.current) {
@@ -404,7 +352,7 @@ export function App() {
 
       return result!;
     },
-    [nodepack, isRunning, files, currentFile],
+    [nodepack, isRunning],
   );
 
   handleRunRef.current = handleRun;
@@ -501,8 +449,7 @@ export function App() {
 
             // Update editor state if package.json is currently open
             if (currentFile === "package.json") {
-              setCurrentFileContent(updatedPackageJsonContent);
-              setFiles((prev) => ({ ...prev, "package.json": updatedPackageJsonContent }));
+              setCurrentFileVersion((v) => v + 1);
             }
 
             if (terminalRef.current) {
