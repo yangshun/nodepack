@@ -312,6 +312,8 @@ export function App() {
         fs.writeFileSync(`/${currentFile}`, code);
         // Increment version to trigger re-read of content
         setCurrentFileVersion((v) => v + 1);
+        // Also increment filesystem version to update FileTree
+        setFilesystemVersion((v) => v + 1);
       } catch (error) {
         console.error(`Failed to write ${currentFile}:`, error);
       }
@@ -398,6 +400,14 @@ export function App() {
     },
     [nodepack],
   );
+
+  const handleExecuteScript = useCallback(async (scriptName: string) => {
+    if (!terminalRef.current) {
+      throw new Error('Terminal not available');
+    }
+
+    await terminalRef.current.executeCommand(`npm run ${scriptName}`);
+  }, []);
 
   const handleInstallPackage = useCallback(
     async (packageName?: string) => {
@@ -532,6 +542,7 @@ export function App() {
             onRefresh={handleRefresh}
             onInstallPackage={handleInstallPackage}
             installDisabled={!nodepack || usingWorker}
+            onExecuteScript={handleExecuteScript}
           />
         </div>
         {/* Code Editor */}

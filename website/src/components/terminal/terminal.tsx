@@ -29,6 +29,7 @@ export interface TerminalProps {
 export interface TerminalHandle {
   writeOutput: (message: string) => void;
   clear: () => void;
+  executeCommand: (command: string) => Promise<void>;
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
@@ -49,6 +50,11 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       clear: () => {
         if (xtermRef.current) {
           xtermRef.current.clear();
+        }
+      },
+      executeCommand: async (command: string) => {
+        if (controllerRef.current) {
+          await controllerRef.current.runCommand(command);
         }
       },
     }));

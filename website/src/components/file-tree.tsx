@@ -1,9 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';
 import type { FileTreeNode } from '../types';
 import { buildFileTree } from '../utils/filesystem-tree';
-import { RiRefreshLine } from 'react-icons/ri';
 import { VscNewFile, VscRefresh } from 'react-icons/vsc';
 
 interface FileTreeProps {
@@ -16,6 +15,7 @@ interface FileTreeProps {
   onRefresh: () => void;
   onInstallPackage: (packageName?: string) => Promise<void>;
   installDisabled: boolean;
+  onExecuteScript: (scriptName: string) => Promise<void>;
 }
 
 export function FileTree({
@@ -28,10 +28,12 @@ export function FileTree({
   onRefresh,
   onInstallPackage,
   installDisabled,
+  onExecuteScript,
 }: FileTreeProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
   const [packageName, setPackageName] = useState('');
+  const lastValidScriptsRef = useRef<Record<string, string>>({});
 
   // Build tree when filesystem changes or version updates
   useEffect(() => {
@@ -48,6 +50,32 @@ export function FileTree({
       }
       return prev;
     });
+  }, [filesystem, version]);
+
+  // Read package.json and extract npm scripts
+  const npmScripts: Record<string, string> = useMemo(() => {
+    if (!filesystem) {
+      lastValidScriptsRef.current = {};
+      return {};
+    }
+
+    try {
+      const packageJsonPath = '/package.json';
+      if (filesystem.existsSync(packageJsonPath)) {
+        const packageJsonContent = filesystem.readFileSync(packageJsonPath, 'utf8');
+        const packageJson = JSON.parse(packageJsonContent);
+        const scripts = packageJson.scripts || {};
+        // Store the valid scripts
+        lastValidScriptsRef.current = scripts;
+        return scripts;
+      }
+      // No package.json exists
+      lastValidScriptsRef.current = {};
+      return {};
+    } catch {
+      // Invalid JSON - return the last valid state
+      return lastValidScriptsRef.current;
+    }
   }, [filesystem, version]);
 
   const handleToggle = (path: string) => {
@@ -116,6 +144,27 @@ export function FileTree({
           </ul>
         )}
       </div>
+      {Object.keys(npmScripts).length > 0 && (
+        <div className="flex flex-col gap-0.5 border-t border-dark-border py-2">
+          <div className="px-2 text-xs text-gray-400 font-medium uppercase">npm Scripts</div>
+          <div className="px-2 space-y-1">
+            {Object.entries(npmScripts).map(([name, command]) => (
+              <button
+                key={name}
+                onClick={() => {
+                  onExecuteScript(name).catch((error) => {
+                    console.error('Failed to execute script:', error);
+                  });
+                }}
+                className="w-full text-left px-1 py-0.5 text-xs rounded hover:bg-dark-hover transition-colors text-gray-300 hover:text-orange-400 truncate"
+                title={`Run: ${command}`}
+              >
+                {name} <span className="ml-2 text-gray-500">{command}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

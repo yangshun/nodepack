@@ -517,6 +517,19 @@ export class TerminalController {
   /**
    * Write external output to terminal (from code execution)
    */
+  /**
+   * Execute a command programmatically
+   */
+  async runCommand(command: string): Promise<void> {
+    // Write the command to terminal
+    this.terminal.write(command);
+    this.currentLine = command;
+    this.cursorPosition = command.length;
+
+    // Execute it
+    await this.executeCommand();
+  }
+
   writeOutput(message: string): void {
     // Clear current input line
     this.clearLine();
