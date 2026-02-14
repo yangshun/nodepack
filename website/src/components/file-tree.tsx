@@ -14,6 +14,8 @@ interface FileTreeProps {
   onDeleteFile: (filename: string) => void;
   onAddFile: () => void;
   onRefresh: () => void;
+  onInstallPackage: (packageName?: string) => Promise<void>;
+  installDisabled: boolean;
 }
 
 export function FileTree({
@@ -24,9 +26,12 @@ export function FileTree({
   onDeleteFile,
   onAddFile,
   onRefresh,
+  onInstallPackage,
+  installDisabled,
 }: FileTreeProps) {
   const [tree, setTree] = useState<FileTreeNode[]>([]);
   const [expandedPaths, setExpandedPaths] = useState<Set<string>>(new Set());
+  const [packageName, setPackageName] = useState("");
 
   // Build tree when filesystem changes or version updates
   useEffect(() => {
@@ -70,6 +75,24 @@ export function FileTree({
         >
           <VscRefresh className="size-4" />
         </button>
+      </div>
+      <div className="p-2 border-b border-dark-border">
+        <input
+          type="text"
+          value={packageName}
+          onChange={(e) => setPackageName(e.target.value)}
+          placeholder="Install package (e.g., clsx, zod)"
+          className="w-full px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-orange-500"
+          disabled={installDisabled}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && packageName.trim()) {
+              onInstallPackage(packageName.trim()).catch((error) => {
+                console.error("Failed to install:", error);
+              });
+              setPackageName("");
+            }
+          }}
+        />
       </div>
       <div className="flex-1 h-0 grow overflow-y-auto p-2">
         {!filesystem ? (

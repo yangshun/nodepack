@@ -33,7 +33,6 @@ export function App() {
   const [currentFileVersion, setCurrentFileVersion] = useState(0);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
   const [openFiles, setOpenFiles] = useState<string[]>(["main.js"]);
-  const [customPackageName, setCustomPackageName] = useState("");
 
   const terminalRef = useRef<TerminalHandle>(null);
 
@@ -518,44 +517,6 @@ export function App() {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-4">
           <ExampleButtons onSelectExample={handleSelectExample} />
-          <div className="h-6 w-px bg-gray-600" />
-          <div className="flex gap-2">
-            <input
-              type="text"
-              value={customPackageName}
-              onChange={(e) => setCustomPackageName(e.target.value)}
-              placeholder="Install package (e.g., clsx, zod)"
-              className="w-60 px-3 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-blue-500"
-              disabled={!nodepack || usingWorker}
-              onKeyDown={(e) => {
-                if (e.key === "Enter" && customPackageName.trim()) {
-                  handleInstallPackage(customPackageName.trim()).catch((error) => {
-                    if (terminalRef.current) {
-                      terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
-                    }
-                  });
-                  setCustomPackageName("");
-                }
-              }}
-            />
-            <button
-              onClick={() => {
-                if (customPackageName.trim()) {
-                  handleInstallPackage(customPackageName.trim()).catch((error) => {
-                    if (terminalRef.current) {
-                      terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
-                    }
-                  });
-                  setCustomPackageName("");
-                }
-              }}
-              className="btn-secondary"
-              disabled={!nodepack || usingWorker || !customPackageName.trim()}
-              title="Install a custom npm package"
-            >
-              Install
-            </button>
-          </div>
         </div>
       </div>
       <div className="flex h-0 grow rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
@@ -569,6 +530,8 @@ export function App() {
             onDeleteFile={handleDeleteFile}
             onAddFile={handleAddFile}
             onRefresh={handleRefresh}
+            onInstallPackage={handleInstallPackage}
+            installDisabled={!nodepack || usingWorker}
           />
         </div>
         {/* Code Editor */}
