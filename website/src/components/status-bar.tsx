@@ -23,7 +23,7 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
     }
 
     return (
-      <span className={clsx({ "text-sm": true })}>
+      <span>
         Ready{" "}
         {!usingWorker && <span className="rounded bg-gray-700 py-0.5 px-1.5 text-xs">Worker</span>}
       </span>
@@ -32,7 +32,7 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
 
   return (
     <div className="flex items-center gap-6">
-      <span className={clsx("flex items-center gap-2", {})}>
+      <span className={clsx("flex items-center gap-2", "text-xs")}>
         <span
           className={clsx("inline-flex size-2 rounded-full", {
             "bg-yellow-500": isRunning,

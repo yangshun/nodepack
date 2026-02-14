@@ -32,6 +32,7 @@ export function App() {
   const [status, setStatus] = useState<RuntimeStatus>("initializing");
   const [isRunning, setIsRunning] = useState(false);
   const [usingWorker, setUsingWorker] = useState(false);
+  const handleRunRef = useRef<((filepath: string) => Promise<ExecutionResult>) | null>(null);
 
   const [session, setSession] = useState<number>(0);
   const [files, setFiles] = useState<FileMap>({ "main.js": defaultCode });
@@ -197,10 +198,14 @@ export function App() {
 
   // Load file content from filesystem when currentFile changes
   useEffect(() => {
-    if (!nodepack || !currentFile) return;
+    if (!nodepack || !currentFile) {
+      return;
+    }
 
     const fs = nodepack.getFilesystem();
-    if (!fs) return;
+    if (!fs) {
+      return;
+    }
 
     try {
       // Try to read from filesystem first
@@ -222,9 +227,11 @@ export function App() {
     setCurrentFile(filename);
   };
 
-  const handleAddFile = () => {
+  function handleAddFile() {
     const filename = prompt("Enter filename (e.g., utils.js):");
-    if (!filename) return;
+    if (!filename) {
+      return;
+    }
 
     if (files[filename]) {
       alert("File already exists!");
@@ -251,9 +258,9 @@ export function App() {
         console.error("Failed to write file to filesystem:", error);
       }
     }
-  };
+  }
 
-  const handleDeleteFile = (filename: string) => {
+  function handleDeleteFile(filename: string) {
     if (filename === "main.js") {
       alert("Cannot delete main.js");
       return;
@@ -282,13 +289,13 @@ export function App() {
         console.error("Failed to delete file from filesystem:", error);
       }
     }
-  };
+  }
 
   const handleRefresh = useCallback(() => {
     setFilesystemVersion((v) => v + 1);
   }, []);
 
-  const handleCodeChange = (code: string) => {
+  function handleCodeChange(code: string) {
     // Update current file content state
     setCurrentFileContent(code);
 
@@ -306,83 +313,28 @@ export function App() {
         console.error(`Failed to write ${currentFile}:`, error);
       }
     }
-  };
+  }
 
-  const handleExecuteFile = useCallback(
+  const handleRun = useCallback(
     async (filepath: string) => {
-      if (!nodepack) {
-        return {
-          ok: false,
-          output: "",
-          error: "Runtime not initialized",
-        };
+      if (!nodepack || isRunning) {
+        throw new Error("Runtime not available");
       }
+
+      setIsRunning(true);
+      setStatus("running");
+
+      let result: ExecutionResult | null = null;
 
       try {
-        // Read file content from filesystem
-        const fs = nodepack.getFilesystem();
-        if (!fs) {
-          return {
-            ok: false,
-            output: "",
-            error: "Filesystem not available",
-          };
-        }
-
-        const content = fs.readFileSync(filepath, "utf8");
-
-        // Execute the file content with the correct filepath for module resolution
-        const result = await nodepack.execute(content, { filename: filepath });
-
-        // Format output
-        let output = "";
-        if (result.logs && result.logs.length > 0) {
-          output = result.logs.join("\n") + "\n";
-        }
-
-        if (result.ok) {
-          return {
-            ok: true,
-            output,
-          };
-        } else {
-          return {
-            ok: false,
-            output,
-            error: result.error || "Execution failed",
-          };
-        }
-      } catch (error: any) {
-        return {
-          ok: false,
-          output: "",
-          error: error.message,
-        };
-      }
-    },
-    [nodepack],
-  );
-
-  const handleRun = useCallback(async () => {
-    if (!nodepack || isRunning) {
-      return;
-    }
-
-    setIsRunning(true);
-    setStatus("running");
-
-    try {
-      // Write all files except main.js to virtual filesystem
-      const otherFiles = Object.entries(files).filter(([name]) => name !== "main.js");
-
-      if (otherFiles.length > 0) {
+        // Write all files except main.js to virtual filesystem
         const fs = nodepack.getFilesystem();
         if (!fs) {
           throw new Error("Filesystem not available");
         }
 
         // Write each file, creating parent directories as needed
-        otherFiles.forEach(([filename, content]) => {
+        Object.entries(files).forEach(([filename, content]) => {
           const fullPath = `/${filename}`;
 
           // Create parent directories if needed
@@ -399,52 +351,70 @@ export function App() {
           // Write the file
           fs.writeFileSync(fullPath, content);
         });
-      }
 
-      // Execute the main file with streaming logs
-      const result: ExecutionResult = await nodepack.execute(files[currentFile], {
-        onLog: (message) => {
-          // Stream logs to terminal in real-time
+        // Execute the main file with streaming logs
+        result = await nodepack.execute(
+          // TODO: Make file paths consistent across the app (sometimes with leading slash, sometimes without)
+          files[filepath.startsWith("/") ? filepath.slice(1) : filepath],
+          {
+            filename: filepath.startsWith("/") ? filepath : `/${filepath}`,
+            onLog: (message) => {
+              // Stream logs to terminal in real-time
+              if (terminalRef.current) {
+                terminalRef.current.writeOutput(message);
+              }
+            },
+          },
+        );
+
+        if (!result.ok) {
           if (terminalRef.current) {
-            terminalRef.current.writeOutput(message);
+            const errorMsg =
+              typeof result.error === "object"
+                ? JSON.stringify(result.error, null, 2)
+                : String(result.error);
+            terminalRef.current.writeOutput(`Error: ${errorMsg}`);
           }
-        },
-      });
 
-      if (!result.ok) {
-        if (terminalRef.current) {
-          const errorMsg =
-            typeof result.error === "object"
-              ? JSON.stringify(result.error, null, 2)
-              : String(result.error);
-          terminalRef.current.writeOutput(`Error: ${errorMsg}`);
-        }
-
-        // Display any logs that occurred before the error
-        if (result.logs && result.logs.length > 0) {
-          if (terminalRef.current) {
-            terminalRef.current.writeOutput("");
-            terminalRef.current.writeOutput("Output before error:");
-          }
-          result.logs.forEach((log) => {
+          // Display any logs that occurred before the error
+          if (result.logs && result.logs.length > 0) {
             if (terminalRef.current) {
-              terminalRef.current.writeOutput(log);
+              terminalRef.current.writeOutput("");
+              terminalRef.current.writeOutput("Output before error:");
             }
-          });
+
+            result.logs.forEach((log) => {
+              if (terminalRef.current) {
+                terminalRef.current.writeOutput(log);
+              }
+            });
+          }
         }
+      } catch (error: any) {
+        if (terminalRef.current) {
+          terminalRef.current.writeOutput(`Execution failed: ${error.message}`);
+        }
+        console.error("Execution error:", error);
+      } finally {
+        setIsRunning(false);
+        setStatus("ready");
+        // Refresh file explorer after execution
+        setFilesystemVersion((v) => v + 1);
       }
-    } catch (error: any) {
-      if (terminalRef.current) {
-        terminalRef.current.writeOutput(`Execution failed: ${error.message}`);
-      }
-      console.error("Execution error:", error);
-    } finally {
-      setIsRunning(false);
-      setStatus("ready");
-      // Refresh file explorer after execution
-      setFilesystemVersion((v) => v + 1);
-    }
-  }, [nodepack, isRunning, files, currentFile]);
+
+      return result!;
+    },
+    [nodepack, isRunning, files, currentFile],
+  );
+
+  handleRunRef.current = handleRun;
+
+  const handleExecuteFile = useCallback(
+    async (filepath: string) => {
+      return await handleRunRef.current!(filepath);
+    },
+    [nodepack],
+  );
 
   const handleInstallPackage = useCallback(
     async (packageName?: string) => {
@@ -609,7 +579,9 @@ export function App() {
             status={status}
             isRunning={isRunning}
             usingWorker={usingWorker}
-            onRun={handleRun}
+            onRun={() => {
+              handleRun("main.js");
+            }}
           />
         </div>
         <div className="flex h-[600px] rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
@@ -631,7 +603,7 @@ export function App() {
               code={currentFileContent}
               currentFile={currentFile}
               onChange={handleCodeChange}
-              onRun={handleRun}
+              onRun={() => handleRun("main.js")}
               isRunning={isRunning}
             />
           </div>

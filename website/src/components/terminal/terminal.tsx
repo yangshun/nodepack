@@ -15,13 +15,13 @@ import { BridgedFilesystem } from "./bridged-filesystem";
 import { TerminalController } from "./terminal-controller";
 import { bashSecurityConfig } from "./security-config";
 import "xterm/css/xterm.css";
-import { RiProhibitedLine } from "react-icons/ri";
 import { VscCircleSlash } from "react-icons/vsc";
+import { ExecutionResult } from "@nodepack/client";
 
 export interface TerminalProps {
   filesystem?: IFs;
   onReady?: () => void;
-  onExecuteFile?: (filepath: string) => Promise<{ ok: boolean; output: string; error?: string }>;
+  onExecuteFile?: (filepath: string) => Promise<ExecutionResult>;
   onCommandExecuted?: () => void;
   onInstallPackage?: (packageName?: string) => Promise<void>;
 }
@@ -160,13 +160,13 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
                 if (result.ok) {
                   return {
-                    stdout: result.output || "",
+                    stdout: "",
                     stderr: "",
                     exitCode: 0,
                   };
                 } else {
                   return {
-                    stdout: result.output || "",
+                    stdout: "",
                     stderr: result.error || "Execution failed\n",
                     exitCode: 1,
                   };
