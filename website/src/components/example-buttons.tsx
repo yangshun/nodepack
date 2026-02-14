@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { examples } from '../examples';
+import { useState } from "react";
+import { examples } from "../examples";
+import { VscArrowLeft, VscArrowRight } from "react-icons/vsc";
 
 interface ExampleButtonsProps {
   onSelectExample: (exampleId: string) => void;
@@ -30,14 +31,18 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
   }
 
   return (
-    <div className="flex items-center gap-2">
-      <button onClick={handlePrevious} className="btn-secondary" title="Previous example">
-        ←
+    <div className="flex items-center gap-1">
+      <button
+        onClick={handlePrevious}
+        className="btn-secondary h-8 px-2 rounded-r-none"
+        title="Previous example"
+      >
+        <VscArrowLeft className="size-4" />
       </button>
       <select
         value={examples[currentIndex].id}
         onChange={handleSelectChange}
-        className="btn-secondary px-2 cursor-pointer"
+        className="btn-secondary h-8 px-2 cursor-pointer rounded-none"
       >
         {examples.map((example) => (
           <option key={example.id} value={example.id}>
@@ -45,8 +50,12 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
           </option>
         ))}
       </select>
-      <button onClick={handleNext} className="btn-secondary" title="Next example">
-        →
+      <button
+        onClick={handleNext}
+        className="btn-secondary h-8 px-2 rounded-l-none"
+        title="Next example"
+      >
+        <VscArrowRight className="size-4" />
       </button>
     </div>
   );

@@ -5,16 +5,18 @@
  * Provides interactive command-line interface for file operations
  */
 
-import { useEffect, useRef, useImperativeHandle, forwardRef } from 'react';
-import { Terminal as XTerm } from 'xterm';
-import { FitAddon } from '@xterm/addon-fit';
-import { WebLinksAddon } from '@xterm/addon-web-links';
-import { Bash } from 'just-bash';
-import type { IFs } from 'memfs';
-import { BridgedFilesystem } from '../terminal/bridged-filesystem';
-import { TerminalController } from '../terminal/terminal-controller';
-import { bashSecurityConfig } from '../terminal/security-config';
-import 'xterm/css/xterm.css';
+import { useEffect, useRef, useImperativeHandle, forwardRef } from "react";
+import { Terminal as XTerm } from "xterm";
+import { FitAddon } from "@xterm/addon-fit";
+import { WebLinksAddon } from "@xterm/addon-web-links";
+import { Bash } from "just-bash";
+import type { IFs } from "memfs";
+import { BridgedFilesystem } from "./bridged-filesystem";
+import { TerminalController } from "./terminal-controller";
+import { bashSecurityConfig } from "./security-config";
+import "xterm/css/xterm.css";
+import { RiProhibitedLine } from "react-icons/ri";
+import { VscCircleSlash } from "react-icons/vsc";
 
 export interface TerminalProps {
   filesystem?: IFs;
@@ -60,25 +62,25 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         fontSize: 12,
         fontFamily: 'Consolas, Monaco, "Courier New", monospace',
         theme: {
-          background: '#1e1e1e',
-          foreground: '#dcdcaa',
-          cursor: '#ffffff',
-          black: '#000000',
-          red: '#cd3131',
-          green: '#0dbc79',
-          yellow: '#e5e510',
-          blue: '#ffedd5', // Orange
-          magenta: '#bc3fbc',
-          cyan: '#11a8cd',
-          white: '#e5e5e5',
-          brightBlack: '#666666',
-          brightRed: '#f14c4c',
-          brightGreen: '#23d18b',
-          brightYellow: '#f5f543',
-          brightBlue: '#3b8eea',
-          brightMagenta: '#d670d6',
-          brightCyan: '#29b8db',
-          brightWhite: '#e5e5e5',
+          background: "#1e1e1e",
+          foreground: "#dcdcaa",
+          cursor: "#ffffff",
+          black: "#000000",
+          red: "#cd3131",
+          green: "#0dbc79",
+          yellow: "#e5e510",
+          blue: "#ffedd5", // Orange
+          magenta: "#bc3fbc",
+          cyan: "#11a8cd",
+          white: "#e5e5e5",
+          brightBlack: "#666666",
+          brightRed: "#f14c4c",
+          brightGreen: "#23d18b",
+          brightYellow: "#f5f543",
+          brightBlue: "#3b8eea",
+          brightMagenta: "#d670d6",
+          brightCyan: "#29b8db",
+          brightWhite: "#e5e5e5",
         },
         allowProposedApi: true,
         rightClickSelectsWord: true,
@@ -99,20 +101,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       const bridgedFs = new BridgedFilesystem(filesystem);
       const bash = new Bash({
         fs: bridgedFs,
-        cwd: '/', // Start at root directory
+        cwd: "/", // Start at root directory
         env: {
-          PATH: '/node_modules/.bin:/usr/local/bin:/usr/bin:/bin',
-          NODE_ENV: 'development',
+          PATH: "/node_modules/.bin:/usr/local/bin:/usr/bin:/bin",
+          NODE_ENV: "development",
         },
         ...bashSecurityConfig,
         customCommands: [
           {
-            name: 'node',
+            name: "node",
             execute: async (args: string[], context: any) => {
               if (!onExecuteFile) {
                 return {
-                  stdout: '',
-                  stderr: 'Error: node command not available\n',
+                  stdout: "",
+                  stderr: "Error: node command not available\n",
                   exitCode: 1,
                 };
               }
@@ -120,8 +122,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               // Parse arguments
               if (args.length === 0) {
                 return {
-                  stdout: '',
-                  stderr: 'Usage: node <filename>\n',
+                  stdout: "",
+                  stderr: "Usage: node <filename>\n",
                   exitCode: 1,
                 };
               }
@@ -130,7 +132,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
               // Normalize path
               let filepath = filename;
-              if (!filepath.startsWith('/')) {
+              if (!filepath.startsWith("/")) {
                 filepath = `/${filepath}`;
               }
 
@@ -139,14 +141,14 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 const exists = await context.fs.exists(filepath);
                 if (!exists) {
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error: Cannot find module '${filename}'\n`,
                     exitCode: 1,
                   };
                 }
               } catch (error) {
                 return {
-                  stdout: '',
+                  stdout: "",
                   stderr: `Error: ${error}\n`,
                   exitCode: 1,
                 };
@@ -158,20 +160,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
                 if (result.ok) {
                   return {
-                    stdout: result.output || '',
-                    stderr: '',
+                    stdout: result.output || "",
+                    stderr: "",
                     exitCode: 0,
                   };
                 } else {
                   return {
-                    stdout: result.output || '',
-                    stderr: result.error || 'Execution failed\n',
+                    stdout: result.output || "",
+                    stderr: result.error || "Execution failed\n",
                     exitCode: 1,
                   };
                 }
               } catch (error: any) {
                 return {
-                  stdout: '',
+                  stdout: "",
                   stderr: `Error executing file: ${error.message}\n`,
                   exitCode: 1,
                 };
@@ -179,20 +181,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
             },
           },
           {
-            name: 'npm',
+            name: "npm",
             execute: async (args: string[], context: any) => {
               // Parse arguments
               if (args.length === 0) {
                 return {
-                  stdout: '',
+                  stdout: "",
                   stderr:
-                    'Usage: npm <command>\n\n' +
-                    'Supported commands:\n' +
-                    '  install [package]  - Install packages from package.json or specific package\n' +
-                    '  run <script>       - Run a package.json script\n' +
-                    '  start              - Alias for npm run start\n' +
-                    '  test               - Alias for npm run test\n' +
-                    '  dev                - Alias for npm run dev\n',
+                    "Usage: npm <command>\n\n" +
+                    "Supported commands:\n" +
+                    "  install [package]  - Install packages from package.json or specific package\n" +
+                    "  run <script>       - Run a package.json script\n" +
+                    "  start              - Alias for npm run start\n" +
+                    "  test               - Alias for npm run test\n" +
+                    "  dev                - Alias for npm run dev\n",
                   exitCode: 1,
                 };
               }
@@ -200,18 +202,18 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               let subcommand = args[0];
 
               // Handle shortcuts (npm start, npm test, npm dev)
-              if (subcommand === 'start' || subcommand === 'test' || subcommand === 'dev') {
+              if (subcommand === "start" || subcommand === "test" || subcommand === "dev") {
                 // Transform to "npm run <shortcut>"
-                args = ['run', subcommand, ...args.slice(1)];
-                subcommand = 'run';
+                args = ["run", subcommand, ...args.slice(1)];
+                subcommand = "run";
               }
 
               // Handle install subcommand
-              if (subcommand === 'install' || subcommand === 'i') {
+              if (subcommand === "install" || subcommand === "i") {
                 if (!onInstallPackage) {
                   return {
-                    stdout: '',
-                    stderr: 'Error: npm install command not available\n',
+                    stdout: "",
+                    stderr: "Error: npm install command not available\n",
                     exitCode: 1,
                   };
                 }
@@ -223,14 +225,14 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 try {
                   await onInstallPackage(packageName);
                   return {
-                    stdout: '',
-                    stderr: '',
+                    stdout: "",
+                    stderr: "",
                     exitCode: 0,
                   };
                 } catch (error: any) {
-                  const target = packageName || 'packages from package.json';
+                  const target = packageName || "packages from package.json";
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error installing ${target}: ${error.message}\n`,
                     exitCode: 1,
                   };
@@ -238,12 +240,12 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               }
 
               // Handle run subcommand
-              if (subcommand === 'run') {
+              if (subcommand === "run") {
                 // Validate arguments
                 if (args.length < 2) {
                   return {
-                    stdout: '',
-                    stderr: 'Usage: npm run <script-name>\n',
+                    stdout: "",
+                    stderr: "Usage: npm run <script-name>\n",
                     exitCode: 1,
                   };
                 }
@@ -253,20 +255,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 // Read package.json
                 let packageJson: any;
                 try {
-                  const packageJsonExists = await context.fs.exists('/package.json');
+                  const packageJsonExists = await context.fs.exists("/package.json");
                   if (!packageJsonExists) {
                     return {
-                      stdout: '',
-                      stderr: 'Error: No package.json found in current directory\n',
+                      stdout: "",
+                      stderr: "Error: No package.json found in current directory\n",
                       exitCode: 1,
                     };
                   }
 
-                  const packageJsonContent = await context.fs.readFile('/package.json', 'utf8');
+                  const packageJsonContent = await context.fs.readFile("/package.json", "utf8");
                   packageJson = JSON.parse(packageJsonContent);
                 } catch (error: any) {
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error reading package.json: ${error.message}\n`,
                     exitCode: 1,
                   };
@@ -279,11 +281,11 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                   const availableScripts = Object.keys(scripts);
                   const suggestion =
                     availableScripts.length > 0
-                      ? `\nAvailable scripts:\n${availableScripts.map((s) => `  - ${s}`).join('\n')}\n`
-                      : '\nNo scripts defined in package.json\n';
+                      ? `\nAvailable scripts:\n${availableScripts.map((s) => `  - ${s}`).join("\n")}\n`
+                      : "\nNo scripts defined in package.json\n";
 
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error: Missing script: "${scriptName}"${suggestion}`,
                     exitCode: 1,
                   };
@@ -296,8 +298,8 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                   // Check if exec is available
                   if (!context.exec) {
                     return {
-                      stdout: '',
-                      stderr: 'Error: Command execution not available in this context\n',
+                      stdout: "",
+                      stderr: "Error: Command execution not available in this context\n",
                       exitCode: 1,
                     };
                   }
@@ -306,13 +308,13 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                   const result = await context.exec(scriptCommand);
 
                   return {
-                    stdout: result.stdout || '',
-                    stderr: result.stderr || '',
+                    stdout: result.stdout || "",
+                    stderr: result.stderr || "",
                     exitCode: result.exitCode || 0,
                   };
                 } catch (error: any) {
                   return {
-                    stdout: '',
+                    stdout: "",
                     stderr: `Error executing script "${scriptName}": ${error.message}\n`,
                     exitCode: 1,
                   };
@@ -321,7 +323,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
               // Unsupported subcommand
               return {
-                stdout: '',
+                stdout: "",
                 stderr: `Error: Unsupported npm command '${subcommand}'\nRun 'npm' to see available commands\n`,
                 exitCode: 1,
               };
@@ -349,7 +351,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       function handleResize() {
         fitAddon.fit();
       }
-      window.addEventListener('resize', handleResize);
+      window.addEventListener("resize", handleResize);
 
       // Notify parent that terminal is ready
       if (onReady) {
@@ -358,7 +360,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
       // Cleanup
       return () => {
-        window.removeEventListener('resize', handleResize);
+        window.removeEventListener("resize", handleResize);
         term.dispose();
       };
     }, [filesystem, onReady, onExecuteFile, onCommandExecuted, onInstallPackage]);
@@ -370,20 +372,20 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }
 
     return (
-      <div className="terminal-wrapper panel">
-        <div className="panel-header">
+      <div className="flex flex-col h-full panel">
+        <div className="panel-header justify-end">
           <button
             onClick={handleClear}
-            className="btn-secondary text-xs px-2 py-1"
-            title="Clear terminal"
+            className="btn-secondary text-xs p-1"
+            title="Clear terminal (Cmd/Ctrl + L)"
           >
-            Clear
+            <VscCircleSlash className="size-4" />
           </button>
         </div>
-        <div ref={terminalRef} className="terminal-container" />
+        <div ref={terminalRef} className="flex-1 overflow-hidden p-2 bg-[#1e1e1e]" />
       </div>
     );
   },
 );
 
-Terminal.displayName = 'Terminal';
+Terminal.displayName = "Terminal";

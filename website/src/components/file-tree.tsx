@@ -1,8 +1,10 @@
-import { useState, useEffect } from 'react';
-import clsx from 'clsx';
-import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';
-import type { FileTreeNode } from '../types';
-import { buildFileTree } from '../utils/filesystem-tree';
+import { useState, useEffect } from "react";
+import clsx from "clsx";
+import { HiChevronRight, HiChevronDown } from "react-icons/hi2";
+import type { FileTreeNode } from "../types";
+import { buildFileTree } from "../utils/filesystem-tree";
+import { RiRefreshLine } from "react-icons/ri";
+import { VscNewFile, VscRefresh } from "react-icons/vsc";
 
 interface FileTreeProps {
   filesystem: any;
@@ -30,7 +32,7 @@ export function FileTree({
   useEffect(() => {
     if (!filesystem) return;
 
-    const newTree = buildFileTree(filesystem, '/');
+    const newTree = buildFileTree(filesystem, "/");
     setTree(newTree);
 
     // Only auto-expand root level on initial load (when there are no expanded paths)
@@ -56,17 +58,17 @@ export function FileTree({
   };
 
   return (
-    <div className="bg-dark-panel h-full flex flex-col">
+    <div className="h-full flex flex-col">
       <div className="p-2 border-b border-dark-border flex gap-2">
-        <button onClick={onAddFile} className="btn-secondary flex-1 text-xs">
-          New file
+        <button onClick={onAddFile} className="btn-secondary text-xs p-1" title="Add new file">
+          <VscNewFile className="size-4" />
         </button>
         <button
           onClick={onRefresh}
-          className="btn-secondary text-xs px-2"
+          className="btn-secondary text-xs p-1"
           title="Refresh filesystem"
         >
-          ↻
+          <VscRefresh className="size-4" />
         </button>
       </div>
       <div className="flex-1 h-0 grow overflow-y-auto p-2">
@@ -125,10 +127,10 @@ function FileTreeNode({
       <>
         <li
           className={clsx(
-            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm',
+            "flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm",
             {
-              'bg-gray-500/20 text-orange-400': isSelected,
-              'hover:bg-dark-hover': !isSelected && !isExpanded,
+              "bg-gray-500/20 text-orange-400": isSelected,
+              "hover:bg-dark-hover": !isSelected && !isExpanded,
             },
           )}
           style={{ paddingLeft: `${paddingLeft}px` }}
@@ -161,17 +163,17 @@ function FileTreeNode({
   return (
     <li
       className={clsx(
-        'flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm',
+        "flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm",
         {
-          'bg-gray-500/20 text-orange-400': isSelected,
-          'hover:bg-dark-hover': !isSelected,
+          "bg-gray-500/20 text-orange-400": isSelected,
+          "hover:bg-dark-hover": !isSelected,
         },
       )}
       style={{ paddingLeft: `${paddingLeft + 6}px` }}
       onClick={() => onSelectFile(node.path)}
     >
       <span className="truncate">{node.name}</span>
-      {node.path !== 'main.js' && (
+      {node.path !== "main.js" && (
         <button
           onClick={(e) => {
             e.stopPropagation();

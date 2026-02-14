@@ -10,42 +10,22 @@
 
 @layer components {
   .btn-primary {
-    @apply bg-orange-500 text-white text-sm px-4 py-2 rounded hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-orange-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply bg-dark-border text-gray-300 px-3 py-1.5 text-sm rounded hover:bg-gray-600 transition-colors;
+    @apply inline-flex items-center justify-center bg-dark-border text-gray-300 px-2 py-1.5 text-sm rounded-full hover:bg-gray-600 transition-colors;
   }
 
   .panel {
-    @apply bg-dark-panel overflow-hidden;
+    @apply overflow-hidden;
   }
 
   .panel-header {
     @apply px-2 py-2.5 border-b border-dark-border font-semibold text-sm text-gray-300 flex items-center justify-between;
   }
+}
 
-  .status-badge {
-    @apply px-3 py-1.5 rounded text-sm inline-block;
-  }
-
-  .status-ready {
-    @apply bg-orange-900/30 text-orange-500;
-  }
-
-  .status-running {
-    @apply bg-yellow-900/30 text-accent-yellow;
-  }
-
-  .status-error {
-    @apply bg-red-900/30 text-accent-red;
-  }
-
-  .terminal-wrapper {
-    @apply flex flex-col h-full;
-  }
-
-  .terminal-container {
-    @apply flex-1 overflow-hidden p-2;
-  }
+.xterm .xterm-viewport {
+  overflow-y: auto;
 }
