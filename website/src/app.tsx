@@ -1,20 +1,20 @@
-import { useState, useEffect, useCallback, useRef, useMemo } from "react";
-import { Buffer } from "buffer";
-import process from "process";
-import { Nodepack } from "@nodepack/client";
-import type { ExecutionResult } from "@nodepack/client";
+import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
+import { Buffer } from 'buffer';
+import process from 'process';
+import { Nodepack } from '@nodepack/client';
+import type { ExecutionResult } from '@nodepack/client';
 
-import { ExampleButtons } from "./components/example-buttons";
-import { StatusBar } from "./components/status-bar";
-import { FileTree } from "./components/file-tree";
-import { CodeEditor } from "./components/code-editor";
-import { FileTabs } from "./components/file-tabs";
-import { Terminal, type TerminalHandle } from "./components/terminal/terminal";
-import { examples } from "./examples";
-import { FileMap, RuntimeStatus } from "./types";
+import { ExampleButtons } from './components/example-buttons';
+import { StatusBar } from './components/status-bar';
+import { FileTree } from './components/file-tree';
+import { CodeEditor } from './components/code-editor';
+import { FileTabs } from './components/file-tabs';
+import { Terminal, type TerminalHandle } from './components/terminal/terminal';
+import { examples } from './examples';
+import { FileMap, RuntimeStatus } from './types';
 
 // Import worker
-import nodepackWorkerUrl from "../../packages/worker/dist/runtime-worker.js?worker&url";
+import nodepackWorkerUrl from '../../packages/worker/dist/runtime-worker.js?worker&url';
 
 // Set up Node.js globals
 (globalThis as any).Buffer = Buffer;
@@ -22,34 +22,34 @@ import nodepackWorkerUrl from "../../packages/worker/dist/runtime-worker.js?work
 
 export function App() {
   const [nodepack, setNodepack] = useState<Nodepack | null>(null);
-  const [status, setStatus] = useState<RuntimeStatus>("initializing");
+  const [status, setStatus] = useState<RuntimeStatus>('initializing');
   const [isRunning, setIsRunning] = useState(false);
   const [usingWorker, setUsingWorker] = useState(false);
   const handleRunRef = useRef<((filepath: string) => Promise<ExecutionResult>) | null>(null);
 
   const [session, setSession] = useState<number>(0);
   const [files, setFiles] = useState<FileMap>({});
-  const [currentFile, setCurrentFile] = useState("main.js");
+  const [currentFile, setCurrentFile] = useState('main.js');
   const [currentFileVersion, setCurrentFileVersion] = useState(0);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
-  const [openFiles, setOpenFiles] = useState<string[]>(["main.js"]);
+  const [openFiles, setOpenFiles] = useState<string[]>(['main.js']);
 
   const terminalRef = useRef<TerminalHandle>(null);
 
   // Derive current file content from filesystem
   const currentFileContent = useMemo(() => {
     if (!nodepack || !currentFile) {
-      return "";
+      return '';
     }
     const fs = nodepack.getFilesystem();
     if (!fs) {
-      return "";
+      return '';
     }
 
     try {
-      return fs.readFileSync(`/${currentFile}`, "utf8");
+      return fs.readFileSync(`/${currentFile}`, 'utf8');
     } catch {
-      return ""; // File doesn't exist yet
+      return ''; // File doesn't exist yet
     }
   }, [nodepack, currentFile, currentFileVersion]);
 
@@ -59,9 +59,9 @@ export function App() {
 
     async function init() {
       try {
-        setStatus("initializing");
+        setStatus('initializing');
         if (terminalRef.current) {
-          terminalRef.current.writeOutput("⏳ Initializing Nodepack...");
+          terminalRef.current.writeOutput('⏳ Initializing Nodepack...');
         }
 
         const runtime = await Nodepack.boot({
@@ -76,25 +76,25 @@ export function App() {
         const isWorker = runtime.isUsingWorker();
         setNodepack(runtime);
         setUsingWorker(isWorker);
-        setStatus("ready");
+        setStatus('ready');
 
         // Write welcome message to terminal
         if (terminalRef.current) {
-          terminalRef.current.writeOutput("Nodepack initialized successfully!");
+          terminalRef.current.writeOutput('Nodepack initialized successfully!');
           terminalRef.current.writeOutput(
-            `🔧 Mode: ${isWorker ? "Web Worker (isolated)" : "Direct runtime"}`,
+            `🔧 Mode: ${isWorker ? 'Web Worker (isolated)' : 'Direct runtime'}`,
           );
-          terminalRef.current.writeOutput("🚀 You can now run Node.js code in your browser");
-          terminalRef.current.writeOutput("");
-          terminalRef.current.writeOutput("Try the examples or write your own code!");
+          terminalRef.current.writeOutput('🚀 You can now run Node.js code in your browser');
+          terminalRef.current.writeOutput('');
+          terminalRef.current.writeOutput('Try the examples or write your own code!');
         }
       } catch (error: any) {
         if (cancelled) return;
-        setStatus("error");
+        setStatus('error');
         if (terminalRef.current) {
           terminalRef.current.writeOutput(`Failed to initialize: ${error.message}`);
         }
-        console.error("Init error:", error);
+        console.error('Init error:', error);
       }
     }
 
@@ -122,12 +122,12 @@ export function App() {
     }
 
     const newFiles = example.files
-      ? { "main.js": example.code, ...example.files }
-      : { "main.js": example.code };
+      ? { 'main.js': example.code, ...example.files }
+      : { 'main.js': example.code };
 
     setFiles(newFiles);
-    setCurrentFile("main.js");
-    setOpenFiles(["main.js"]);
+    setCurrentFile('main.js');
+    setOpenFiles(['main.js']);
     setSession((s) => s + 1);
 
     // Clear terminal when switching examples
@@ -145,11 +145,11 @@ export function App() {
           if (stats.isDirectory()) {
             const entries = fs.readdirSync(path);
             entries.forEach((entry: string) => {
-              const fullPath = path === "/" ? `/${entry}` : `${path}/${entry}`;
+              const fullPath = path === '/' ? `/${entry}` : `${path}/${entry}`;
               deleteRecursive(fullPath);
             });
             // Only remove directory if it's not root
-            if (path !== "/") {
+            if (path !== '/') {
               fs.rmdirSync(path);
             }
           } else {
@@ -162,20 +162,20 @@ export function App() {
 
       // Delete all files in root
       try {
-        const entries = fs.readdirSync("/");
+        const entries = fs.readdirSync('/');
         entries.forEach((entry: string) => {
           deleteRecursive(`/${entry}`);
         });
       } catch (error) {
-        console.warn("Failed to clear filesystem:", error);
+        console.warn('Failed to clear filesystem:', error);
       }
 
       // Then write new files
       Object.entries(newFiles).forEach(([filename, content]) => {
         try {
-          const lastSlashIndex = filename.lastIndexOf("/");
+          const lastSlashIndex = filename.lastIndexOf('/');
           if (lastSlashIndex !== -1) {
-            const dirPath = "/" + filename.substring(0, lastSlashIndex);
+            const dirPath = '/' + filename.substring(0, lastSlashIndex);
             try {
               fs.mkdirSync(dirPath, { recursive: true });
             } catch (mkdirError) {
@@ -192,7 +192,7 @@ export function App() {
       setCurrentFileVersion((v) => v + 1);
 
       // Auto-install packages if package.json exists
-      if ("package.json" in newFiles) {
+      if ('package.json' in newFiles) {
         handleInstallPackage().catch((error) => {
           if (terminalRef.current) {
             terminalRef.current.writeOutput(`Failed to auto-install packages: ${error.message}`);
@@ -228,7 +228,7 @@ export function App() {
           setCurrentFile(newOpenFiles[newActiveIndex]);
         } else {
           // No files left, clear current file
-          setCurrentFile("");
+          setCurrentFile('');
         }
       }
 
@@ -237,7 +237,7 @@ export function App() {
   }
 
   function handleAddFile() {
-    const filename = prompt("Enter filename (e.g., utils.js):");
+    const filename = prompt('Enter filename (e.g., utils.js):');
     if (!filename) {
       return;
     }
@@ -245,7 +245,7 @@ export function App() {
     // Check filesystem for file existence
     const fs = nodepack?.getFilesystem();
     if (fs && fs.existsSync(`/${filename}`)) {
-      alert("File already exists!");
+      alert('File already exists!');
       return;
     }
 
@@ -261,14 +261,14 @@ export function App() {
         setFilesystemVersion((v) => v + 1);
         setCurrentFileVersion((v) => v + 1);
       } catch (error) {
-        console.error("Failed to write file to filesystem:", error);
+        console.error('Failed to write file to filesystem:', error);
       }
     }
   }
 
   function handleDeleteFile(filename: string) {
-    if (filename === "main.js") {
-      alert("Cannot delete main.js");
+    if (filename === 'main.js') {
+      alert('Cannot delete main.js');
       return;
     }
 
@@ -282,7 +282,7 @@ export function App() {
     setOpenFiles((prev) => prev.filter((f) => f !== filename));
 
     if (currentFile === filename) {
-      setCurrentFile("main.js");
+      setCurrentFile('main.js');
     }
 
     // Delete file from filesystem
@@ -295,7 +295,7 @@ export function App() {
           setFilesystemVersion((v) => v + 1);
         }
       } catch (error) {
-        console.error("Failed to delete file from filesystem:", error);
+        console.error('Failed to delete file from filesystem:', error);
       }
     }
   }
@@ -321,23 +321,23 @@ export function App() {
   const handleRun = useCallback(
     async (filepath: string) => {
       if (!nodepack || isRunning) {
-        throw new Error("Runtime not available");
+        throw new Error('Runtime not available');
       }
 
       setIsRunning(true);
-      setStatus("running");
+      setStatus('running');
 
       let result: ExecutionResult | null = null;
 
       try {
         const fs = nodepack.getFilesystem();
         if (!fs) {
-          throw new Error("Filesystem not available");
+          throw new Error('Filesystem not available');
         }
 
         // Read file content from filesystem
-        const normalizedPath = filepath.startsWith("/") ? filepath : `/${filepath}`;
-        const fileContent = fs.readFileSync(normalizedPath, "utf8");
+        const normalizedPath = filepath.startsWith('/') ? filepath : `/${filepath}`;
+        const fileContent = fs.readFileSync(normalizedPath, 'utf8');
 
         // Execute the file with streaming logs
         result = await nodepack.execute(fileContent, {
@@ -353,7 +353,7 @@ export function App() {
         if (!result.ok) {
           if (terminalRef.current) {
             const errorMsg =
-              typeof result.error === "object"
+              typeof result.error === 'object'
                 ? JSON.stringify(result.error, null, 2)
                 : String(result.error);
             terminalRef.current.writeOutput(`Error: ${errorMsg}`);
@@ -362,8 +362,8 @@ export function App() {
           // Display any logs that occurred before the error
           if (result.logs && result.logs.length > 0) {
             if (terminalRef.current) {
-              terminalRef.current.writeOutput("");
-              terminalRef.current.writeOutput("Output before error:");
+              terminalRef.current.writeOutput('');
+              terminalRef.current.writeOutput('Output before error:');
             }
 
             result.logs.forEach((log) => {
@@ -377,10 +377,10 @@ export function App() {
         if (terminalRef.current) {
           terminalRef.current.writeOutput(`Execution failed: ${error.message}`);
         }
-        console.error("Execution error:", error);
+        console.error('Execution error:', error);
       } finally {
         setIsRunning(false);
-        setStatus("ready");
+        setStatus('ready');
         // Refresh file explorer after execution
         setFilesystemVersion((v) => v + 1);
       }
@@ -402,34 +402,34 @@ export function App() {
   const handleInstallPackage = useCallback(
     async (packageName?: string) => {
       if (!nodepack) {
-        throw new Error("Nodepack not initialized yet");
+        throw new Error('Nodepack not initialized yet');
       }
 
       const npm = nodepack.npm;
       if (!npm) {
-        throw new Error("NPM not available in worker mode");
+        throw new Error('NPM not available in worker mode');
       }
 
       const fs = nodepack.getFilesystem();
       if (!fs) {
-        throw new Error("Filesystem not available");
+        throw new Error('Filesystem not available');
       }
 
       // If no package name provided, install from package.json
       if (!packageName) {
-        const packageJsonPath = "/package.json";
+        const packageJsonPath = '/package.json';
 
         // Check if package.json exists
         if (!fs.existsSync(packageJsonPath)) {
-          throw new Error("No package.json found in current directory");
+          throw new Error('No package.json found in current directory');
         }
 
         if (terminalRef.current) {
-          terminalRef.current.writeOutput("Installing packages from package.json...");
+          terminalRef.current.writeOutput('Installing packages from package.json...');
         }
 
         // Read package.json
-        const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
+        const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
 
         // Install from package.json
         await npm.installFromPackageJson(packageJsonContent);
@@ -437,9 +437,9 @@ export function App() {
         setFilesystemVersion((v) => v + 1);
 
         if (terminalRef.current) {
-          terminalRef.current.writeOutput("Successfully installed all packages");
-          terminalRef.current.writeOutput("Check `node_modules` in the files explorer");
-          terminalRef.current.writeOutput("");
+          terminalRef.current.writeOutput('Successfully installed all packages');
+          terminalRef.current.writeOutput('Check `node_modules` in the files explorer');
+          terminalRef.current.writeOutput('');
         }
       } else {
         // Install specific package
@@ -450,16 +450,16 @@ export function App() {
         await npm.install(packageName);
 
         // Add package to package.json if it exists
-        const packageJsonPath = "/package.json";
+        const packageJsonPath = '/package.json';
         if (fs.existsSync(packageJsonPath)) {
           try {
             // Get the installed version from the package's package.json
             const installedPackageJsonPath = `/node_modules/${packageName}/package.json`;
-            let versionToAdd = "latest";
+            let versionToAdd = 'latest';
 
             if (fs.existsSync(installedPackageJsonPath)) {
               const installedPackageJson = JSON.parse(
-                fs.readFileSync(installedPackageJsonPath, "utf8"),
+                fs.readFileSync(installedPackageJsonPath, 'utf8'),
               );
               if (installedPackageJson.version) {
                 versionToAdd = `^${installedPackageJson.version}`;
@@ -467,7 +467,7 @@ export function App() {
             }
 
             // Read and update package.json
-            const packageJsonContent = fs.readFileSync(packageJsonPath, "utf8");
+            const packageJsonContent = fs.readFileSync(packageJsonPath, 'utf8');
             const packageJsonData = JSON.parse(packageJsonContent);
 
             // Initialize dependencies object if it doesn't exist
@@ -483,7 +483,7 @@ export function App() {
             fs.writeFileSync(packageJsonPath, updatedPackageJsonContent);
 
             // Update editor state if package.json is currently open
-            if (currentFile === "package.json") {
+            if (currentFile === 'package.json') {
               setCurrentFileVersion((v) => v + 1);
             }
 
@@ -493,7 +493,7 @@ export function App() {
               );
             }
           } catch (error) {
-            console.warn("Failed to update package.json:", error);
+            console.warn('Failed to update package.json:', error);
             // Don't throw - package is still installed successfully
           }
         }
@@ -505,7 +505,7 @@ export function App() {
           terminalRef.current.writeOutput(
             `Check node_modules/${packageName} in the files explorer`,
           );
-          terminalRef.current.writeOutput("");
+          terminalRef.current.writeOutput('');
         }
       }
     },
@@ -547,7 +547,7 @@ export function App() {
               code={currentFileContent}
               currentFile={currentFile}
               onChange={handleCodeChange}
-              onRun={() => handleRun("main.js")}
+              onRun={() => handleRun('main.js')}
               isRunning={isRunning}
             />
           </div>
@@ -570,7 +570,7 @@ export function App() {
           isRunning={isRunning}
           usingWorker={usingWorker}
           onRun={() => {
-            handleRun("main.js");
+            handleRun('main.js');
           }}
         />
       </div>

@@ -22,6 +22,9 @@ console.log('Class names:', classes);
       {
         name: 'example-project',
         version: '1.0.0',
+        scripts: {
+          start: 'node main.js',
+        },
         dependencies: {
           clsx: '^2.1.0',
         },

@@ -26,6 +26,9 @@ console.log(clsx(['foo', 0, false, 'bar']));
       {
         name: 'clsx-example',
         version: '1.0.0',
+        scripts: {
+          start: 'node main.js',
+        },
         dependencies: {
           clsx: '^2.1.0',
         },

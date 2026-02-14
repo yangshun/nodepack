@@ -1,6 +1,6 @@
-import { useState } from "react";
-import { examples } from "../examples";
-import { VscArrowLeft, VscArrowRight, VscChevronLeft, VscChevronRight } from "react-icons/vsc";
+import { useState } from 'react';
+import { examples } from '../examples';
+import { VscArrowLeft, VscArrowRight, VscChevronLeft, VscChevronRight } from 'react-icons/vsc';
 
 interface ExampleButtonsProps {
   onSelectExample: (exampleId: string) => void;

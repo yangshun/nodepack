@@ -45,4 +45,17 @@ setTimeout(() => {
 
 console.log('All timers scheduled!');
 `,
+  files: {
+    'package.json': JSON.stringify(
+      {
+        name: 'timers',
+        version: '1.0.0',
+        scripts: {
+          start: 'node main.js',
+        },
+      },
+      null,
+      2,
+    ),
+  },
 };

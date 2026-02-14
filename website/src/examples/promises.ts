@@ -18,4 +18,17 @@ basicPromise.then((result) => {
 
 console.log('Initialized promises...');
 `,
+  files: {
+    'package.json': JSON.stringify(
+      {
+        name: 'promises-example',
+        version: '1.0.0',
+        scripts: {
+          start: 'node main.js',
+        },
+      },
+      null,
+      2,
+    ),
+  },
 };

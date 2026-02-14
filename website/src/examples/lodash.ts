@@ -28,6 +28,9 @@ console.log('Shuffle:', _.shuffle([1, 2, 3, 4, 5]));
       {
         name: 'lodash-example',
         version: '1.0.0',
+        scripts: {
+          start: 'node main.js',
+        },
         dependencies: {
           'lodash-es': '^4.17.21',
         },

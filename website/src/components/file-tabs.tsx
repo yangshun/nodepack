@@ -1,5 +1,5 @@
-import clsx from "clsx";
-import { VscClose } from "react-icons/vsc";
+import clsx from 'clsx';
+import { VscClose } from 'react-icons/vsc';
 
 interface FileTabsProps {
   openFiles: string[];
@@ -10,7 +10,7 @@ interface FileTabsProps {
 
 export function FileTabs({ openFiles, currentFile, onSelectTab, onCloseTab }: FileTabsProps) {
   function getFilename(filepath: string): string {
-    const lastSlash = filepath.lastIndexOf("/");
+    const lastSlash = filepath.lastIndexOf('/');
     return lastSlash !== -1 ? filepath.substring(lastSlash + 1) : filepath;
   }
 
@@ -28,13 +28,13 @@ export function FileTabs({ openFiles, currentFile, onSelectTab, onCloseTab }: Fi
           <div
             key={filename}
             className={clsx(
-              "h-full flex items-center gap-2 px-3 py-2.5 text-xs border-b-0 transition-colors cursor-pointer flex-shrink-0",
-              "border-t-2 border-dark-border",
-              index > 0 && "border-l ",
-              index === openFiles.length - 1 && "border-r",
+              'h-full flex items-center gap-2 px-3 py-2.5 text-xs border-b-0 transition-colors cursor-pointer flex-shrink-0',
+              'border-t-2 border-dark-border',
+              index > 0 && 'border-l ',
+              index === openFiles.length - 1 && 'border-r',
               isActive
-                ? " border-t-orange-500 bg-dark-panel"
-                : "border-t-transparent bg-dark-bg hover:bg-dark-hover",
+                ? ' border-t-orange-500 bg-dark-panel'
+                : 'border-t-transparent bg-dark-bg hover:bg-dark-hover',
             )}
             onClick={() => onSelectTab(filename)}
           >
