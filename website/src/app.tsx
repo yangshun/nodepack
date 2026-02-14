@@ -10,6 +10,7 @@ import { FileTree } from './components/file-tree';
 import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
+import { Group, Panel, Separator } from 'react-resizable-panels';
 import { examples } from './examples';
 import { FileMap, RuntimeStatus } from './types';
 
@@ -529,51 +530,61 @@ export function App() {
           <ExampleButtons onSelectExample={handleSelectExample} />
         </div>
       </div>
-      <div className="flex h-0 grow rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
-        {/* File List */}
-        <div className="w-[200px] grow h-full">
-          <FileTree
-            filesystem={nodepack?.getFilesystem()}
-            currentFile={currentFile}
-            version={filesystemVersion}
-            onSelectFile={handleSelectFile}
-            onDeleteFile={handleDeleteFile}
-            onAddFile={handleAddFile}
-            onRefresh={handleRefresh}
-            onInstallPackage={handleInstallPackage}
-            installDisabled={!nodepack || usingWorker}
-            onExecuteScript={handleExecuteScript}
-          />
-        </div>
-        {/* Code Editor */}
-        <div className="w-1/2 h-full flex flex-col">
-          <FileTabs
-            openFiles={openFiles}
-            currentFile={currentFile}
-            onSelectTab={handleSelectTab}
-            onCloseTab={handleCloseTab}
-          />
-          <div className="flex-1 h-0 grow">
-            <CodeEditor
-              code={currentFileContent}
-              currentFile={currentFile}
-              onChange={handleCodeChange}
-              onRun={() => handleRun('main.js')}
-              isRunning={isRunning}
-            />
-          </div>
-        </div>
-        {/* Terminal */}
-        <div className="w-1/3 h-full">
-          <Terminal
-            key={session}
-            ref={terminalRef}
-            filesystem={nodepack?.getFilesystem() || undefined}
-            onExecuteFile={handleExecuteFile}
-            onCommandExecuted={handleRefresh}
-            onInstallPackage={handleInstallPackage}
-          />
-        </div>
+      <div className="h-0 grow rounded-lg overflow-hidden border border-dark-border">
+        <Group orientation="horizontal">
+          {/* File List */}
+          <Panel defaultSize="20%" minSize="10%" maxSize="40%">
+            <div className="h-full">
+              <FileTree
+                filesystem={nodepack?.getFilesystem()}
+                currentFile={currentFile}
+                version={filesystemVersion}
+                onSelectFile={handleSelectFile}
+                onDeleteFile={handleDeleteFile}
+                onAddFile={handleAddFile}
+                onRefresh={handleRefresh}
+                onInstallPackage={handleInstallPackage}
+                installDisabled={!nodepack || usingWorker}
+                onExecuteScript={handleExecuteScript}
+              />
+            </div>
+          </Panel>
+          <Separator className="w-2 -mx-1 relative outline-none after:content-[''] after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
+          {/* Code Editor */}
+          <Panel defaultSize="50%" minSize="20%">
+            <div className="h-full flex flex-col">
+              <FileTabs
+                openFiles={openFiles}
+                currentFile={currentFile}
+                onSelectTab={handleSelectTab}
+                onCloseTab={handleCloseTab}
+              />
+              <div className="flex-1 h-0 grow">
+                <CodeEditor
+                  code={currentFileContent}
+                  currentFile={currentFile}
+                  onChange={handleCodeChange}
+                  onRun={() => handleRun('main.js')}
+                  isRunning={isRunning}
+                />
+              </div>
+            </div>
+          </Panel>
+          <Separator className="w-2 -mx-1 relative outline-none after:content-[''] after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
+          {/* Terminal */}
+          <Panel defaultSize="30%" minSize="15%">
+            <div className="h-full">
+              <Terminal
+                key={session}
+                ref={terminalRef}
+                filesystem={nodepack?.getFilesystem() || undefined}
+                onExecuteFile={handleExecuteFile}
+                onCommandExecuted={handleRefresh}
+                onInstallPackage={handleInstallPackage}
+              />
+            </div>
+          </Panel>
+        </Group>
       </div>
       <div className="flex justify-end">
         <StatusBar

@@ -353,11 +353,13 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       controllerRef.current = controller;
       fitAddonRef.current = fitAddon;
 
-      // Handle window resize
-      function handleResize() {
+      // Handle container resize (covers both window and panel resizes)
+      const resizeObserver = new ResizeObserver(() => {
         fitAddon.fit();
+      });
+      if (terminalRef.current) {
+        resizeObserver.observe(terminalRef.current);
       }
-      window.addEventListener('resize', handleResize);
 
       // Notify parent that terminal is ready
       if (onReady) {
@@ -366,7 +368,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
       // Cleanup
       return () => {
-        window.removeEventListener('resize', handleResize);
+        resizeObserver.disconnect();
         term.dispose();
       };
     }, [filesystem, onReady, onExecuteFile, onCommandExecuted, onInstallPackage]);
