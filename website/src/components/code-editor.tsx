@@ -58,7 +58,7 @@ export function CodeEditor({ code, currentFile, onChange, onRun }: CodeEditorPro
         theme="vs-dark"
         options={{
           minimap: { enabled: false },
-          fontSize: 14,
+          fontSize: 12,
           lineNumbers: 'on',
           scrollBeyondLastLine: false,
           automaticLayout: true,

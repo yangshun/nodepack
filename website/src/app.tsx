@@ -39,17 +39,15 @@ export function App() {
   // AI Chat state
   const [aiChatVisible, setAiChatVisible] = useState(true);
   const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(
-    localStorage.getItem('anthropic_api_key')
+    localStorage.getItem('anthropic_api_key'),
   );
   const [openaiApiKey, setOpenaiApiKey] = useState<string | null>(
-    localStorage.getItem('openai_api_key')
+    localStorage.getItem('openai_api_key'),
   );
   const [aiProvider, setAiProvider] = useState<'anthropic' | 'openai'>(
-    (localStorage.getItem('ai_provider') as 'anthropic' | 'openai') ||
-      'anthropic'
+    (localStorage.getItem('ai_provider') as 'anthropic' | 'openai') || 'anthropic',
   );
   const [aiModel, setAiModel] = useState<string>(
-    localStorage.getItem('ai_model') || 'claude-sonnet-4-5-20250929'
     localStorage.getItem('ai_model') || 'claude-sonnet-4-5-20250929',
   );
 
@@ -552,7 +550,7 @@ export function App() {
       <div className="h-0 grow rounded-lg overflow-hidden border border-dark-border">
         <Group orientation="horizontal">
           {/* File List */}
-          <Panel defaultSize="20%" minSize="10%" maxSize="40%">
+          <Panel defaultSize="15%" minSize="10%" maxSize="40%">
             <div className="h-full">
               <FileTree
                 filesystem={nodepack?.getFilesystem()}
@@ -569,39 +567,43 @@ export function App() {
             </div>
           </Panel>
           <Separator className="w-2 -mx-1 relative outline-none after:content-[''] after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
-          {/* Code Editor */}
           <Panel defaultSize="50%" minSize="20%">
-            <div className="h-full flex flex-col">
-              <FileTabs
-                openFiles={openFiles}
-                currentFile={currentFile}
-                onSelectTab={handleSelectTab}
-                onCloseTab={handleCloseTab}
-              />
-              <div className="flex-1 h-0 grow">
-                <CodeEditor
-                  code={currentFileContent}
-                  currentFile={currentFile}
-                  onChange={handleCodeChange}
-                  onRun={() => handleRun('main.js')}
-                  isRunning={isRunning}
-                />
-              </div>
-            </div>
-          </Panel>
-          <Separator className="w-2 -mx-1 relative outline-none after:content-[''] after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
-          {/* Terminal */}
-          <Panel defaultSize="30%" minSize="15%">
-            <div className="h-full">
-              <Terminal
-                key={session}
-                ref={terminalRef}
-                filesystem={nodepack?.getFilesystem() || undefined}
-                onExecuteFile={handleExecuteFile}
-                onCommandExecuted={handleRefresh}
-                onInstallPackage={handleInstallPackage}
-              />
-            </div>
+            <Group defaultValue={20} className="h-full" orientation="vertical">
+              {/* Code Editor */}
+              <Panel defaultSize="50%" minSize="20%">
+                <div className="h-full flex flex-col">
+                  <FileTabs
+                    openFiles={openFiles}
+                    currentFile={currentFile}
+                    onSelectTab={handleSelectTab}
+                    onCloseTab={handleCloseTab}
+                  />
+                  <div className="flex-1 h-0 grow">
+                    <CodeEditor
+                      code={currentFileContent}
+                      currentFile={currentFile}
+                      onChange={handleCodeChange}
+                      onRun={() => handleRun('main.js')}
+                      isRunning={isRunning}
+                    />
+                  </div>
+                </div>
+              </Panel>
+              <Separator className="h-2 -my-1 relative outline-none after:content-[''] after:absolute after:inset-x-0 after:top-1/2 after:-translate-y-1/2 after:h-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
+              {/* Terminal */}
+              <Panel defaultSize="30%" minSize="15%">
+                <div className="h-full">
+                  <Terminal
+                    key={session}
+                    ref={terminalRef}
+                    filesystem={nodepack?.getFilesystem() || undefined}
+                    onExecuteFile={handleExecuteFile}
+                    onCommandExecuted={handleRefresh}
+                    onInstallPackage={handleInstallPackage}
+                  />
+                </div>
+              </Panel>
+            </Group>
           </Panel>
           {/* AI Chat */}
           {aiChatVisible && (

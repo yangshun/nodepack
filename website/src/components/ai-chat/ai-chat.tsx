@@ -92,7 +92,7 @@ export function AIChat({
       const result = await streamText({
         model: modelInstance,
         messages: [...messages, userMessage].map(
-          (m): ModelMessage => ({ role: m.role, content: m.content }),
+          (message): ModelMessage => ({ role: message.role, content: message.content }),
         ),
         tools,
         stopWhen: stepCountIs(20),
@@ -144,7 +144,7 @@ export function AIChat({
             const lastMsg = updated[updated.length - 1];
             if (lastMsg.role === 'assistant' && lastMsg.toolInvocations) {
               const toolInvocation = lastMsg.toolInvocations.find(
-                (t) => t.toolCallId === chunk.toolCallId,
+                (tool) => tool.toolCallId === chunk.toolCallId,
               );
               if (toolInvocation) {
                 toolInvocation.state = 'result';
@@ -196,7 +196,7 @@ export function AIChat({
         </div>
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-4 space-y-4">
+      <div className="flex-1 overflow-y-auto p-2 space-y-2">
         {messages.length === 0 && (
           <div className="text-center p-8 text-gray-400">
             <p className="mb-4">Ask me to help with your code</p>
@@ -211,7 +211,7 @@ export function AIChat({
           <div
             key={message.id}
             className={clsx(
-              'p-3 rounded whitespace-pre-wrap',
+              'p-2 rounded whitespace-pre-wrap',
               message.role === 'user'
                 ? 'bg-dark-hover ml-8'
                 : 'bg-dark-bg border border-dark-border mr-8',
