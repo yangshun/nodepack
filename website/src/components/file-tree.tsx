@@ -3,7 +3,36 @@ import clsx from 'clsx';
 import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';
 import type { FileTreeNode } from '../types';
 import { buildFileTree } from '../utils/filesystem-tree';
-import { VscNewFile, VscRefresh } from 'react-icons/vsc';
+import { VscNewFile, VscRefresh, VscFile, VscJson, VscMarkdown } from 'react-icons/vsc';
+import type { IconType } from 'react-icons';
+import { DiJavascript1 } from 'react-icons/di';
+import { SiTypescript } from 'react-icons/si';
+
+function getFileIcon(filename: string): IconType {
+  const ext = filename.split('.').pop()?.toLowerCase();
+
+  switch (ext) {
+    case 'js':
+    case 'jsx':
+    case 'mjs':
+    case 'cjs':
+      return DiJavascript1;
+    case 'ts':
+    case 'tsx':
+    case 'mts':
+    case 'cts':
+      return SiTypescript;
+    case 'json':
+    case 'jsonc':
+      return VscJson;
+    case 'md':
+    case 'mdx':
+    case 'markdown':
+      return VscMarkdown;
+    default:
+      return VscFile;
+  }
+}
 
 interface FileTreeProps {
   filesystem: any;
@@ -191,18 +220,16 @@ function FileTreeNode({
   const isExpanded = node.isDirectory && expandedPaths.has(node.path);
   const isSelected = !node.isDirectory && node.path === currentFile;
 
-  // Calculate indentation (compact: 12px per level)
-  const paddingLeft = depth * 16;
+  const paddingLeft = depth * 16 + 2;
 
   if (node.isDirectory) {
     return (
       <>
         <li
           className={clsx(
-            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm',
+            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm hover:bg-dark-hover',
             {
               'bg-gray-500/20 text-orange-400': isSelected,
-              'hover:bg-dark-hover': !isSelected && !isExpanded,
             },
           )}
           style={{ paddingLeft: `${paddingLeft}px` }}
@@ -232,6 +259,8 @@ function FileTreeNode({
     );
   }
 
+  const FileIcon = getFileIcon(node.name);
+
   return (
     <li
       className={clsx(
@@ -244,7 +273,10 @@ function FileTreeNode({
       style={{ paddingLeft: `${paddingLeft + 6}px` }}
       onClick={() => onSelectFile(node.path)}
     >
-      <span className="truncate">{node.name}</span>
+      <div className="flex items-center gap-1 truncate">
+        <FileIcon className="text-gray-400 text-sm flex-shrink-0" />
+        <span className="truncate">{node.name}</span>
+      </div>
       {node.path !== 'main.js' && (
         <button
           onClick={(e) => {

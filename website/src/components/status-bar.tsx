@@ -52,7 +52,7 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
         disabled={status !== 'ready' || isRunning}
         className="btn-primary flex items-center gap-2"
       >
-        <span>Run code</span>
+        <span>Run</span>
       </button>
     </div>
   );
