@@ -373,7 +373,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
     return (
       <div className="flex flex-col h-full panel">
-        <div className="panel-header justify-end">
+        <div className="p-2 border-b border-dark-border flex justify-end gap-2">
           <button
             onClick={handleClear}
             className="btn-secondary text-xs p-1"

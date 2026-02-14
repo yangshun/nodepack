@@ -8,6 +8,7 @@ import { ExampleButtons } from "./components/example-buttons";
 import { StatusBar } from "./components/status-bar";
 import { FileTree } from "./components/file-tree";
 import { CodeEditor } from "./components/code-editor";
+import { FileTabs } from "./components/file-tabs";
 import { Terminal, type TerminalHandle } from "./components/terminal/terminal";
 import { examples } from "./examples";
 import { FileMap, RuntimeStatus } from "./types";
@@ -31,6 +32,7 @@ export function App() {
   const [currentFile, setCurrentFile] = useState("main.js");
   const [currentFileVersion, setCurrentFileVersion] = useState(0);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
+  const [openFiles, setOpenFiles] = useState<string[]>(["main.js"]);
   const [customPackageName, setCustomPackageName] = useState("");
 
   const terminalRef = useRef<TerminalHandle>(null);
@@ -126,6 +128,7 @@ export function App() {
 
     setFiles(newFiles);
     setCurrentFile("main.js");
+    setOpenFiles(["main.js"]);
     setSession((s) => s + 1);
 
     // Clear terminal when switching examples
@@ -201,8 +204,38 @@ export function App() {
   }
 
   const handleSelectFile = (filename: string) => {
+    setOpenFiles((prev) => {
+      if (prev.includes(filename)) {
+        return prev;
+      }
+      return [...prev, filename];
+    });
     setCurrentFile(filename);
   };
+
+  function handleSelectTab(filename: string) {
+    setCurrentFile(filename);
+  }
+
+  function handleCloseTab(filename: string) {
+    setOpenFiles((prev) => {
+      const newOpenFiles = prev.filter((f) => f !== filename);
+
+      // If closing the active tab, switch to another tab
+      if (filename === currentFile) {
+        if (newOpenFiles.length > 0) {
+          const closedIndex = prev.indexOf(filename);
+          const newActiveIndex = closedIndex > 0 ? closedIndex - 1 : 0;
+          setCurrentFile(newOpenFiles[newActiveIndex]);
+        } else {
+          // No files left, clear current file
+          setCurrentFile("");
+        }
+      }
+
+      return newOpenFiles;
+    });
+  }
 
   function handleAddFile() {
     const filename = prompt("Enter filename (e.g., utils.js):");
@@ -245,6 +278,9 @@ export function App() {
     const newFiles = { ...files };
     delete newFiles[filename];
     setFiles(newFiles);
+
+    // Remove from openFiles
+    setOpenFiles((prev) => prev.filter((f) => f !== filename));
 
     if (currentFile === filename) {
       setCurrentFile("main.js");
@@ -545,14 +581,22 @@ export function App() {
             />
           </div>
           {/* Code Editor */}
-          <div className="w-1/2 h-full">
-            <CodeEditor
-              code={currentFileContent}
+          <div className="w-1/2 h-full flex flex-col">
+            <FileTabs
+              openFiles={openFiles}
               currentFile={currentFile}
-              onChange={handleCodeChange}
-              onRun={() => handleRun("main.js")}
-              isRunning={isRunning}
+              onSelectTab={handleSelectTab}
+              onCloseTab={handleCloseTab}
             />
+            <div className="flex-1 h-0 grow">
+              <CodeEditor
+                code={currentFileContent}
+                currentFile={currentFile}
+                onChange={handleCodeChange}
+                onRun={() => handleRun("main.js")}
+                isRunning={isRunning}
+              />
+            </div>
           </div>
           {/* Terminal */}
           <div className="w-1/3 h-full">
