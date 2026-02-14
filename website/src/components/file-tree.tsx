@@ -121,7 +121,7 @@ export function FileTree({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="p-2 border-b border-dark-border flex gap-2">
+      <div className="h-10 p-2 border-b border-dark-border flex gap-2">
         <button onClick={onAddFile} className="btn-secondary text-xs p-1" title="Add new file">
           <VscNewFile className="size-4" />
         </button>

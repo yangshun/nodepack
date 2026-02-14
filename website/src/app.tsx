@@ -10,6 +10,7 @@ import { FileTree } from './components/file-tree';
 import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
+import { AIChat } from './components/ai-chat/ai-chat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import { examples } from './examples';
 import { FileMap, RuntimeStatus } from './types';
@@ -34,6 +35,23 @@ export function App() {
   const [currentFileVersion, setCurrentFileVersion] = useState(0);
   const [filesystemVersion, setFilesystemVersion] = useState(0);
   const [openFiles, setOpenFiles] = useState<string[]>(['main.js']);
+
+  // AI Chat state
+  const [aiChatVisible, setAiChatVisible] = useState(true);
+  const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(
+    localStorage.getItem('anthropic_api_key')
+  );
+  const [openaiApiKey, setOpenaiApiKey] = useState<string | null>(
+    localStorage.getItem('openai_api_key')
+  );
+  const [aiProvider, setAiProvider] = useState<'anthropic' | 'openai'>(
+    (localStorage.getItem('ai_provider') as 'anthropic' | 'openai') ||
+      'anthropic'
+  );
+  const [aiModel, setAiModel] = useState<string>(
+    localStorage.getItem('ai_model') || 'claude-sonnet-4-5-20250929'
+    localStorage.getItem('ai_model') || 'claude-sonnet-4-5-20250929',
+  );
 
   const terminalRef = useRef<TerminalHandle>(null);
 
@@ -303,6 +321,7 @@ export function App() {
 
   const handleRefresh = useCallback(() => {
     setFilesystemVersion((v) => v + 1);
+    setCurrentFileVersion((v) => v + 1);
   }, []);
 
   function handleCodeChange(code: string) {
@@ -584,6 +603,24 @@ export function App() {
               />
             </div>
           </Panel>
+          {/* AI Chat */}
+          {aiChatVisible && (
+            <>
+              <Separator className="w-2 -mx-1 relative outline-none after:content-[''] after:absolute after:inset-y-0 after:left-1/2 after:-translate-x-1/2 after:w-px after:bg-dark-border active:after:bg-orange-500 after:transition-colors" />
+              <Panel defaultSize="20%" minSize="15%" maxSize="40%">
+                <div className="h-full">
+                  <AIChat
+                    nodepack={nodepack}
+                    apiKey={aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey}
+                    provider={aiProvider}
+                    model={aiModel}
+                    onFileUpdate={handleRefresh}
+                    terminalRef={terminalRef}
+                  />
+                </div>
+              </Panel>
+            </>
+          )}
         </Group>
       </div>
       <div className="flex justify-end">

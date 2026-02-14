@@ -53,6 +53,18 @@ export default defineConfig({
       'Cross-Origin-Opener-Policy': 'same-origin',
       'Cross-Origin-Embedder-Policy': 'require-corp',
     },
+    proxy: {
+      '/proxy/anthropic': {
+        target: 'https://api.anthropic.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy\/anthropic/, ''),
+      },
+      '/proxy/openai': {
+        target: 'https://api.openai.com',
+        changeOrigin: true,
+        rewrite: (path) => path.replace(/^\/proxy\/openai/, ''),
+      },
+    },
     hmr: {
       overlay: true,
       protocol: 'ws',
