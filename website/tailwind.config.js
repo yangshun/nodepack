@@ -6,7 +6,6 @@ export default {
       colors: {
         dark: {
           bg: '#1e1e1e',
-          panel: '#252526',
           border: '#3e3e42',
           hover: '#2a2d2e',
         },

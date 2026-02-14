@@ -372,7 +372,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }
 
     return (
-      <div className="flex flex-col h-full panel">
+      <div className="flex flex-col h-full">
         <div className="p-2 border-b border-dark-border flex justify-end gap-2">
           <button
             onClick={handleClear}
@@ -382,7 +382,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
             <VscCircleSlash className="size-4" />
           </button>
         </div>
-        <div ref={terminalRef} className="flex-1 overflow-hidden p-2 bg-[#1e1e1e]" />
+        <div ref={terminalRef} className="flex-1 overflow-hidden p-2 bg-dark-bg" />
       </div>
     );
   },

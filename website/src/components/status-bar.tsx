@@ -25,7 +25,11 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
     return (
       <span>
         Ready{" "}
-        {!usingWorker && <span className="rounded bg-gray-700 py-0.5 px-1.5 text-xs">Worker</span>}
+        {!usingWorker && (
+          <span className="ml-1 rounded-lg border border-dark-border py-0.5 px-1.5 text-xs">
+            Worker
+          </span>
+        )}
       </span>
     );
   }

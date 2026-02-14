@@ -14,15 +14,7 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-dark-border text-gray-300 px-2 py-1.5 text-sm rounded-full hover:bg-gray-600 transition-colors;
-  }
-
-  .panel {
-    @apply overflow-hidden;
-  }
-
-  .panel-header {
-    @apply px-2 py-2.5 border-b border-dark-border font-semibold text-sm text-gray-300 flex items-center justify-between;
+    @apply inline-flex items-center justify-center text-gray-300 px-2 py-1.5 text-sm rounded-full hover:bg-dark-border transition-colors;
   }
 }
 

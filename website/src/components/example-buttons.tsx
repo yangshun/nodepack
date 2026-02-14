@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { examples } from "../examples";
-import { VscArrowLeft, VscArrowRight } from "react-icons/vsc";
+import { VscArrowLeft, VscArrowRight, VscChevronLeft, VscChevronRight } from "react-icons/vsc";
 
 interface ExampleButtonsProps {
   onSelectExample: (exampleId: string) => void;
@@ -31,18 +31,18 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
   }
 
   return (
-    <div className="flex items-center gap-1">
+    <div className="flex items-center">
       <button
         onClick={handlePrevious}
-        className="btn-secondary h-8 px-2 rounded-r-none"
+        className="btn-secondary border border-dark-border h-8 px-2 rounded-r-none"
         title="Previous example"
       >
-        <VscArrowLeft className="size-4" />
+        <VscChevronLeft className="size-4" />
       </button>
       <select
         value={examples[currentIndex].id}
         onChange={handleSelectChange}
-        className="btn-secondary h-8 px-2 cursor-pointer rounded-none"
+        className="btn-secondary text-xs border-y border-dark-border bg-transparent h-8 px-2 cursor-pointer rounded-none appearance-none"
       >
         {examples.map((example) => (
           <option key={example.id} value={example.id}>
@@ -52,10 +52,10 @@ export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
       </select>
       <button
         onClick={handleNext}
-        className="btn-secondary h-8 px-2 rounded-l-none"
+        className="btn-secondary border border-dark-border h-8 px-2 rounded-l-none"
         title="Next example"
       >
-        <VscArrowRight className="size-4" />
+        <VscChevronRight className="size-4" />
       </button>
     </div>
   );

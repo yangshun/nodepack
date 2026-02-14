@@ -514,102 +514,102 @@ export function App() {
   );
 
   return (
-    <div className="min-h-screen p-6">
-      <div className="flex flex-col gap-6 max-w-[1400px] mx-auto">
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <ExampleButtons onSelectExample={handleSelectExample} />
-            <div className="h-6 w-px bg-gray-600" />
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={customPackageName}
-                onChange={(e) => setCustomPackageName(e.target.value)}
-                placeholder="Install package (e.g., clsx, zod)"
-                className="w-60 px-3 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-blue-500"
-                disabled={!nodepack || usingWorker}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter" && customPackageName.trim()) {
-                    handleInstallPackage(customPackageName.trim()).catch((error) => {
-                      if (terminalRef.current) {
-                        terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
-                      }
-                    });
-                    setCustomPackageName("");
-                  }
-                }}
-              />
-              <button
-                onClick={() => {
-                  if (customPackageName.trim()) {
-                    handleInstallPackage(customPackageName.trim()).catch((error) => {
-                      if (terminalRef.current) {
-                        terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
-                      }
-                    });
-                    setCustomPackageName("");
-                  }
-                }}
-                className="btn-secondary"
-                disabled={!nodepack || usingWorker || !customPackageName.trim()}
-                title="Install a custom npm package"
-              >
-                Install
-              </button>
-            </div>
+    <div className="min-h-screen p-3 flex flex-col gap-3 mx-auto">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-4">
+          <ExampleButtons onSelectExample={handleSelectExample} />
+          <div className="h-6 w-px bg-gray-600" />
+          <div className="flex gap-2">
+            <input
+              type="text"
+              value={customPackageName}
+              onChange={(e) => setCustomPackageName(e.target.value)}
+              placeholder="Install package (e.g., clsx, zod)"
+              className="w-60 px-3 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-blue-500"
+              disabled={!nodepack || usingWorker}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" && customPackageName.trim()) {
+                  handleInstallPackage(customPackageName.trim()).catch((error) => {
+                    if (terminalRef.current) {
+                      terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
+                    }
+                  });
+                  setCustomPackageName("");
+                }
+              }}
+            />
+            <button
+              onClick={() => {
+                if (customPackageName.trim()) {
+                  handleInstallPackage(customPackageName.trim()).catch((error) => {
+                    if (terminalRef.current) {
+                      terminalRef.current.writeOutput(`Failed to install: ${error.message}`);
+                    }
+                  });
+                  setCustomPackageName("");
+                }
+              }}
+              className="btn-secondary"
+              disabled={!nodepack || usingWorker || !customPackageName.trim()}
+              title="Install a custom npm package"
+            >
+              Install
+            </button>
           </div>
-          <StatusBar
-            status={status}
-            isRunning={isRunning}
-            usingWorker={usingWorker}
-            onRun={() => {
-              handleRun("main.js");
-            }}
+        </div>
+      </div>
+      <div className="flex h-0 grow rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
+        {/* File List */}
+        <div className="w-[200px] grow h-full">
+          <FileTree
+            filesystem={nodepack?.getFilesystem()}
+            currentFile={currentFile}
+            version={filesystemVersion}
+            onSelectFile={handleSelectFile}
+            onDeleteFile={handleDeleteFile}
+            onAddFile={handleAddFile}
+            onRefresh={handleRefresh}
           />
         </div>
-        <div className="flex h-[600px] rounded-lg overflow-hidden border border-dark-border divide-x divide-dark-border">
-          {/* File List */}
-          <div className="w-[200px] grow h-full">
-            <FileTree
-              filesystem={nodepack?.getFilesystem()}
+        {/* Code Editor */}
+        <div className="w-1/2 h-full flex flex-col">
+          <FileTabs
+            openFiles={openFiles}
+            currentFile={currentFile}
+            onSelectTab={handleSelectTab}
+            onCloseTab={handleCloseTab}
+          />
+          <div className="flex-1 h-0 grow">
+            <CodeEditor
+              code={currentFileContent}
               currentFile={currentFile}
-              version={filesystemVersion}
-              onSelectFile={handleSelectFile}
-              onDeleteFile={handleDeleteFile}
-              onAddFile={handleAddFile}
-              onRefresh={handleRefresh}
-            />
-          </div>
-          {/* Code Editor */}
-          <div className="w-1/2 h-full flex flex-col">
-            <FileTabs
-              openFiles={openFiles}
-              currentFile={currentFile}
-              onSelectTab={handleSelectTab}
-              onCloseTab={handleCloseTab}
-            />
-            <div className="flex-1 h-0 grow">
-              <CodeEditor
-                code={currentFileContent}
-                currentFile={currentFile}
-                onChange={handleCodeChange}
-                onRun={() => handleRun("main.js")}
-                isRunning={isRunning}
-              />
-            </div>
-          </div>
-          {/* Terminal */}
-          <div className="w-1/3 h-full">
-            <Terminal
-              key={session}
-              ref={terminalRef}
-              filesystem={nodepack?.getFilesystem() || undefined}
-              onExecuteFile={handleExecuteFile}
-              onCommandExecuted={handleRefresh}
-              onInstallPackage={handleInstallPackage}
+              onChange={handleCodeChange}
+              onRun={() => handleRun("main.js")}
+              isRunning={isRunning}
             />
           </div>
         </div>
+        {/* Terminal */}
+        <div className="w-1/3 h-full">
+          <Terminal
+            key={session}
+            ref={terminalRef}
+            filesystem={nodepack?.getFilesystem() || undefined}
+            onExecuteFile={handleExecuteFile}
+            onCommandExecuted={handleRefresh}
+            onInstallPackage={handleInstallPackage}
+          />
+        </div>
+      </div>
+      <div className="flex justify-end">
+        <StatusBar
+          status={status}
+          isRunning={isRunning}
+          usingWorker={usingWorker}
+          onRun={() => {
+            handleRun("main.js");
+          }}
+        />
       </div>
     </div>
   );
