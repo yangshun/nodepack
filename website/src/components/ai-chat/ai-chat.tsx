@@ -7,6 +7,7 @@ import type { Nodepack } from '@nodepack/client';
 import type { TerminalHandle } from '../terminal/terminal';
 import { createAITools } from './ai-tools';
 import { AIConfig } from './ai-config';
+import { AILoadingIndicator } from './ai-loading-indicator';
 import clsx from 'clsx';
 import Markdown from 'react-markdown';
 import { VscArrowRight, VscClose } from 'react-icons/vsc';
@@ -308,7 +309,7 @@ export function AIChat({
             )}
           </div>
         ))}
-        {isLoading && <div className="text-xs text-gray-400 italic">Thinking...</div>}
+        {isLoading && <AILoadingIndicator />}
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}

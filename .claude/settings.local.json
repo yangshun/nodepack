@@ -39,7 +39,8 @@
       "Bash(pnpm --filter website build:*)",
       "WebFetch(domain:www.npmjs.com)",
       "Bash(pnpm ls:*)",
-      "Bash(npx vite build:*)"
+      "Bash(npx vite build:*)",
+      "Bash(cat:*)"
     ]
   }
 }
