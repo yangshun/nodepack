@@ -11,6 +11,7 @@ import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
 import { AIChat } from './components/ai-chat/ai-chat';
+import type { Message } from './components/ai-chat/ai-chat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import clsx from 'clsx';
 import { examples } from './examples';
@@ -40,6 +41,8 @@ export function App() {
 
   // AI Chat state
   const [aiChatVisible, setAiChatVisible] = useState(true);
+  const [aiMessages, setAiMessages] = useState<Message[]>([]);
+  const [aiInput, setAiInput] = useState('');
   const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(
     localStorage.getItem('anthropic_api_key'),
   );
@@ -619,6 +622,10 @@ export function App() {
                     apiKey={aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey}
                     provider={aiProvider}
                     model={aiModel}
+                    messages={aiMessages}
+                    setMessages={setAiMessages}
+                    input={aiInput}
+                    setInput={setAiInput}
                     onFileUpdate={handleRefresh}
                     onClose={() => setAiChatVisible(false)}
                     terminalRef={terminalRef}

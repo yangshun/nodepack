@@ -17,12 +17,16 @@ interface AIChatProps {
   apiKey: string | null;
   provider: 'anthropic' | 'openai';
   model: string;
+  messages: Message[];
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>;
+  input: string;
+  setInput: React.Dispatch<React.SetStateAction<string>>;
   onFileUpdate: () => void;
   onClose: () => void;
   terminalRef: React.RefObject<TerminalHandle>;
 }
 
-type MessagePart =
+export type MessagePart =
   | { type: 'text'; content: string }
   | {
       type: 'tool';
@@ -33,7 +37,7 @@ type MessagePart =
       result?: unknown;
     };
 
-interface Message {
+export interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
@@ -45,13 +49,15 @@ export function AIChat({
   apiKey,
   provider,
   model,
+  messages,
+  setMessages,
+  input,
+  setInput,
   onFileUpdate,
   onClose,
   terminalRef,
 }: AIChatProps) {
   const [showConfig, setShowConfig] = useState(!apiKey);
-  const [messages, setMessages] = useState<Message[]>([]);
-  const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
