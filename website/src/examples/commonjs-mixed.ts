@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const commonjsMixed: ExampleDefinition = {
   id: 'commonjs-mixed',
   label: 'Mixed ES + CommonJS',
-  code: `// You can mix ES imports and CommonJS requires!
+  files: {
+    'main.js': `// You can mix ES imports and CommonJS requires!
 
 // ES module import (from builtin)
 import { writeFileSync } from 'fs';
@@ -32,7 +33,6 @@ console.log('Process platform:', process.platform);
 // And use writeFileSync from ES import
 writeFileSync('/test.txt', 'Mixed modules work!');
 `,
-  files: {
     'helpers.js': `// CommonJS module
 exports.double = function(x) {
   return x * 2;

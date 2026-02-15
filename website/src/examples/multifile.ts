@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const multifile: ExampleDefinition = {
   id: 'multifile',
   label: 'Multi-file Import',
-  code: `// Import from our custom utility module
+  files: {
+    'main.js': `// Import from our custom utility module
 import { greet, add, multiply, PI, version } from './utils.js';
 
 console.log(greet('World'));
@@ -27,7 +28,6 @@ console.log('');
 console.log('Does /utils.js exist?', existsSync('/utils.js'));
 console.log('Does /math-helpers.js exist?', existsSync('/math-helpers.js'));
 `,
-  files: {
     'utils.js': `export function greet(name) {
   return 'Hello, ' + name + '!';
 }

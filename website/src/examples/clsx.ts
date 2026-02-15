@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const clsx: ExampleDefinition = {
   id: 'clsx',
   label: 'clsx',
-  code: `import { clsx } from 'clsx';
+  files: {
+    'main.js': `import { clsx } from 'clsx';
 
 console.log(clsx('foo', true && 'bar', 'baz'));
 //=> 'foo bar baz'
@@ -21,7 +22,6 @@ console.log(clsx(
 // Arrays
 console.log(clsx(['foo', 0, false, 'bar']));
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'clsx-example',

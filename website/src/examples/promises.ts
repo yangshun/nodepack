@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const promises: ExampleDefinition = {
   id: 'promises',
   label: 'Promises',
-  code: `// Promises example
+  files: {
+    'main.js': `// Promises example
 console.log('Creating a promise...');
 
 const basicPromise = new Promise((resolve) => {
@@ -18,7 +19,6 @@ basicPromise.then((result) => {
 
 console.log('Initialized promises...');
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'promises-example',

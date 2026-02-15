@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const multifileComplex: ExampleDefinition = {
   id: 'multifile-complex',
   label: 'Complex Module Dependencies',
-  code: `// Advanced example: Complex dependency graph with mixed module systems
+  files: {
+    'main.js': `// Advanced example: Complex dependency graph with mixed module systems
 // 4-layer architecture with alternating ES modules and CommonJS
 
 // Use the complete stack
@@ -40,7 +41,6 @@ console.log('  Fetch 999:', fetch2.status, fetch2.message);
 console.log('');
 console.log('✓ Complex mixed module dependencies work perfectly!');
 `,
-  files: {
     'base/logger.js': `// Layer 1: Base utilities (CommonJS)
 exports.log = function(message) {
   return '[LOG] ' + new Date().toISOString() + ' - ' + message;

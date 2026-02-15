@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const packageJson: ExampleDefinition = {
   id: 'package-json',
   label: 'Install package.json',
-  code: `// Install packages from package.json
+  files: {
+    'main.js': `// Install packages from package.json
 // Run: npm install
 // This will install both clsx and nanoid from the package.json
 
@@ -17,7 +18,6 @@ const classes = clsx({
 
 console.log('Class names:', classes);
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'example-project',

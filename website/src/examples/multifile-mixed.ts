@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const multifileMixed: ExampleDefinition = {
   id: 'multifile-mixed',
   label: 'Multi-file Mixed ESM/CJS',
-  code: `// Demonstrates mixing ES modules and CommonJS across multiple files
+  files: {
+    'main.js': `// Demonstrates mixing ES modules and CommonJS across multiple files
 // Files: string-utils.js (ES), math-lib.js (CJS), calculator.js (Mixed), formatter.js (ES)
 
 // Import from mixed module (uses both ES import and require internally)
@@ -43,7 +44,6 @@ console.log(' ', formatter.formatReversed('Hello'));
 console.log('');
 console.log('✓ ES modules and CommonJS work seamlessly together!');
 `,
-  files: {
     'string-utils.js': `// Pure ES module with named exports
 export function capitalize(str) {
   return str.charAt(0).toUpperCase() + str.slice(1);

@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const commonjsModules: ExampleDefinition = {
   id: 'commonjs-modules',
   label: 'CommonJS Local Modules',
-  code: `// Using require() with local modules
+  files: {
+    'main.js': `// Using require() with local modules
 
 // Require the modules (files are pre-created below)
 const math = require('./math.js');
@@ -29,7 +30,6 @@ module.exports = {
   greeting: utils.greet('CommonJS User')
 };
 `,
-  files: {
     'math.js': `// CommonJS module using exports.x pattern
 exports.add = function(a, b) {
   return a + b;

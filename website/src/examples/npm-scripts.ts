@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const npmScripts: ExampleDefinition = {
   id: 'npm-scripts',
   label: 'npm scripts',
-  code: `// NPM Script Support Demo
+  files: {
+    'main.js': `// NPM Script Support Demo
 // This example demonstrates running scripts from package.json
 
 const greet = (name) => {
@@ -15,7 +16,6 @@ const greet = (name) => {
 const result = greet('Nodepack User');
 console.log(\`Result: \${result}\`);
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'npm-scripts-example',

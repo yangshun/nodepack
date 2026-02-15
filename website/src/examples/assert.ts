@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const assert: ExampleDefinition = {
   id: 'assert',
   label: 'Assert (unit tests)',
-  code: `// Basic unit testing with Node.js assert module
+  files: {
+    'main.js': `// Basic unit testing with Node.js assert module
 import assert from 'assert';
 
 function add(a, b) {
@@ -31,7 +32,6 @@ assert.deepStrictEqual([1, 2, 3].map((n) => n * 2), [2, 4, 6]);
 assert.deepStrictEqual({ name: 'Alice', age: 30 }, { name: 'Alice', age: 30 });
 console.log('deep equality: all tests passed');
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'assert-example',

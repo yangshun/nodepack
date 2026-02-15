@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const builtInModules: ExampleDefinition = {
   id: 'modules',
   label: 'Built-in Modules',
-  code: `// Using ES module imports
+  files: {
+    'main.js': `// Using ES module imports
 import { join, dirname, basename, extname } from 'path';
 import process from 'process';
 
@@ -22,4 +23,5 @@ console.log('Platform:', process.platform);
 console.log('Version:', process.version);
 console.log('Working dir:', process.cwd());
 `,
+  },
 };

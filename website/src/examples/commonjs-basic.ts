@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const commonjsBasic: ExampleDefinition = {
   id: 'commonjs-basic',
   label: 'CommonJS require()',
-  code: `// CommonJS require() is now supported!
+  files: {
+    'main.js': `// CommonJS require() is now supported!
 const fs = require('fs');
 const path = require('path');
 const process = require('process');
@@ -23,4 +24,5 @@ console.log('Filename:', path.basename(fullPath));
 console.log('Platform:', process.platform);
 console.log('Working dir:', process.cwd());
 `,
+  },
 };

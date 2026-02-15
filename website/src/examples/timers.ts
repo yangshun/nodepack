@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const timers: ExampleDefinition = {
   id: 'timers',
   label: 'Timers',
-  code: `// Using setTimeout and setInterval
+  files: {
+    'main.js': `// Using setTimeout and setInterval
 let count = 0;
 
 console.log('Setting up timers...');
@@ -45,7 +46,6 @@ setTimeout(() => {
 
 console.log('All timers scheduled!');
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'timers',

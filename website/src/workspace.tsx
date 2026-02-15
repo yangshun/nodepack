@@ -5,7 +5,7 @@ import { Nodepack } from '@nodepack/client';
 import type { ExecutionResult } from '@nodepack/client';
 
 import { StatusBar } from './components/status-bar';
-import { FileTree } from './components/file-tree';
+import { Explorer } from './components/explorer';
 import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
@@ -23,10 +23,11 @@ import { RiChatAiLine } from 'react-icons/ri';
 (globalThis as any).process = process;
 
 interface WorkspaceProps {
+  title?: string;
   initialFiles: FileMap;
 }
 
-export function Workspace({ initialFiles }: WorkspaceProps) {
+export function Workspace({ title, initialFiles }: WorkspaceProps) {
   const [nodepack, setNodepack] = useState<Nodepack | null>(null);
   const [status, setStatus] = useState<RuntimeStatus>('initializing');
   const [isRunning, setIsRunning] = useState(false);
@@ -239,7 +240,9 @@ export function Workspace({ initialFiles }: WorkspaceProps) {
       return;
     }
 
-    if (!confirm(`Delete ${filename}?`)) return;
+    if (!confirm(`Delete ${filename}?`)) {
+      return;
+    }
 
     const newFiles = { ...files };
     delete newFiles[filename];
@@ -483,7 +486,8 @@ export function Workspace({ initialFiles }: WorkspaceProps) {
           {/* File List */}
           <Panel defaultSize="15%" minSize="10%" maxSize="40%">
             <div className="h-full">
-              <FileTree
+              <Explorer
+                title={title}
                 filesystem={nodepack?.getFilesystem()}
                 currentFile={currentFile}
                 version={filesystemVersion}

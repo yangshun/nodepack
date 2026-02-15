@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const lodash: ExampleDefinition = {
   id: 'packages',
   label: 'Lodash',
-  code: `import _ from 'lodash-es';
+  files: {
+    'main.js': `import _ from 'lodash-es';
 
 const numbers = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
 
@@ -23,7 +24,6 @@ console.log('');
 console.log('Unique:', _.uniq([1, 2, 2, 3, 3, 4, 4, 5]));
 console.log('Shuffle:', _.shuffle([1, 2, 3, 4, 5]));
 `,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'lodash-example',

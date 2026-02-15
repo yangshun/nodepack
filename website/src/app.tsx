@@ -18,17 +18,18 @@ function getInitialExampleId(): string {
 export function App() {
   const [selectedExampleId, setSelectedExampleId] = useState(getInitialExampleId);
 
-  const initialFiles = useMemo<FileMap>(() => {
-    const example = examples.find((ex) => ex.id === selectedExampleId);
+  const selectedExample = useMemo(
+    () => examples.find((ex) => ex.id === selectedExampleId),
+    [selectedExampleId],
+  );
 
-    if (!example) {
+  const initialFiles = useMemo<FileMap>(() => {
+    if (!selectedExample) {
       return { 'main.js': '' };
     }
 
-    return example.files
-      ? { 'main.js': example.code, ...example.files }
-      : { 'main.js': example.code };
-  }, [selectedExampleId]);
+    return selectedExample.files;
+  }, [selectedExample]);
 
   function handleSelectExample(exampleId: string) {
     setSelectedExampleId(exampleId);
@@ -47,7 +48,11 @@ export function App() {
         />
       </div>
       <div className="h-0 grow">
-        <Workspace key={selectedExampleId} initialFiles={initialFiles} />
+        <Workspace
+          key={selectedExampleId}
+          title={selectedExample?.label}
+          initialFiles={initialFiles}
+        />
       </div>
     </div>
   );

@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const npmBin: ExampleDefinition = {
   id: 'npm-bin',
   label: 'npm bin executables',
-  code: `// NPM Bin Field Support Demo
+  files: {
+    'main.js': `// NPM Bin Field Support Demo
 // This example demonstrates how installed packages can expose CLI executables
 
 // When you install a package with a "bin" field in its package.json,
@@ -31,7 +32,6 @@ console.log('');
 
 // Note: Some CLI tools may not work fully in the browser environment
 // This example demonstrates the bin field support mechanism`,
-  files: {
     'package.json': JSON.stringify(
       {
         name: 'npm-bin-demo',

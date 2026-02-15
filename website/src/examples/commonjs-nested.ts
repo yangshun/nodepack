@@ -3,7 +3,8 @@ import type { ExampleDefinition } from '../types';
 export const commonjsNested: ExampleDefinition = {
   id: 'commonjs-nested',
   label: 'Nested require() Calls',
-  code: `// Demonstrating nested requires and __filename/__dirname
+  files: {
+    'main.js': `// Demonstrating nested requires and __filename/__dirname
 
 // Require module A (which itself requires module B)
 const moduleA = require('./module-a.js');
@@ -27,7 +28,6 @@ console.log('✓ __filename and __dirname are properly set!');
 
 module.exports = info;
 `,
-  files: {
     'module-b.js': `// Module B - Has its own __filename and __dirname
 exports.name = 'Module B';
 exports.location = __dirname;
