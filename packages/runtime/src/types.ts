@@ -26,6 +26,7 @@ export interface RuntimeOptions {
   timeout?: number;
   onLog?: (message: string) => void; // Callback for streaming log updates
   filename?: string; // The file path being executed (for proper module resolution)
+  argv?: string[]; // Custom command-line arguments for process.argv
 }
 
 export interface NodeModule {

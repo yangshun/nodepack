@@ -235,4 +235,74 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.hasConstants).toBe(true);
     expect(result.data.hasFOK).toBe(true);
   });
+
+  test('support process.argv with default values (ESM)', async () => {
+    const fixture = loadFixture('builtins/process-argv');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('process.argv ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.hasArgv).toBe(true);
+    expect(result.data.argvLength).toBe(2);
+    expect(result.data.firstArg).toBe('node');
+    expect(result.data.secondArg).toBe('/main.js');
+    expect(result.data.thirdArg).toBe(undefined);
+  });
+
+  test('support process.argv with default values (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'process-argv/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('process.argv CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.hasArgv).toBe(true);
+    expect(result.data.argvLength).toBe(2);
+    expect(result.data.firstArg).toBe('node');
+    expect(result.data.secondArg).toBe('/main.js');
+    expect(result.data.thirdArg).toBe(undefined);
+  });
+
+  test('support process.argv with custom values (ESM)', async () => {
+    const fixture = loadFixture('builtins/process-argv');
+    const result = await runtime.execute(fixture.mainFile, {
+      argv: ['node', '/custom/script.js', '--flag', 'value', '123'],
+    });
+
+    if (!result.ok) {
+      console.log('process.argv custom ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.hasArgv).toBe(true);
+    expect(result.data.argvLength).toBe(5);
+    expect(result.data.firstArg).toBe('node');
+    expect(result.data.secondArg).toBe('/custom/script.js');
+    expect(result.data.thirdArg).toBe('--flag');
+    expect(result.data.argv).toEqual(['node', '/custom/script.js', '--flag', 'value', '123']);
+  });
+
+  test('support process.argv with custom values (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'process-argv/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode, {
+      argv: ['node', '/custom/script.js', '--debug', 'true'],
+    });
+
+    if (!result.ok) {
+      console.log('process.argv custom CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.hasArgv).toBe(true);
+    expect(result.data.argvLength).toBe(4);
+    expect(result.data.firstArg).toBe('node');
+    expect(result.data.secondArg).toBe('/custom/script.js');
+    expect(result.data.thirdArg).toBe('--debug');
+    expect(result.data.argv).toEqual(['node', '/custom/script.js', '--debug', 'true']);
+  });
 });

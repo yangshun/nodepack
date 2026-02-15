@@ -63,7 +63,7 @@ export function createProcessModule(
 
   // process.argv - command line arguments
   const argvArray = vm.newArray();
-  const argv = ['node', '/script.js'];
+  const argv = options.argv || ['node', '/main.js'];
   argv.forEach((arg, index) => {
     const argHandle = vm.newString(arg);
     vm.setProp(argvArray, index, argHandle);
