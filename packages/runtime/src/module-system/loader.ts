@@ -409,6 +409,20 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // querystring module
+    modules.set(
+      'querystring',
+      `
+      export const parse = globalThis.__nodepack_querystring.parse;
+      export const stringify = globalThis.__nodepack_querystring.stringify;
+      export const escape = globalThis.__nodepack_querystring.escape;
+      export const unescape = globalThis.__nodepack_querystring.unescape;
+      export const encode = globalThis.__nodepack_querystring.encode;
+      export const decode = globalThis.__nodepack_querystring.decode;
+      export default globalThis.__nodepack_querystring;
+    `,
+    );
+
     return modules;
   }
 

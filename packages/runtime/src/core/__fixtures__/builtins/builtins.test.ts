@@ -477,4 +477,86 @@ describe('NodepackRuntime - Built-in modules', () => {
     // node: protocol test
     expect(result.data.nodeProtocolWorks).toBe(true);
   });
+
+  test('support querystring module (ESM)', async () => {
+    const fixture = loadFixture('builtins/querystring');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('Querystring ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasParse).toBe(true);
+    expect(result.data.hasStringify).toBe(true);
+    expect(result.data.hasEscape).toBe(true);
+    expect(result.data.hasUnescape).toBe(true);
+    expect(result.data.hasEncode).toBe(true);
+    expect(result.data.hasDecode).toBe(true);
+    expect(result.data.hasDefault).toBe(true);
+
+    // Parse tests
+    expect(result.data.parseBasicCorrect).toBe(true);
+    expect(result.data.duplicateKeysIsArray).toBe(true);
+    expect(result.data.duplicateKeysLength).toBe(3);
+    expect(result.data.duplicateKeysValues).toBe(true);
+    expect(result.data.customSepCorrect).toBe(true);
+    expect(result.data.maxKeysRespected).toBe(3);
+    expect(result.data.emptyParseIsObject).toBe(true);
+    expect(result.data.missingValueCorrect).toBe(true);
+    expect(result.data.noEqualsCorrect).toBe(true);
+    expect(result.data.encodedParseCorrect).toBe(true);
+
+    // Stringify tests
+    expect(result.data.stringifyBasicCorrect).toBe(true);
+    expect(result.data.arrayStringifyCorrect).toBe(true);
+    expect(result.data.customStringifyCorrect).toBe(true);
+    expect(result.data.nullUndefinedCorrect).toBe(true);
+    expect(result.data.emptyStringifyCorrect).toBe(true);
+
+    // Escape/Unescape tests
+    expect(result.data.escapeSpace).toBe(true);
+    expect(result.data.escapeSpecialChars).toBe(true);
+    expect(result.data.unescapePlus).toBe(true);
+    expect(result.data.unescapePercent).toBe(true);
+
+    // Aliases work
+    expect(result.data.encodeIsAlias).toBe(true);
+    expect(result.data.decodeIsAlias).toBe(true);
+  });
+
+  test('support querystring module (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'querystring/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('Querystring CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasParse).toBe(true);
+    expect(result.data.hasStringify).toBe(true);
+    expect(result.data.hasEscape).toBe(true);
+    expect(result.data.hasUnescape).toBe(true);
+    expect(result.data.hasDefault).toBe(true);
+
+    // Return types
+    expect(result.data.parseIsObject).toBe(true);
+    expect(result.data.stringifyIsString).toBe(true);
+    expect(result.data.escapeIsString).toBe(true);
+    expect(result.data.unescapeIsString).toBe(true);
+
+    // Specific checks
+    expect(result.data.parseCorrect).toBe(true);
+    expect(result.data.stringifyCorrect).toBe(true);
+    expect(result.data.escapeCorrect).toBe(true);
+    expect(result.data.unescapeCorrect).toBe(true);
+
+    // node: protocol test
+    expect(result.data.nodeProtocolWorks).toBe(true);
+  });
 });

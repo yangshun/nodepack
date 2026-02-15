@@ -14,5 +14,6 @@ export { createChildProcessModule } from './child_process.js';
 export { createAssertModule } from './assert.js';
 export { createCryptoModule } from './crypto.js';
 export { createOsModule } from './os.js';
+export { createQuerystringModule } from './querystring.js';
 export { createGlobalModule, addModuleFunction } from './helpers.js';
 export type { ModuleFactory } from './helpers.js';
