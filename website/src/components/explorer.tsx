@@ -182,7 +182,7 @@ export function Explorer({
       </div>
       {Object.keys(npmScripts).length > 0 && (
         <div className="flex flex-col gap-0.5 border-t border-dark-border py-2">
-          <div className="px-2 text-xs text-gray-400 font-medium uppercase">npm Scripts</div>
+          <div className="px-3 text-xs text-gray-400 font-medium uppercase">npm Scripts</div>
           <div className="px-2 space-y-1">
             {Object.entries(npmScripts).map(([name, command]) => (
               <button
