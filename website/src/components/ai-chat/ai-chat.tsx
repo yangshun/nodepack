@@ -73,13 +73,13 @@ export function AIChat({
       <div className="h-10 pl-3 pr-2 py-2 border-b border-dark-border flex justify-between items-center">
         <h2 className="text-xs font-medium">AI assistant</h2>
         <div className="flex items-center gap-1">
-          <button
+          {/* <button
             onClick={() => setShowConfig(true)}
             className="btn-tertiary px-2"
             title="AI settings"
           >
             {provider === 'anthropic' ? 'Claude' : 'GPT'}
-          </button>
+          </button> */}
           <button onClick={onClose} className="btn-tertiary" title="Close sidebar">
             <VscClose className="size-4" />
           </button>
