@@ -1,10 +1,7 @@
 'use client';
 
-import { useRef, useEffect, useState, useMemo } from 'react';
-import { useChat } from '@ai-sdk/react';
-import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
-import type { Nodepack } from '@nodepack/client';
-import type { TerminalHandle } from '../terminal/terminal';
+import { useRef, useEffect, useState } from 'react';
+import type { useChat } from '@ai-sdk/react';
 import { AIConfig } from './ai-config';
 import { AILoadingIndicator } from './ai-loading-indicator';
 import clsx from 'clsx';
@@ -22,150 +19,27 @@ const TOOLS: Record<string, { title: string; detailKey: string }> = {
 };
 
 interface AIChatProps {
-  nodepack: Nodepack | null;
   apiKey: string | null;
   hasServerKeys: boolean;
   provider: 'anthropic' | 'openai';
-  model: string;
-  onFileUpdate: () => void;
   onClose: () => void;
-  terminalRef: React.RefObject<TerminalHandle | null>;
+  messages: ReturnType<typeof useChat>['messages'];
+  sendMessage: ReturnType<typeof useChat>['sendMessage'];
+  status: ReturnType<typeof useChat>['status'];
 }
 
 export function AIChat({
-  nodepack,
   apiKey,
   hasServerKeys,
   provider,
-  model,
-  onFileUpdate,
   onClose,
-  terminalRef,
+  messages,
+  sendMessage,
+  status,
 }: AIChatProps) {
   const [showConfig, setShowConfig] = useState(!apiKey && !hasServerKeys);
   const [input, setInput] = useState('');
   const messagesEndRef = useRef<HTMLDivElement>(null);
-
-  const transport = useMemo(
-    () =>
-      new DefaultChatTransport({
-        api: '/api/chat',
-        body: {
-          provider,
-          model,
-          apiKey,
-        },
-      }),
-    [provider, model, apiKey],
-  );
-
-  const { messages, sendMessage, addToolOutput, status } = useChat({
-    transport,
-    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
-
-    async onToolCall({ toolCall }) {
-      if (toolCall.dynamic) {
-        return;
-      }
-
-      const { toolCallId, toolName } = toolCall;
-
-      async function executeToolCall(): Promise<string> {
-        if (!nodepack) {
-          return 'Error: Runtime not initialized';
-        }
-
-        switch (toolName) {
-          case 'readFile': {
-            const { path } = toolCall.input as { path: string };
-            const fs = nodepack.getFilesystem();
-            return fs.readFileSync(path, 'utf8') as string;
-          }
-          case 'writeFile': {
-            const { path, content } = toolCall.input as {
-              path: string;
-              content: string;
-            };
-            const fs = nodepack.getFilesystem();
-            const dir = path.substring(0, path.lastIndexOf('/'));
-            if (dir && !fs.existsSync(dir)) {
-              fs.mkdirSync(dir, { recursive: true });
-            }
-            fs.writeFileSync(path, content);
-            onFileUpdate();
-            return `File written: ${path}`;
-          }
-          case 'listDirectory': {
-            const { path } = toolCall.input as { path: string };
-            const fs = nodepack.getFilesystem();
-            const entries = fs.readdirSync(path);
-            return JSON.stringify(entries, null, 2);
-          }
-          case 'executeCode': {
-            const { filepath } = toolCall.input as { filepath: string };
-            const fs = nodepack.getFilesystem();
-            const code = fs.readFileSync(filepath, 'utf8');
-            const execResult = await nodepack.execute(code, {
-              filename: filepath,
-              onLog: (msg: string) => {
-                terminalRef.current?.writeOutput(msg);
-              },
-            });
-            return JSON.stringify(
-              {
-                success: execResult.ok,
-                output: execResult.ok ? execResult.data : execResult.error,
-                logs: execResult.logs,
-              },
-              null,
-              2,
-            );
-          }
-          case 'installPackage': {
-            const { packageName } = toolCall.input as {
-              packageName?: string;
-            };
-            if (packageName) {
-              await nodepack.npm!.install(packageName);
-              onFileUpdate();
-              return `Package installed: ${packageName}`;
-            } else {
-              const fs = nodepack.getFilesystem();
-              const pkgJson = fs.readFileSync('/package.json', 'utf8');
-              await nodepack.npm!.installFromPackageJson(pkgJson);
-              onFileUpdate();
-              return 'Packages installed from package.json';
-            }
-          }
-          case 'runBashCommand': {
-            const { command } = toolCall.input as { command: string };
-            await terminalRef.current?.executeCommand(command);
-            return `Command executed: ${command}\nOutput visible in terminal panel.`;
-          }
-          default:
-            return `Unknown tool: ${toolName}`;
-        }
-      }
-
-      try {
-        const output = await executeToolCall();
-        // Do not await addToolOutput inside onToolCall to avoid deadlocks.
-        // sendAutomaticallyWhen handles sending the follow-up request.
-        addToolOutput({
-          tool: toolName,
-          toolCallId,
-          output,
-        });
-      } catch (error: any) {
-        addToolOutput({
-          state: 'output-error',
-          tool: toolName,
-          toolCallId,
-          errorText: error.message,
-        });
-      }
-    },
-  });
 
   // Auto-scroll to bottom when messages change
   useEffect(() => {

@@ -5,6 +5,8 @@ import { Buffer } from 'buffer';
 import process from 'process';
 import { Nodepack } from '@nodepack/client';
 import type { ExecutionResult } from '@nodepack/client';
+import { useChat } from '@ai-sdk/react';
+import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 
 import { StatusBar } from './components/status-bar';
 import { Explorer } from './components/explorer';
@@ -471,6 +473,135 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
 
   const apiKey = aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey;
 
+  // AI Chat transport
+  const transport = useMemo(
+    () =>
+      new DefaultChatTransport({
+        api: '/api/chat',
+        body: {
+          provider: aiProvider,
+          model: aiModel,
+          apiKey,
+        },
+      }),
+    [aiProvider, aiModel, apiKey],
+  );
+
+  // AI Chat hook - state persists even when sidebar is closed
+  const {
+    messages,
+    sendMessage,
+    addToolOutput,
+    status: chatStatus,
+  } = useChat({
+    transport,
+    sendAutomaticallyWhen: lastAssistantMessageIsCompleteWithToolCalls,
+    async onToolCall({ toolCall }) {
+      if (toolCall.dynamic) {
+        return;
+      }
+
+      const { toolCallId, toolName } = toolCall;
+
+      async function executeToolCall(): Promise<string> {
+        if (!nodepack) {
+          return 'Error: Runtime not initialized';
+        }
+
+        switch (toolName) {
+          case 'readFile': {
+            const { path } = toolCall.input as { path: string };
+            const fs = nodepack.getFilesystem();
+
+            return fs.readFileSync(path, 'utf8') as string;
+          }
+          case 'writeFile': {
+            const { path, content } = toolCall.input as {
+              path: string;
+              content: string;
+            };
+            const fs = nodepack.getFilesystem();
+            const dir = path.substring(0, path.lastIndexOf('/'));
+            if (dir && !fs.existsSync(dir)) {
+              fs.mkdirSync(dir, { recursive: true });
+            }
+            fs.writeFileSync(path, content);
+            handleRefresh();
+
+            return `File written: ${path}`;
+          }
+          case 'listDirectory': {
+            const { path } = toolCall.input as { path: string };
+            const fs = nodepack.getFilesystem();
+            const entries = fs.readdirSync(path);
+
+            return JSON.stringify(entries, null, 2);
+          }
+          case 'executeCode': {
+            const { filepath } = toolCall.input as { filepath: string };
+            const fs = nodepack.getFilesystem();
+            const code = fs.readFileSync(filepath, 'utf8');
+            const execResult = await nodepack.execute(code, {
+              filename: filepath,
+              onLog: (msg: string) => {
+                terminalRef.current?.writeOutput(msg);
+              },
+            });
+
+            return JSON.stringify(
+              {
+                success: execResult.ok,
+                output: execResult.ok ? execResult.data : execResult.error,
+                logs: execResult.logs,
+              },
+              null,
+              2,
+            );
+          }
+          case 'installPackage': {
+            const { packageName } = toolCall.input as {
+              packageName?: string;
+            };
+            if (packageName) {
+              await nodepack.npm!.install(packageName);
+              handleRefresh();
+              return `Package installed: ${packageName}`;
+            }
+
+            const fs = nodepack.getFilesystem();
+            const pkgJson = fs.readFileSync('/package.json', 'utf8');
+            await nodepack.npm!.installFromPackageJson(pkgJson);
+            handleRefresh();
+            return 'Packages installed from package.json';
+          }
+          case 'runBashCommand': {
+            const { command } = toolCall.input as { command: string };
+            await terminalRef.current?.executeCommand(command);
+            return `Command executed: ${command}\nOutput visible in terminal panel.`;
+          }
+          default:
+            return `Unknown tool: ${toolName}`;
+        }
+      }
+
+      try {
+        const output = await executeToolCall();
+        addToolOutput({
+          tool: toolName,
+          toolCallId,
+          output,
+        });
+      } catch (error: any) {
+        addToolOutput({
+          state: 'output-error',
+          tool: toolName,
+          toolCallId,
+          errorText: error.message,
+        });
+      }
+    },
+  });
+
   return (
     <div className="h-full flex flex-col">
       <div className="h-0 grow rounded-lg overflow-hidden border border-dark-border">
@@ -561,14 +692,13 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
               <Panel defaultSize="20%" minSize="15%" maxSize="40%">
                 <div className="h-full">
                   <AIChat
-                    nodepack={nodepack}
                     apiKey={apiKey}
                     hasServerKeys={true}
                     provider={aiProvider}
-                    model={aiModel}
-                    onFileUpdate={handleRefresh}
                     onClose={() => setAiChatVisible(false)}
-                    terminalRef={terminalRef}
+                    messages={messages}
+                    sendMessage={sendMessage}
+                    status={chatStatus}
                   />
                 </div>
               </Panel>
