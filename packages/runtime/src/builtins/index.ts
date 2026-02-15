@@ -12,5 +12,6 @@ export { createBufferModule } from './buffer.js';
 export { createUtilModule } from './util.js';
 export { createChildProcessModule } from './child_process.js';
 export { createAssertModule } from './assert.js';
+export { createCryptoModule } from './crypto.js';
 export { createGlobalModule, addModuleFunction } from './helpers.js';
 export type { ModuleFactory } from './helpers.js';

@@ -18,6 +18,7 @@ import {
   createUtilModule,
   createChildProcessModule,
   createAssertModule,
+  createCryptoModule,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
 import { NodepackModuleLoader } from '../module-system/loader.js';
@@ -98,6 +99,11 @@ export function setupVMContext(
   const assertHandle = createAssertModule(vm);
   vm.setProp(vm.global, '__nodepack_assert', assertHandle);
   assertHandle.dispose();
+
+  // Set up crypto builtin
+  const cryptoHandle = createCryptoModule(vm);
+  vm.setProp(vm.global, '__nodepack_crypto', cryptoHandle);
+  cryptoHandle.dispose();
 
   // Set up CommonJS module executor function
   // This is called from require() to execute CommonJS modules

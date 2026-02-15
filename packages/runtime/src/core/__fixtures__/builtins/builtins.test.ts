@@ -305,4 +305,88 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.thirdArg).toBe('--debug');
     expect(result.data.argv).toEqual(['node', '/custom/script.js', '--debug', 'true']);
   });
+
+  test('support crypto module (ESM)', async () => {
+    const fixture = loadFixture('builtins/crypto');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('Crypto ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasCreateHash).toBe(true);
+    expect(result.data.hasCreateHmac).toBe(true);
+    expect(result.data.hasRandomBytes).toBe(true);
+    expect(result.data.hasRandomUUID).toBe(true);
+    expect(result.data.hasCryptoDefault).toBe(true);
+
+    // Streaming works
+    expect(result.data.streamingWorks).toBe(true);
+
+    // Known hash values
+    expect(result.data.sha256Correct).toBe(true);
+    expect(result.data.sha256TestCorrect).toBe(true);
+    expect(result.data.md5TestCorrect).toBe(true);
+
+    // Hash lengths
+    expect(result.data.sha1Length).toBe(40);
+    expect(result.data.sha512Length).toBe(128);
+    expect(result.data.sha384Length).toBe(96);
+
+    // Encoding tests
+    expect(result.data.base64Works).toBe(true);
+
+    // HMAC tests
+    expect(result.data.hmacWorks).toBe(true);
+    expect(result.data.hmacStreamingWorks).toBe(true);
+
+    // Random tests
+    expect(result.data.randomBytesWorks).toBe(true);
+    expect(result.data.randomBytesLength).toBe(16);
+    expect(result.data.uuidValid).toBe(true);
+    expect(result.data.uuidsUnique).toBe(true);
+
+    // Error handling
+    expect(result.data.doubleDigestThrows).toBe(true);
+    expect(result.data.invalidAlgoThrows).toBe(true);
+    expect(result.data.hmacDoubleDigestThrows).toBe(true);
+    expect(result.data.invalidSizeThrows).toBe(true);
+  });
+
+  test('support crypto module (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'crypto/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('Crypto CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasCreateHash).toBe(true);
+    expect(result.data.hasCreateHmac).toBe(true);
+    expect(result.data.hasRandomBytes).toBe(true);
+    expect(result.data.hasRandomUUID).toBe(true);
+    expect(result.data.hasCryptoDefault).toBe(true);
+
+    // Streaming works
+    expect(result.data.streamingWorks).toBe(true);
+
+    // Known hash values
+    expect(result.data.sha256Correct).toBe(true);
+    expect(result.data.sha256TestCorrect).toBe(true);
+    expect(result.data.md5TestCorrect).toBe(true);
+
+    // HMAC and random tests
+    expect(result.data.hmacWorks).toBe(true);
+    expect(result.data.randomBytesWorks).toBe(true);
+    expect(result.data.uuidValid).toBe(true);
+
+    // node: protocol test
+    expect(result.data.nodeProtocolWorks).toBe(true);
+  });
 });

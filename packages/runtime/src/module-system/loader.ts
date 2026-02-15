@@ -372,6 +372,18 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // crypto module
+    modules.set(
+      'crypto',
+      `
+      export const createHash = globalThis.__nodepack_crypto.createHash;
+      export const createHmac = globalThis.__nodepack_crypto.createHmac;
+      export const randomBytes = globalThis.__nodepack_crypto.randomBytes;
+      export const randomUUID = globalThis.__nodepack_crypto.randomUUID;
+      export default globalThis.__nodepack_crypto;
+    `,
+    );
+
     return modules;
   }
 
