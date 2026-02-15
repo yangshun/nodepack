@@ -6,7 +6,7 @@ import { buildFileTree } from '../utils/filesystem-tree';
 import { VscNewFile, VscRefresh, VscFile, VscJson, VscMarkdown } from 'react-icons/vsc';
 import type { IconType } from 'react-icons';
 import { DiJavascript1 } from 'react-icons/di';
-import { SiTypescript } from 'react-icons/si';
+import { BiLogoTypescript } from 'react-icons/bi';
 
 function getFileIcon(filename: string): IconType {
   const ext = filename.split('.').pop()?.toLowerCase();
@@ -21,7 +21,7 @@ function getFileIcon(filename: string): IconType {
     case 'tsx':
     case 'mts':
     case 'cts':
-      return SiTypescript;
+      return BiLogoTypescript;
     case 'json':
     case 'jsonc':
       return VscJson;
@@ -121,7 +121,7 @@ export function FileTree({
 
   return (
     <div className="h-full flex flex-col">
-      <div className="h-10 p-2 border-b border-dark-border flex gap-2">
+      <div className="h-10 p-2 border-b border-dark-border flex gap-1">
         <button onClick={onAddFile} className="btn-secondary text-xs p-1" title="Add new file">
           <VscNewFile className="size-4" />
         </button>
@@ -133,13 +133,13 @@ export function FileTree({
           <VscRefresh className="size-4" />
         </button>
       </div>
-      <div className="p-2 border-b border-dark-border">
+      <div className="pt-2 px-2">
         <input
           type="text"
           value={packageName}
           onChange={(e) => setPackageName(e.target.value)}
           placeholder="Install package (e.g., clsx, zod)"
-          className="w-full px-2 py-1 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-orange-500"
+          className="w-full px-2 py-2 bg-dark-bg border border-dark-border rounded text-xs focus:outline-none focus:border-orange-500"
           disabled={installDisabled}
           onKeyDown={(e) => {
             if (e.key === 'Enter' && packageName.trim()) {
@@ -227,7 +227,7 @@ function FileTreeNode({
       <>
         <li
           className={clsx(
-            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-sm hover:bg-dark-hover',
+            'flex items-center gap-1 pr-2 py-0.5 rounded cursor-pointer transition-colors text-xs hover:bg-dark-hover',
             {
               'bg-gray-500/20 text-orange-400': isSelected,
             },
@@ -264,13 +264,13 @@ function FileTreeNode({
   return (
     <li
       className={clsx(
-        'flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-sm',
+        'flex items-center justify-between py-0.5 rounded cursor-pointer transition-colors text-xs',
         {
           'bg-gray-500/20 text-orange-400': isSelected,
           'hover:bg-dark-hover': !isSelected,
         },
       )}
-      style={{ paddingLeft: `${paddingLeft + 6}px` }}
+      style={{ paddingLeft: `${paddingLeft}px` }}
       onClick={() => onSelectFile(node.path)}
     >
       <div className="flex items-center gap-1 truncate">

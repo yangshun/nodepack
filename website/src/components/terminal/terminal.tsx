@@ -380,16 +380,14 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }
 
     return (
-      <div className="flex flex-col h-full">
-        <div className="h-10 p-2 border-b border-dark-border flex justify-end gap-2">
-          <button
-            onClick={handleClear}
-            className="btn-secondary text-xs p-1"
-            title="Clear terminal (Cmd/Ctrl + L)"
-          >
-            <VscCircleSlash className="size-4" />
-          </button>
-        </div>
+      <div className="relative flex flex-col h-full w-full">
+        <button
+          onClick={handleClear}
+          className="z-10 absolute top-1.5 right-1.5 btn-secondary text-xs p-1"
+          title="Clear terminal (Cmd/Ctrl + L)"
+        >
+          <VscCircleSlash className="size-4" />
+        </button>
         <div ref={terminalRef} className="flex-1 overflow-hidden p-2 bg-dark-bg" />
       </div>
     );

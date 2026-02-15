@@ -8,6 +8,7 @@ import type { TerminalHandle } from '../terminal/terminal';
 import { createTools } from './tools';
 import { APIConfig } from './api-config';
 import clsx from 'clsx';
+import { VscArrowRight } from 'react-icons/vsc';
 
 interface AIChatProps {
   nodepack: Nodepack | null;
@@ -233,29 +234,30 @@ export function AIChat({
         <div ref={messagesEndRef} />
       </div>
       {/* Input */}
-      <div className="border-t border-dark-border p-2">
-        <form onSubmit={handleSubmit} className="flex flex-col gap-2">
-          <textarea
-            value={input}
-            onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask me anything about your code..."
-            className="text-xs w-full bg-dark-bg text-white border border-dark-border rounded p-2 resize-none focus:outline-none focus:ring-2 focus:ring-orange-500 min-h-[60px]"
-            onKeyDown={(e) => {
-              if (e.key === 'Enter' && !e.shiftKey) {
-                e.preventDefault();
-                handleSubmit(e);
-              }
-            }}
-          />
-          <button
-            type="submit"
-            disabled={isLoading || !input.trim()}
-            className="self-end px-2 rounded-full py-0.5 bg-white text-gray-800 hover:bg-orange-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
-          >
-            {isLoading ? 'Thinking...' : 'Send'}
-          </button>
-        </form>
-      </div>
+      <form
+        onSubmit={handleSubmit}
+        className="flex flex-col gap-2 border border-dark-border p-2 m-2 rounded focus-within:ring-1 focus-within:ring-orange-500 "
+      >
+        <textarea
+          value={input}
+          onChange={(e) => setInput(e.target.value)}
+          placeholder="Ask me anything about your code..."
+          className="text-xs w-full bg-dark-bg text-white rounded resize-none focus:outline-none min-h-[40px]"
+          onKeyDown={(e) => {
+            if (e.key === 'Enter' && !e.shiftKey) {
+              e.preventDefault();
+              handleSubmit(e);
+            }
+          }}
+        />
+        <button
+          type="submit"
+          disabled={isLoading || !input.trim()}
+          className="self-end p-1.5 rounded bg-gray-200 hover:bg-white text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+        >
+          {isLoading ? 'Thinking...' : <VscArrowRight className="size-4" />}
+        </button>
+      </form>
     </div>
   );
 }
