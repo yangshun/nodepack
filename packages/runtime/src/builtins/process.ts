@@ -116,5 +116,83 @@ export function createProcessModule(
     throw new Error(`Process exited with code ${code}`);
   });
 
+  // process.stdout - standard output stream
+  const stdoutCode = `
+    (function() {
+      const stdout = {
+        isTTY: false,
+        columns: 80,
+        rows: 24,
+        write: function(str) {
+          console.log(str);
+          return true;
+        },
+        hasColors: function(depth) {
+          // In browser environment, assume no color support by default
+          // Can be overridden based on browser console capabilities
+          return false;
+        }
+      };
+      return stdout;
+    })()
+  `;
+  const stdoutResult = vm.evalCode(stdoutCode);
+  if (stdoutResult.error) {
+    stdoutResult.error.dispose();
+    throw new Error('Failed to create stdout');
+  }
+  vm.setProp(processObj, 'stdout', stdoutResult.value);
+  stdoutResult.value.dispose();
+
+  // process.stderr - standard error stream
+  const stderrCode = `
+    (function() {
+      const stderr = {
+        isTTY: false,
+        columns: 80,
+        rows: 24,
+        write: function(str) {
+          console.error(str);
+          return true;
+        },
+        hasColors: function(depth) {
+          // In browser environment, assume no color support by default
+          return false;
+        }
+      };
+      return stderr;
+    })()
+  `;
+  const stderrResult = vm.evalCode(stderrCode);
+  if (stderrResult.error) {
+    stderrResult.error.dispose();
+    throw new Error('Failed to create stderr');
+  }
+  vm.setProp(processObj, 'stderr', stderrResult.value);
+  stderrResult.value.dispose();
+
+  // process.stdin - standard input stream (stub)
+  const stdinCode = `
+    (function() {
+      const stdin = {
+        isTTY: false,
+        read: function() {
+          return null;
+        },
+        pause: function() {},
+        resume: function() {},
+        setEncoding: function(encoding) {}
+      };
+      return stdin;
+    })()
+  `;
+  const stdinResult = vm.evalCode(stdinCode);
+  if (stdinResult.error) {
+    stdinResult.error.dispose();
+    throw new Error('Failed to create stdin');
+  }
+  vm.setProp(processObj, 'stdin', stdinResult.value);
+  stdinResult.value.dispose();
+
   return processObj;
 }

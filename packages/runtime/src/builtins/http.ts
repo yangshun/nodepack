@@ -11,7 +11,12 @@ export function createHttpModule(vm: QuickJSContext): QuickJSHandle {
   const fetchRequest = vm.newFunction('__http_fetch', (optionsHandle) => {
     const options = vm.dump(optionsHandle);
 
-    const url = options.protocol + '//' + options.hostname + (options.port ? ':' + options.port : '') + (options.path || '/');
+    const url =
+      options.protocol +
+      '//' +
+      options.hostname +
+      (options.port ? ':' + options.port : '') +
+      (options.path || '/');
     const method = options.method || 'GET';
     const headers = options.headers || {};
 
@@ -38,6 +43,7 @@ export function createHttpModule(vm: QuickJSContext): QuickJSHandle {
 
     // Convert to QuickJS promise
     const promiseHandle = vm.newPromise();
+    // @ts-ignore
     promiseHandle.resolve(fetchPromise);
 
     return promiseHandle.handle;

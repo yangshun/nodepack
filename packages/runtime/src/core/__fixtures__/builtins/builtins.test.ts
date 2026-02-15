@@ -722,4 +722,70 @@ describe('NodepackRuntime - Built-in modules', () => {
     // node: protocol test
     expect(result.data.nodeProtocolWorks).toBe(true);
   });
+
+  test('support process.stdout and process.stderr (ESM)', async () => {
+    const fixture = loadFixture('builtins/process');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('Process stdout/stderr ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // stdout tests
+    expect(result.data.stdoutWriteWorks).toBe(true);
+    expect(result.data.stdoutIsTTY).toBe(true);
+    expect(result.data.stdoutColumns).toBe(true);
+    expect(result.data.stdoutRows).toBe(true);
+    expect(result.data.stdoutHasColorsFunction).toBe(true);
+    expect(result.data.stdoutHasColorsReturnsFalse).toBe(true);
+
+    // stderr tests
+    expect(result.data.stderrWriteWorks).toBe(true);
+    expect(result.data.stderrIsTTY).toBe(true);
+    expect(result.data.stderrColumns).toBe(true);
+    expect(result.data.stderrRows).toBe(true);
+    expect(result.data.stderrHasColorsFunction).toBe(true);
+    expect(result.data.stderrHasColorsReturnsFalse).toBe(true);
+
+    // stdin tests
+    expect(result.data.stdinIsTTY).toBe(true);
+    expect(result.data.stdinHasRead).toBe(true);
+    expect(result.data.stdinHasPause).toBe(true);
+    expect(result.data.stdinHasResume).toBe(true);
+  });
+
+  test('support process.stdout and process.stderr (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'process/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('Process stdout/stderr CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // stdout tests
+    expect(result.data.stdoutWriteWorks).toBe(true);
+    expect(result.data.stdoutIsTTY).toBe(true);
+    expect(result.data.stdoutColumns).toBe(true);
+    expect(result.data.stdoutRows).toBe(true);
+    expect(result.data.stdoutHasColorsFunction).toBe(true);
+    expect(result.data.stdoutHasColorsReturnsFalse).toBe(true);
+
+    // stderr tests
+    expect(result.data.stderrWriteWorks).toBe(true);
+    expect(result.data.stderrIsTTY).toBe(true);
+    expect(result.data.stderrColumns).toBe(true);
+    expect(result.data.stderrRows).toBe(true);
+    expect(result.data.stderrHasColorsFunction).toBe(true);
+    expect(result.data.stderrHasColorsReturnsFalse).toBe(true);
+
+    // stdin tests
+    expect(result.data.stdinIsTTY).toBe(true);
+    expect(result.data.stdinHasRead).toBe(true);
+    expect(result.data.stdinHasPause).toBe(true);
+    expect(result.data.stdinHasResume).toBe(true);
+  });
 });
