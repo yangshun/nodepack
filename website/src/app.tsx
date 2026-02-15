@@ -12,11 +12,13 @@ import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
 import { AIChat } from './components/ai-chat/ai-chat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
+import clsx from 'clsx';
 import { examples } from './examples';
 import { FileMap, RuntimeStatus } from './types';
 
 // Import worker
 import nodepackWorkerUrl from '../../packages/worker/dist/runtime-worker.js?worker&url';
+import { RiChatAiFill, RiChatAiLine } from 'react-icons/ri';
 
 // Set up Node.js globals
 (globalThis as any).Buffer = Buffer;
@@ -546,6 +548,16 @@ export function App() {
         <div className="flex items-center gap-4">
           <ExampleButtons onSelectExample={handleSelectExample} />
         </div>
+        <button
+          onClick={() => setAiChatVisible((prev) => !prev)}
+          className={clsx(
+            'p-1.5 rounded hover:bg-dark-hover transition-colors',
+            aiChatVisible ? 'text-orange-500' : 'text-gray-400',
+          )}
+          title={aiChatVisible ? 'Hide AI assistant' : 'Show AI assistant'}
+        >
+          <RiChatAiLine size={18} />
+        </button>
       </div>
       <div className="h-0 grow rounded-lg overflow-hidden border border-dark-border">
         <Group orientation="horizontal">
