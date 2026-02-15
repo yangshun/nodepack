@@ -14,7 +14,7 @@ import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Bash } from 'just-bash';
 import type { IFs } from 'memfs';
 import { VscCircleSlash } from 'react-icons/vsc';
-import type { ExecutionResult } from '@nodepack/client';
+import type { ExecutionResult, RuntimeOptions } from '@nodepack/client';
 
 import 'xterm/css/xterm.css';
 
@@ -25,7 +25,7 @@ import { bashSecurityConfig } from './security-config';
 export interface TerminalProps {
   filesystem?: IFs;
   onReady?: () => void;
-  onExecuteFile?: (filepath: string) => Promise<ExecutionResult>;
+  onExecuteFile?: (filepath: string, options?: RuntimeOptions) => Promise<ExecutionResult>;
   onCommandExecuted?: () => void;
   onInstallPackage?: (packageName?: string) => Promise<void>;
 }
@@ -133,7 +133,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               if (args.length === 0) {
                 return {
                   stdout: '',
-                  stderr: 'Usage: node <filename>\n',
+                  stderr: 'Usage: node <filename> [args...]\n',
                   exitCode: 1,
                 };
               }
@@ -164,9 +164,12 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 };
               }
 
+              // Prepare argv array: ['node', filepath, ...additionalArgs]
+              const argv = ['node', filepath, ...args.slice(1)];
+
               // Execute the file
               try {
-                const result = await onExecuteFile(filepath);
+                const result = await onExecuteFile(filepath, { argv });
 
                 if (result.ok) {
                   return {

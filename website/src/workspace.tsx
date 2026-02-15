@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Buffer } from 'buffer';
 import process from 'process';
 import { Nodepack } from '@nodepack/client';
-import type { ExecutionResult } from '@nodepack/client';
+import type { ExecutionResult, RuntimeOptions } from '@nodepack/client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 
@@ -41,7 +41,9 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
   const [status, setStatus] = useState<RuntimeStatus>('initializing');
   const [isRunning, setIsRunning] = useState(false);
   const [usingWorker, setUsingWorker] = useState(false);
-  const handleRunRef = useRef<((filepath: string) => Promise<ExecutionResult>) | null>(null);
+  const handleRunRef = useRef<
+    ((filepath: string, options?: RuntimeOptions) => Promise<ExecutionResult>) | null
+  >(null);
 
   const [files, setFiles] = useState<FileMap>(initialFiles);
   const [currentFile, setCurrentFile] = useState('main.js');
@@ -291,7 +293,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
   }
 
   const handleRun = useCallback(
-    async (filepath: string) => {
+    async (filepath: string, options?: RuntimeOptions) => {
       if (!nodepack || isRunning) {
         throw new Error('Runtime not available');
       }
@@ -313,6 +315,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
 
         // Execute the file with streaming logs
         result = await nodepack.execute(fileContent, {
+          ...options,
           filename: normalizedPath,
           onLog: (message) => {
             // Stream logs to terminal in real-time
@@ -351,8 +354,8 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
   handleRunRef.current = handleRun;
 
   const handleExecuteFile = useCallback(
-    async (filepath: string) => {
-      return await handleRunRef.current!(filepath);
+    async (filepath: string, options?: RuntimeOptions) => {
+      return await handleRunRef.current!(filepath, options);
     },
     [nodepack],
   );
