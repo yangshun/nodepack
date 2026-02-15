@@ -1,9 +1,11 @@
+'use client';
+
 import { useState, useMemo } from 'react';
 
-import { Workspace } from './workspace';
-import { ExampleButtons } from './components/example-buttons';
-import { examples } from './examples';
-import type { FileMap } from './types';
+import { Workspace } from '../workspace';
+import { ExampleButtons } from './example-buttons';
+import { examples } from '../examples';
+import type { FileMap } from '../types';
 
 function getInitialExampleId(): string {
   const hash = window.location.hash.slice(1);

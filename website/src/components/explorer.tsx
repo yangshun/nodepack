@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useMemo, useRef } from 'react';
 import clsx from 'clsx';
 import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';

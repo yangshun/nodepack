@@ -1,3 +1,5 @@
+'use client';
+
 import { useState, useEffect, useCallback, useRef, useMemo } from 'react';
 import { Buffer } from 'buffer';
 import process from 'process';
@@ -10,12 +12,11 @@ import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
 import { AIChat } from './components/ai-chat/ai-chat';
-import type { Message } from './components/ai-chat/ai-chat';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import type { FileMap, RuntimeStatus } from './types';
 
-// Import worker
-import nodepackWorkerUrl from '../../packages/worker/dist/runtime-worker.js?worker&url';
+// Worker URL from public directory
+const nodepackWorkerUrl = '/workers/runtime-worker.js';
 import { RiChatAiLine } from 'react-icons/ri';
 
 // Set up Node.js globals
@@ -40,10 +41,8 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
   const [filesystemVersion, setFilesystemVersion] = useState(0);
   const [openFiles, setOpenFiles] = useState<string[]>(['main.js']);
 
-  // AI Chat state
+  // AI Chat config state (messages and input are managed by useChat inside AIChat)
   const [aiChatVisible, setAiChatVisible] = useState(true);
-  const [aiMessages, setAiMessages] = useState<Message[]>([]);
-  const [aiInput, setAiInput] = useState('');
   const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(
     localStorage.getItem('anthropic_api_key'),
   );
@@ -84,7 +83,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
       try {
         setStatus('initializing');
         if (terminalRef.current) {
-          terminalRef.current.writeOutput('⏳ Initializing Nodepack...');
+          terminalRef.current.writeOutput('Initializing Nodepack...');
         }
 
         const runtime = await Nodepack.boot({
@@ -105,9 +104,9 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
         if (terminalRef.current) {
           terminalRef.current.writeOutput('Nodepack initialized successfully!');
           terminalRef.current.writeOutput(
-            `🔧 Mode: ${isWorker ? 'Web worker (isolated)' : 'Direct runtime'}`,
+            `Mode: ${isWorker ? 'Web worker (isolated)' : 'Direct runtime'}`,
           );
-          terminalRef.current.writeOutput('🚀 You can now run Node.js code in your browser');
+          terminalRef.current.writeOutput('You can now run Node.js code in your browser');
           terminalRef.current.writeOutput('');
           terminalRef.current.writeOutput('Try the examples or write your own code!');
         }
@@ -470,6 +469,9 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
     [nodepack],
   );
 
+  const hasServerKeys = process.env.NEXT_PUBLIC_HAS_SERVER_KEYS === 'true';
+  const apiKey = aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey;
+
   return (
     <div className="h-full flex flex-col">
       <div className="h-0 grow rounded-lg overflow-hidden border border-dark-border">
@@ -561,13 +563,10 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
                 <div className="h-full">
                   <AIChat
                     nodepack={nodepack}
-                    apiKey={aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey}
+                    apiKey={apiKey}
+                    hasServerKeys={hasServerKeys}
                     provider={aiProvider}
                     model={aiModel}
-                    messages={aiMessages}
-                    setMessages={setAiMessages}
-                    input={aiInput}
-                    setInput={setAiInput}
                     onFileUpdate={handleRefresh}
                     onClose={() => setAiChatVisible(false)}
                     terminalRef={terminalRef}

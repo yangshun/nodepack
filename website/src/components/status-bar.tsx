@@ -1,5 +1,7 @@
+'use client';
+
 import clsx from 'clsx';
-import { RuntimeStatus } from '../types';
+import type { RuntimeStatus } from '../types';
 
 interface StatusBarProps {
   status: RuntimeStatus;
@@ -24,18 +26,18 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
 
     return (
       <span>
-        Ready{' '}
-        {!usingWorker && (
+        Ready
+        {/* {!usingWorker && (
           <span className="ml-1 rounded-lg border border-dark-border py-0.5 px-1.5 text-xs">
             Worker
           </span>
-        )}
+        )} */}
       </span>
     );
   }
 
   return (
-    <div className="flex items-center gap-6 p-2 justify-between">
+    <div className="flex items-center gap-4 p-2 justify-end">
       <span className={clsx('flex items-center gap-2', 'text-xs')}>
         <span
           className={clsx('inline-flex size-2 rounded-full', {

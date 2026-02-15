@@ -1,6 +1,12 @@
+'use client';
+
 import { useRef, useEffect } from 'react';
-import Editor from '@monaco-editor/react';
+import Editor, { loader } from '@monaco-editor/react';
 import type { editor } from 'monaco-editor';
+import * as monaco from 'monaco-editor';
+
+// Self-host Monaco editor to avoid COEP issues with CDN workers
+loader.config({ monaco });
 
 interface CodeEditorProps {
   code: string;
@@ -18,25 +24,25 @@ export function CodeEditor({ code, currentFile, onChange, onRun }: CodeEditorPro
     onRunRef.current = onRun;
   }, [onRun]);
 
-  const handleEditorDidMount = (editor: editor.IStandaloneCodeEditor, monaco: any) => {
+  function handleEditorDidMount(editor: editor.IStandaloneCodeEditor, monacoInstance: any) {
     // Register keyboard shortcut: Cmd/Ctrl + Enter to run
     // Use the ref so it always calls the latest onRun function
-    editor.addCommand(monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter, () => {
+    editor.addCommand(monacoInstance.KeyMod.CtrlCmd | monacoInstance.KeyCode.Enter, () => {
       onRunRef.current();
     });
-  };
+  }
 
-  const handleEditorChange = (value: string | undefined) => {
+  function handleEditorChange(value: string | undefined) {
     onChange(value || '');
-  };
+  }
 
   // Determine language from file extension
-  const getLanguage = (filename: string) => {
+  function getLanguage(filename: string) {
     if (filename.endsWith('.ts')) return 'typescript';
     if (filename.endsWith('.tsx')) return 'typescript';
     if (filename.endsWith('.json')) return 'json';
     return 'javascript';
-  };
+  }
 
   if (!currentFile) {
     return (

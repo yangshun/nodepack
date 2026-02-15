@@ -288,7 +288,7 @@ import { isToolUIPart } from 'ai';
     if (part.type === 'text') {
       return part.text;
     }
-    
+
     if (isToolUIPart(part)) {
       // handle any tool part generically
       return (

@@ -1,3 +1,5 @@
+'use client';
+
 /**
  * Terminal Component
  *
@@ -11,12 +13,14 @@ import { FitAddon } from '@xterm/addon-fit';
 import { WebLinksAddon } from '@xterm/addon-web-links';
 import { Bash } from 'just-bash';
 import type { IFs } from 'memfs';
+import { VscCircleSlash } from 'react-icons/vsc';
+import type { ExecutionResult } from '@nodepack/client';
+
+import 'xterm/css/xterm.css';
+
 import { BridgedFilesystem } from './bridged-filesystem';
 import { TerminalController } from './terminal-controller';
 import { bashSecurityConfig } from './security-config';
-import 'xterm/css/xterm.css';
-import { VscCircleSlash } from 'react-icons/vsc';
-import { ExecutionResult } from '@nodepack/client';
 
 export interface TerminalProps {
   filesystem?: IFs;
@@ -431,7 +435,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }
 
     return (
-      <div className="relative flex flex-col size-full">
+      <div className="relative flex flex-col size-full p-2">
         <button
           onClick={handleClear}
           className="z-10 absolute top-1.5 right-1.5 btn-tertiary text-xs p-1"
@@ -439,7 +443,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         >
           <VscCircleSlash className="size-4" />
         </button>
-        <div ref={terminalRef} className="flex size-full flex-1 overflow-hidden p-2 bg-dark-bg" />
+        <div ref={terminalRef} className="size-full flex-1 overflow-hidden bg-dark-bg" />
       </div>
     );
   },

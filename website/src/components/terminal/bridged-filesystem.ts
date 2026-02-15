@@ -12,14 +12,27 @@
 import type {
   IFileSystem,
   BufferEncoding,
-  ReadFileOptions,
-  WriteFileOptions,
   FsStat,
   MkdirOptions,
   RmOptions,
   CpOptions,
-  DirentEntry,
 } from 'just-bash';
+
+// These types are defined in just-bash but not re-exported from the main entry point.
+interface ReadFileOptions {
+  encoding?: BufferEncoding | null;
+}
+
+interface WriteFileOptions {
+  encoding?: BufferEncoding;
+}
+
+interface DirentEntry {
+  name: string;
+  isFile: boolean;
+  isDirectory: boolean;
+  isSymbolicLink: boolean;
+}
 import type { IFs } from 'memfs';
 import * as pathModule from 'path-browserify';
 
@@ -34,7 +47,7 @@ export class BridgedFilesystem implements IFileSystem {
   async readFile(path: string, options?: ReadFileOptions | BufferEncoding): Promise<string> {
     try {
       const encoding = typeof options === 'string' ? options : options?.encoding || 'utf8';
-      const content = this.memfs.readFileSync(path, encoding as BufferEncoding);
+      const content = this.memfs.readFileSync(path, encoding as any);
       return content as string;
     } catch (error: any) {
       throw new Error(`readFile failed: ${error.message}`);
@@ -67,7 +80,7 @@ export class BridgedFilesystem implements IFileSystem {
       }
 
       const encoding = typeof options === 'string' ? options : options?.encoding;
-      this.memfs.writeFileSync(path, content, encoding as BufferEncoding);
+      this.memfs.writeFileSync(path, content, encoding as any);
     } catch (error: any) {
       throw new Error(`writeFile failed: ${error.message}`);
     }
@@ -80,7 +93,7 @@ export class BridgedFilesystem implements IFileSystem {
   ): Promise<void> {
     try {
       const encoding = typeof options === 'string' ? options : options?.encoding;
-      this.memfs.appendFileSync(path, content, encoding as BufferEncoding);
+      this.memfs.appendFileSync(path, content, encoding as any);
     } catch (error: any) {
       throw new Error(`appendFile failed: ${error.message}`);
     }

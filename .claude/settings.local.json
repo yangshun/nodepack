@@ -40,7 +40,11 @@
       "WebFetch(domain:www.npmjs.com)",
       "Bash(pnpm ls:*)",
       "Bash(npx vite build:*)",
-      "Bash(cat:*)"
+      "Bash(cat:*)",
+      "WebFetch(domain:ai-sdk.dev)",
+      "Bash(pnpm list:*)",
+      "Bash(npx next build:*)",
+      "WebFetch(domain:vercel.com)"
     ]
   }
 }

@@ -28,7 +28,7 @@ strong {
 }
 
 .xterm .xterm-viewport {
-  overflow-y: auto;
+  opacity: 0;
 }
 
 .ai-chat-markdown {

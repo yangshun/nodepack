@@ -1,3 +1,5 @@
+'use client';
+
 import { useState } from 'react';
 import type { ExampleDefinition } from '../types';
 import { VscChevronLeft, VscChevronRight } from 'react-icons/vsc';

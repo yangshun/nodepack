@@ -8,27 +8,13 @@
 import type { BashOptions } from 'just-bash';
 
 export const bashSecurityConfig: Partial<BashOptions> = {
-  // Disable network access by default
-  // Can be enabled later with allowlisted domains if needed
-  network: {
-    enabled: false,
-    // Example allowlist (uncomment to enable):
-    // allowedPrefixes: [
-    //   'https://api.github.com',
-    //   'https://jsonplaceholder.typicode.com'
-    // ],
-    // allowedMethods: ['GET', 'POST']
-  },
+  // Network access is disabled by default (no allowedUrlPrefixes configured)
+  network: {},
 
   // Execution limits to prevent infinite loops and resource exhaustion
-  limits: {
-    // Maximum recursion depth for functions and command substitutions
-    maxRecursionDepth: 100,
-
-    // Maximum number of loop iterations
+  executionLimits: {
+    maxCallDepth: 100,
     maxLoopIterations: 10000,
-
-    // Maximum number of commands in a single execution
     maxCommandCount: 1000,
   },
 };
