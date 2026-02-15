@@ -423,6 +423,22 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // stream module
+    modules.set(
+      'stream',
+      `
+      export const Stream = globalThis.__nodepack_stream.Stream;
+      export const Readable = globalThis.__nodepack_stream.Readable;
+      export const Writable = globalThis.__nodepack_stream.Writable;
+      export const Duplex = globalThis.__nodepack_stream.Duplex;
+      export const Transform = globalThis.__nodepack_stream.Transform;
+      export const PassThrough = globalThis.__nodepack_stream.PassThrough;
+      export const pipeline = globalThis.__nodepack_stream.pipeline;
+      export const finished = globalThis.__nodepack_stream.finished;
+      export default globalThis.__nodepack_stream;
+    `,
+    );
+
     return modules;
   }
 

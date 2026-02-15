@@ -559,4 +559,87 @@ describe('NodepackRuntime - Built-in modules', () => {
     // node: protocol test
     expect(result.data.nodeProtocolWorks).toBe(true);
   });
+
+  test('support stream module (ESM)', async () => {
+    const fixture = loadFixture('builtins/stream');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('Stream ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Module availability
+    expect(result.data.hasStream).toBe(true);
+    expect(result.data.hasReadable).toBe(true);
+    expect(result.data.hasWritable).toBe(true);
+    expect(result.data.hasDuplex).toBe(true);
+    expect(result.data.hasTransform).toBe(true);
+    expect(result.data.hasPassThrough).toBe(true);
+    expect(result.data.hasPipeline).toBe(true);
+    expect(result.data.hasFinished).toBe(true);
+
+    // Readable tests
+    expect(result.data.readableChunksLength).toBeGreaterThan(0);
+    expect(result.data.readableEnded).toBe(true);
+    expect(result.data.readableHasData).toBe(true);
+
+    // Writable tests
+    expect(result.data.writableDataLength).toBe(2);
+    expect(result.data.writableFinished).toBe(true);
+    expect(result.data.writableData0).toBe('test1');
+    expect(result.data.writableData1).toBe('test2');
+
+    // Transform tests
+    expect(result.data.transformDataLength).toBe(2);
+    expect(result.data.transformOutputLength).toBe(2);
+    expect(result.data.transformUppercase).toBe(true);
+
+    // PassThrough tests
+    expect(result.data.passthroughDataLength).toBe(2);
+    expect(result.data.passthroughCorrect).toBe(true);
+
+    // Pipe tests
+    expect(result.data.pipeDataLength).toBeGreaterThan(0);
+    expect(result.data.pipeCorrect).toBe(true);
+
+    // Duplex tests
+    expect(result.data.duplexReadDataLength).toBeGreaterThan(0);
+    expect(result.data.duplexWriteDataLength).toBe(1);
+    expect(result.data.duplexReadCorrect).toBe(true);
+    expect(result.data.duplexWriteCorrect).toBe(true);
+
+    // Pause/resume tests
+    expect(result.data.pauseWorks).toBe(true);
+    expect(result.data.resumeWorks).toBe(true);
+    expect(result.data.pausedChunksLength).toBeGreaterThan(0);
+  });
+
+  test('support stream module (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'stream/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('Stream CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasStream).toBe(true);
+    expect(result.data.hasReadable).toBe(true);
+    expect(result.data.hasWritable).toBe(true);
+    expect(result.data.hasTransform).toBe(true);
+
+    // Stream functionality
+    expect(result.data.writableDataLength).toBe(1);
+    expect(result.data.writableCorrect).toBe(true);
+    expect(result.data.canCreateReadable).toBe(true);
+    expect(result.data.canCreateWritable).toBe(true);
+    expect(result.data.canCreateTransform).toBe(true);
+
+    // node: protocol test
+    expect(result.data.nodeProtocolWorks).toBe(true);
+  });
 });
