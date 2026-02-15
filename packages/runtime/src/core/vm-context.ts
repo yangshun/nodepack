@@ -17,6 +17,7 @@ import {
   createBufferModule,
   createUtilModule,
   createChildProcessModule,
+  createAssertModule,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
 import { NodepackModuleLoader } from '../module-system/loader.js';
@@ -92,6 +93,11 @@ export function setupVMContext(
   const childProcessHandle = createChildProcessModule(vm);
   vm.setProp(vm.global, '__nodepack_child_process', childProcessHandle);
   childProcessHandle.dispose();
+
+  // Set up assert builtin
+  const assertHandle = createAssertModule(vm);
+  vm.setProp(vm.global, '__nodepack_assert', assertHandle);
+  assertHandle.dispose();
 
   // Set up CommonJS module executor function
   // This is called from require() to execute CommonJS modules

@@ -354,6 +354,24 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // assert module
+    modules.set(
+      'assert',
+      `
+      export const ok = globalThis.__nodepack_assert.ok;
+      export const strictEqual = globalThis.__nodepack_assert.strictEqual;
+      export const notStrictEqual = globalThis.__nodepack_assert.notStrictEqual;
+      export const deepStrictEqual = globalThis.__nodepack_assert.deepStrictEqual;
+      export const notDeepStrictEqual = globalThis.__nodepack_assert.notDeepStrictEqual;
+      export const throws = globalThis.__nodepack_assert.throws;
+      export const doesNotThrow = globalThis.__nodepack_assert.doesNotThrow;
+      export const fail = globalThis.__nodepack_assert.fail;
+      export const ifError = globalThis.__nodepack_assert.ifError;
+      export const AssertionError = globalThis.__nodepack_assert.AssertionError;
+      export default globalThis.__nodepack_assert;
+    `,
+    );
+
     return modules;
   }
 
