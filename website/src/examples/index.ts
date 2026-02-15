@@ -15,10 +15,12 @@ import { multifileComplex } from './multifile-complex';
 import { packageJson } from './package-json';
 import { npmScripts } from './npm-scripts';
 import { npmBin } from './npm-bin';
+import { assert } from './assert';
 
 export const examples: ExampleDefinition[] = [
   hello,
   builtInModules,
+  assert,
   multifile,
   lodash,
   clsx,
