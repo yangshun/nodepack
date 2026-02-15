@@ -469,7 +469,6 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
     [nodepack],
   );
 
-  const hasServerKeys = process.env.NEXT_PUBLIC_HAS_SERVER_KEYS === 'true';
   const apiKey = aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey;
 
   return (
@@ -564,7 +563,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
                   <AIChat
                     nodepack={nodepack}
                     apiKey={apiKey}
-                    hasServerKeys={hasServerKeys}
+                    hasServerKeys={true}
                     provider={aiProvider}
                     model={aiModel}
                     onFileUpdate={handleRefresh}

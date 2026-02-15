@@ -62,10 +62,6 @@ const nextConfig: NextConfig = {
   },
   // Transpile workspace packages
   transpilePackages: ['@nodepack/client', '@nodepack/runtime', '@nodepack/worker'],
-  // Expose whether server-side AI keys are configured
-  env: {
-    NEXT_PUBLIC_HAS_SERVER_KEYS: process.env.ANTHROPIC_API_KEY ? 'true' : 'false',
-  },
 };
 
 export default nextConfig;
