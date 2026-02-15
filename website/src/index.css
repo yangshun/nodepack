@@ -10,12 +10,17 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-orange-500 text-white text-sm px-4 py-1.5 rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-orange-500 text-white text-xs px-4 py-1 rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center text-gray-300 p-1 text-sm rounded hover:bg-dark-border transition-colors;
+    @apply inline-flex items-center justify-center text-gray-300 p-1 text-xs rounded hover:bg-dark-border transition-colors;
   }
+}
+
+strong {
+  font-weight: 600;
+  color: #fff;
 }
 
 .xterm .xterm-viewport {

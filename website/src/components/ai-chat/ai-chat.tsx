@@ -105,6 +105,8 @@ export function AIChat({
 
       const result = await streamText({
         model: modelInstance,
+        system:
+          "You're an AI assistant used on an in-browser coding environment that runs Nodepack, an in-browser Node.js runtime that adds support for Node.js APIs in the browser. Every project has a main file named `main.js`, aim to modify it first. Strictly use JavaScript (not TypeScript) and ESM for any output code. Note that not all Node.js APIs have been implemented yet, so you may need to ask the user to install additional packages or use alternative approaches. Currently Nodepack has basic support for the `fs`, `path`, `events`, `url`,  module and does not support networking modules like `http`.",
         messages: [...messages, userMessage].map(
           (message): ModelMessage => ({ role: message.role, content: message.content }),
         ),
@@ -221,7 +223,7 @@ export function AIChat({
     <div className="h-full flex flex-col bg-dark-bg">
       {/* Header */}
       <div className="h-10 p-2 border-b border-dark-border flex justify-between items-center">
-        <h3 className="text-sm font-medium">AI assistant</h3>
+        <h2 className="text-xs font-medium">AI assistant</h2>
         <div className="flex items-center gap-2">
           <div className="text-xs text-gray-400">{provider === 'anthropic' ? 'Claude' : 'GPT'}</div>
           <button

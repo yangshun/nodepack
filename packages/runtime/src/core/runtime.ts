@@ -5,7 +5,7 @@
 
 import { newQuickJSWASMModuleFromVariant } from 'quickjs-emscripten';
 import variant from '@jitl/quickjs-wasmfile-release-sync';
-import { vol } from 'memfs';
+import { Volume, createFsFromVolume } from 'memfs';
 import type { IFs } from 'memfs';
 import type { ExecutionResult, RuntimeOptions } from '../types.js';
 import type { TimerTracker } from '../builtins/timers.js';
@@ -18,11 +18,12 @@ import { executeCode } from './code-executor.js';
 export class NodepackRuntime {
   private QuickJS: any;
   private isInitialized = false;
-  private filesystem: IFs = vol as any as IFs;
+  private filesystem: IFs;
   private consoleLogs: string[] = [];
   private npmPackageManager: NpmPackageManager;
 
   constructor() {
+    this.filesystem = createFsFromVolume(new Volume()) as any as IFs;
     this.npmPackageManager = new NpmPackageManager(this.filesystem);
   }
 

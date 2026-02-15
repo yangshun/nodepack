@@ -38,7 +38,8 @@
       "Bash(python3:*)",
       "Bash(pnpm --filter website build:*)",
       "WebFetch(domain:www.npmjs.com)",
-      "Bash(pnpm ls:*)"
+      "Bash(pnpm ls:*)",
+      "Bash(npx vite build:*)"
     ]
   }
 }

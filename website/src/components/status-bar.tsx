@@ -35,7 +35,7 @@ export function StatusBar({ status, isRunning, usingWorker, onRun }: StatusBarPr
   }
 
   return (
-    <div className="flex items-center gap-6">
+    <div className="flex items-center gap-6 p-2 justify-between">
       <span className={clsx('flex items-center gap-2', 'text-xs')}>
         <span
           className={clsx('inline-flex size-2 rounded-full', {

@@ -19,7 +19,7 @@ export function FileTabs({ openFiles, currentFile, onSelectTab, onCloseTab }: Fi
   }
 
   return (
-    <div className="h-10 flex items-center border-b border-dark-border overflow-x-auto">
+    <div className="flex items-center overflow-x-auto">
       {openFiles.map((filename, index) => {
         const isActive = filename === currentFile;
         const displayName = getFilename(filename);

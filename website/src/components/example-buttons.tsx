@@ -1,24 +1,19 @@
 import { useState } from 'react';
-import { examples } from '../examples';
-import { VscArrowLeft, VscArrowRight, VscChevronLeft, VscChevronRight } from 'react-icons/vsc';
+import type { ExampleDefinition } from '../types';
+import { VscChevronLeft, VscChevronRight } from 'react-icons/vsc';
 
 interface ExampleButtonsProps {
+  examples: ExampleDefinition[];
+  initialIndex?: number;
   onSelectExample: (exampleId: string) => void;
 }
 
-function getInitialIndex(): number {
-  const hash = window.location.hash.slice(1);
-  if (hash) {
-    const index = examples.findIndex((ex) => ex.id === hash);
-    if (index !== -1) {
-      return index;
-    }
-  }
-  return 0;
-}
-
-export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
-  const [currentIndex, setCurrentIndex] = useState(getInitialIndex);
+export function ExampleButtons({
+  examples,
+  initialIndex = 0,
+  onSelectExample,
+}: ExampleButtonsProps) {
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
 
   function handlePrevious() {
     const newIndex = currentIndex === 0 ? examples.length - 1 : currentIndex - 1;
