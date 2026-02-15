@@ -1,0 +1,38 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(cat:*)",
+      "Bash(curl:*)",
+      "Bash(find:*)",
+      "Bash(git add:*)",
+      "Bash(git mv:*)",
+      "Bash(git restore:*)",
+      "Bash(grep:*)",
+      "Bash(ls:*)",
+      "Bash(lsof:*)",
+      "Bash(node:*)",
+      "Bash(npm install:*)",
+      "Bash(npm run build:*)",
+      "Bash(npm run dev:*)",
+      "Bash(npm test:*)",
+      "Bash(npx next build:*)",
+      "Bash(npx tsc:*)",
+      "Bash(npx vite build:*)",
+      "Bash(pnpm add:*)",
+      "Bash(pnpm build:*)",
+      "Bash(pnpm dev)",
+      "Bash(pnpm install:*)",
+      "Bash(pnpm list:*)",
+      "Bash(pnpm ls:*)",
+      "Bash(pnpm remove:*)",
+      "Bash(pnpm test:*)",
+      "Bash(pnpm typecheck:*)",
+      "Bash(pnpm why:*)",
+      "Bash(python3:*)",
+      "Bash(wc:*)",
+      "Bash(xargs:*)",
+      "WebSearch",
+      "WebFetch"
+    ]
+  }
+}
