@@ -5,8 +5,8 @@ import { createOpenAI } from '@ai-sdk/openai';
 import type { ModelMessage } from 'ai';
 import type { Nodepack } from '@nodepack/client';
 import type { TerminalHandle } from '../terminal/terminal';
-import { createTools } from './tools';
-import { APIConfig } from './api-config';
+import { createAITools } from './ai-tools';
+import { AIConfig } from './ai-config';
 import clsx from 'clsx';
 import Markdown from 'react-markdown';
 import { VscArrowRight, VscClose } from 'react-icons/vsc';
@@ -32,6 +32,7 @@ export type MessagePart =
       type: 'tool';
       toolCallId: string;
       toolName: string;
+      toolTitle: string | null | undefined;
       state: 'call' | 'result';
       args?: unknown;
       result?: unknown;
@@ -62,7 +63,7 @@ export function AIChat({
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const tools = useMemo(
-    () => createTools(nodepack, onFileUpdate, terminalRef),
+    () => createAITools(nodepack, onFileUpdate, terminalRef),
     [nodepack, onFileUpdate, terminalRef],
   );
 
@@ -164,6 +165,7 @@ export function AIChat({
                   {
                     type: 'tool' as const,
                     toolCallId: chunk.toolCallId,
+                    toolTitle: chunk.title,
                     toolName: chunk.toolName,
                     state: 'call' as const,
                     args: chunk.input,
@@ -209,7 +211,7 @@ export function AIChat({
 
   if (showConfig || !apiKey) {
     return (
-      <APIConfig
+      <AIConfig
         provider={provider}
         onConfigured={() => {
           setShowConfig(false);
@@ -222,18 +224,17 @@ export function AIChat({
   return (
     <div className="h-full flex flex-col bg-dark-bg">
       {/* Header */}
-      <div className="h-10 p-2 border-b border-dark-border flex justify-between items-center">
+      <div className="h-10 pl-3 pr-2 py-2 border-b border-dark-border flex justify-between items-center">
         <h2 className="text-xs font-medium">AI assistant</h2>
-        <div className="flex items-center gap-2">
-          <div className="text-xs text-gray-400">{provider === 'anthropic' ? 'Claude' : 'GPT'}</div>
+        <div className="flex items-center gap-">
           <button
             onClick={() => setShowConfig(true)}
-            className="text-xs text-gray-400 hover:text-white"
-            title="Settings"
+            className="btn-tertiary px-2"
+            title="AI settings"
           >
-            ⚙
+            {provider === 'anthropic' ? 'Claude' : 'GPT'}
           </button>
-          <button onClick={onClose} className="btn-secondary" title="Close sidebar">
+          <button onClick={onClose} className="btn-tertiary" title="Close sidebar">
             <VscClose className="size-4" />
           </button>
         </div>
@@ -288,7 +289,7 @@ export function AIChat({
                         part.state === 'result' && 'text-green-300',
                       )}
                     />
-                    {part.toolName}
+                    {part.toolTitle || part.toolName}
                   </div>
                 );
               })

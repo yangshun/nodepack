@@ -519,7 +519,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
                     {!aiChatVisible && (
                       <button
                         onClick={() => setAiChatVisible(true)}
-                        className="btn-secondary mr-2"
+                        className="btn-tertiary mr-2"
                         title="Show AI assistant"
                       >
                         <RiChatAiLine size={18} />

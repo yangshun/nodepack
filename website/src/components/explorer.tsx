@@ -126,12 +126,12 @@ export function Explorer({
       <div className="flex justify-between items-center pl-3 pr-2 pt-2">
         <div className="text-xs text-gray-400 font-medium uppercase truncate">{title}</div>
         <div className="flex gap-1 items-center">
-          <button onClick={onAddFile} className="btn-secondary text-xs p-1" title="Add new file">
+          <button onClick={onAddFile} className="btn-tertiary text-xs p-1" title="Add new file">
             <VscNewFile className="size-4" />
           </button>
           <button
             onClick={onRefresh}
-            className="btn-secondary text-xs p-1"
+            className="btn-tertiary text-xs p-1"
             title="Refresh filesystem"
           >
             <VscRefresh className="size-4" />

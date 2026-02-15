@@ -3,32 +3,39 @@ import { z } from 'zod';
 import type { Nodepack } from '@nodepack/client';
 import type { TerminalHandle } from '../terminal/terminal';
 
-export function createTools(
+export function createAITools(
   nodepack: Nodepack | null,
   onFileUpdate: () => void,
   terminalRef: React.RefObject<TerminalHandle>,
 ) {
   return {
     readFile: tool({
+      title: 'Reading file',
       description: 'Read the content of a file from the virtual filesystem',
       inputSchema: z.object({
         path: z.string().describe('File path (e.g., "/main.js")'),
       }),
       execute: async ({ path }) => {
-        if (!nodepack) throw new Error('Runtime not initialized');
+        if (!nodepack) {
+          throw new Error('Runtime not initialized');
+        }
+
         const fs = nodepack.getFilesystem();
         return fs.readFileSync(path, 'utf8');
       },
     }),
-
     writeFile: tool({
+      title: 'Writing files',
       description: 'Write or update a file in the virtual filesystem',
       inputSchema: z.object({
         path: z.string().describe('File path'),
         content: z.string().describe('File content'),
       }),
       execute: async ({ path, content }) => {
-        if (!nodepack) throw new Error('Runtime not initialized');
+        if (!nodepack) {
+          throw new Error('Runtime not initialized');
+        }
+
         const fs = nodepack.getFilesystem();
 
         const dir = path.substring(0, path.lastIndexOf('/'));
@@ -41,27 +48,33 @@ export function createTools(
         return `File written: ${path}`;
       },
     }),
-
     listDirectory: tool({
+      title: 'Listing directory contents',
       description: 'List contents of a directory',
       inputSchema: z.object({
         path: z.string().default('/').describe('Directory path'),
       }),
       execute: async ({ path }) => {
-        if (!nodepack) throw new Error('Runtime not initialized');
+        if (!nodepack) {
+          throw new Error('Runtime not initialized');
+        }
+
         const fs = nodepack.getFilesystem();
         const entries = fs.readdirSync(path);
         return JSON.stringify(entries, null, 2);
       },
     }),
-
     executeCode: tool({
+      title: 'Executing JavaScript code',
       description: 'Execute JavaScript code using the Nodepack runtime',
       inputSchema: z.object({
         filepath: z.string().describe('Path to the file to execute (e.g., "/main.js")'),
       }),
       execute: async ({ filepath }) => {
-        if (!nodepack) throw new Error('Runtime not initialized');
+        if (!nodepack) {
+          throw new Error('Runtime not initialized');
+        }
+
         const fs = nodepack.getFilesystem();
         const code = fs.readFileSync(filepath, 'utf8');
 
@@ -83,8 +96,8 @@ export function createTools(
         );
       },
     }),
-
     installPackage: tool({
+      title: 'Installing npm package',
       description: 'Install an npm package',
       inputSchema: z.object({
         packageName: z
@@ -93,7 +106,9 @@ export function createTools(
           .describe('Package name (e.g., "lodash"). If not provided, installs from package.json'),
       }),
       execute: async ({ packageName }) => {
-        if (!nodepack) throw new Error('Runtime not initialized');
+        if (!nodepack) {
+          throw new Error('Runtime not initialized');
+        }
 
         if (packageName) {
           await nodepack.npm.install(packageName);
@@ -108,8 +123,8 @@ export function createTools(
         }
       },
     }),
-
     runBashCommand: tool({
+      title: 'Running bash command',
       description:
         'Execute a bash command in the terminal. The command output will appear in the terminal panel.',
       inputSchema: z.object({

@@ -383,7 +383,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
       <div className="relative flex flex-col h-full w-full">
         <button
           onClick={handleClear}
-          className="z-10 absolute top-1.5 right-1.5 btn-secondary text-xs p-1"
+          className="z-10 absolute top-1.5 right-1.5 btn-tertiary text-xs p-1"
           title="Clear terminal (Cmd/Ctrl + L)"
         >
           <VscCircleSlash className="size-4" />

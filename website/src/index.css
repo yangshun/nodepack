@@ -14,6 +14,10 @@
   }
 
   .btn-secondary {
+    @apply inline-flex items-center justify-center bg-gray-100 text-gray-900 text-xs px-4 py-1 rounded-full hover:bg-white transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
+  }
+
+  .btn-tertiary {
     @apply inline-flex items-center justify-center text-gray-300 p-1 text-xs rounded hover:bg-dark-border transition-colors;
   }
 }
