@@ -196,6 +196,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                   stderr:
                     'Usage: npm <command>\n\n' +
                     'Supported commands:\n' +
+                    '  init               - Create a package.json file\n' +
                     '  install [package]  - Install packages from package.json or specific package\n' +
                     '  run <script>       - Run a package.json script\n' +
                     '  start              - Alias for npm run start\n' +
@@ -212,6 +213,56 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                 // Transform to "npm run <shortcut>"
                 args = ['run', subcommand, ...args.slice(1)];
                 subcommand = 'run';
+              }
+
+              // Handle init subcommand
+              if (subcommand === 'init') {
+                // Check if package.json already exists
+                try {
+                  const exists = await context.fs.exists('/package.json');
+                  if (exists) {
+                    return {
+                      stdout: '',
+                      stderr: 'Error: package.json already exists\n',
+                      exitCode: 1,
+                    };
+                  }
+                } catch {
+                  // File doesn't exist, proceed with init
+                }
+
+                const packageJson = {
+                  name: 'my-project',
+                  version: '1.0.0',
+                  description: '',
+                  main: 'main.js',
+                  scripts: {
+                    // TODO: Add exit 1 and check the logs are print
+                    test: 'echo "Error: no test specified"',
+                  },
+                  keywords: [],
+                  author: '',
+                  license: 'ISC',
+                };
+
+                try {
+                  await context.fs.writeFile(
+                    '/package.json',
+                    JSON.stringify(packageJson, null, 2) + '\n',
+                  );
+                  onCommandExecuted?.();
+                  return {
+                    stdout: 'Wrote to /package.json\n',
+                    stderr: '',
+                    exitCode: 0,
+                  };
+                } catch (error: any) {
+                  return {
+                    stdout: '',
+                    stderr: `Error creating package.json: ${error.message}\n`,
+                    exitCode: 1,
+                  };
+                }
               }
 
               // Handle install subcommand
@@ -380,7 +431,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
     }
 
     return (
-      <div className="relative flex flex-col h-full w-full">
+      <div className="relative flex flex-col size-full">
         <button
           onClick={handleClear}
           className="z-10 absolute top-1.5 right-1.5 btn-tertiary text-xs p-1"
@@ -388,7 +439,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         >
           <VscCircleSlash className="size-4" />
         </button>
-        <div ref={terminalRef} className="flex-1 overflow-hidden p-2 bg-dark-bg" />
+        <div ref={terminalRef} className="flex size-full flex-1 overflow-hidden p-2 bg-dark-bg" />
       </div>
     );
   },

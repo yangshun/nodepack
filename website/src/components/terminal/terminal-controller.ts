@@ -30,8 +30,10 @@ export class TerminalController {
    * Initialize the terminal with welcome message and prompt
    */
   initialize(): void {
-    this.terminal.writeln('Welcome to Nodepack Terminal');
-    this.terminal.writeln('Type "help" to see available commands\r\n');
+    this.terminal.writeln('Welcome to Nodepack!\r\n');
+    this.terminal.writeln('  Type "npm" to see the available npm commands');
+    this.terminal.writeln('  Type "help" to see the supported bash commands');
+    this.terminal.writeln('');
     this.writePrompt();
   }
 

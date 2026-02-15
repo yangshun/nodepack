@@ -105,7 +105,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
         if (terminalRef.current) {
           terminalRef.current.writeOutput('Nodepack initialized successfully!');
           terminalRef.current.writeOutput(
-            `🔧 Mode: ${isWorker ? 'Web Worker (isolated)' : 'Direct runtime'}`,
+            `🔧 Mode: ${isWorker ? 'Web worker (isolated)' : 'Direct runtime'}`,
           );
           terminalRef.current.writeOutput('🚀 You can now run Node.js code in your browser');
           terminalRef.current.writeOutput('');
@@ -404,8 +404,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
         setFilesystemVersion((v) => v + 1);
 
         if (terminalRef.current) {
-          terminalRef.current.writeOutput('Successfully installed all packages');
-          terminalRef.current.writeOutput('Check `node_modules` in the files explorer');
+          terminalRef.current.writeOutput('Successfully installed packages into node_modules');
           terminalRef.current.writeOutput('');
         }
       } else {
@@ -456,7 +455,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
 
             if (terminalRef.current) {
               terminalRef.current.writeOutput(
-                `Added ${packageName}@${versionToAdd} to package.json`,
+                `Added ${packageName}@${versionToAdd} to package.json\r\n`,
               );
             }
           } catch (error) {
@@ -466,14 +465,6 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
         }
 
         setFilesystemVersion((v) => v + 1);
-
-        if (terminalRef.current) {
-          terminalRef.current.writeOutput(`Successfully installed ${packageName}`);
-          terminalRef.current.writeOutput(
-            `Check node_modules/${packageName} in the files explorer`,
-          );
-          terminalRef.current.writeOutput('');
-        }
       }
     },
     [nodepack],
@@ -541,7 +532,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
               {/* Terminal */}
               <Panel defaultSize="30%" minSize="15%">
                 <div className="flex flex-col h-full">
-                  <div className="h-0 grow">
+                  <div className="h-0 grow border-b border-dark-border">
                     <Terminal
                       ref={terminalRef}
                       filesystem={nodepack?.getFilesystem() || undefined}
