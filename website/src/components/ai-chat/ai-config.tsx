@@ -1,7 +1,9 @@
 'use client';
 
 import { useState } from 'react';
+import { VscClose } from 'react-icons/vsc';
 import { ANTHROPIC_MODELS, OPENAI_MODELS } from './ai-models';
+import { useAnthropicApiKey, useOpenaiApiKey, useAiProvider, useAiModel } from './use-ai-config';
 
 interface APIConfigProps {
   provider: 'anthropic' | 'openai';
@@ -11,26 +13,19 @@ interface APIConfigProps {
 
 export function AIConfig({ provider, hasServerKeys, onConfigured }: APIConfigProps) {
   const [useOwnKey, setUseOwnKey] = useState(!hasServerKeys);
-  const [anthropicKey, setAnthropicKey] = useState(localStorage.getItem('anthropic_api_key') || '');
-  const [openaiKey, setOpenaiKey] = useState(localStorage.getItem('openai_api_key') || '');
-  const [selectedProvider, setSelectedProvider] = useState<'anthropic' | 'openai'>(
-    (localStorage.getItem('ai_provider') as 'anthropic' | 'openai') || 'anthropic',
-  );
-  const [selectedModel, setSelectedModel] = useState(
-    localStorage.getItem('ai_model') || 'claude-sonnet-4-5',
-  );
+  const [anthropicKey, setAnthropicKey] = useAnthropicApiKey();
+  const [openaiKey, setOpenaiKey] = useOpenaiApiKey();
+  const [selectedProvider, setSelectedProvider] = useAiProvider();
+  const [selectedModel, setSelectedModel] = useAiModel();
 
   function handleSave() {
-    if (useOwnKey) {
-      localStorage.setItem('anthropic_api_key', anthropicKey);
-      localStorage.setItem('openai_api_key', openaiKey);
-    } else {
+    if (!useOwnKey) {
       // Clear user keys when using server keys
-      localStorage.removeItem('anthropic_api_key');
-      localStorage.removeItem('openai_api_key');
+      setAnthropicKey('');
+      setOpenaiKey('');
     }
-    localStorage.setItem('ai_provider', selectedProvider);
-    localStorage.setItem('ai_model', selectedModel);
+
+    // Note: Provider and model are already saved via useLocalStorage hooks
     onConfigured();
   }
 
@@ -44,9 +39,12 @@ export function AIConfig({ provider, hasServerKeys, onConfigured }: APIConfigPro
 
   return (
     <div className="h-full flex flex-col bg-dark-bg">
-      <h2 className="flex items-center h-10 text-xs font-medium pl-3 pr-2 py-2 border-b border-dark-border">
-        AI configuration
-      </h2>
+      <div className="h-10 pl-3 pr-2 py-2 border-b border-dark-border flex justify-between items-center">
+        <h2 className="text-xs font-medium">AI configuration</h2>
+        <button onClick={onConfigured} className="btn-tertiary" title="Close">
+          <VscClose className="size-4" />
+        </button>
+      </div>
       <div className="space-y-4 flex-1 py-3 px-2">
         {/* Provider Selection */}
         <div>
@@ -173,7 +171,7 @@ export function AIConfig({ provider, hasServerKeys, onConfigured }: APIConfigPro
           disabled={!canSave}
           className="btn-secondary disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
         >
-          Save configuration
+          Save
         </button>
       </div>
     </div>

@@ -62,7 +62,6 @@ export function AIChat({
         hasServerKeys={hasServerKeys}
         onConfigured={() => {
           setShowConfig(false);
-          window.location.reload();
         }}
       />
     );

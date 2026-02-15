@@ -14,6 +14,12 @@ import { CodeEditor } from './components/code-editor';
 import { FileTabs } from './components/file-tabs';
 import { Terminal, type TerminalHandle } from './components/terminal/terminal';
 import { AIChat } from './components/ai-chat/ai-chat';
+import {
+  useAnthropicApiKey,
+  useOpenaiApiKey,
+  useAiProvider,
+  useAiModel,
+} from './components/ai-chat/use-ai-config';
 import { Group, Panel, Separator } from 'react-resizable-panels';
 import type { FileMap, RuntimeStatus } from './types';
 
@@ -45,18 +51,10 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
 
   // AI Chat config state (messages and input are managed by useChat inside AIChat)
   const [aiChatVisible, setAiChatVisible] = useState(true);
-  const [anthropicApiKey, setAnthropicApiKey] = useState<string | null>(
-    localStorage.getItem('anthropic_api_key'),
-  );
-  const [openaiApiKey, setOpenaiApiKey] = useState<string | null>(
-    localStorage.getItem('openai_api_key'),
-  );
-  const [aiProvider, setAiProvider] = useState<'anthropic' | 'openai'>(
-    (localStorage.getItem('ai_provider') as 'anthropic' | 'openai') || 'anthropic',
-  );
-  const [aiModel, setAiModel] = useState<string>(
-    localStorage.getItem('ai_model') || 'claude-sonnet-4-5-20250929',
-  );
+  const [anthropicApiKey] = useAnthropicApiKey();
+  const [openaiApiKey] = useOpenaiApiKey();
+  const [aiProvider] = useAiProvider();
+  const [aiModel] = useAiModel();
 
   const terminalRef = useRef<TerminalHandle>(null);
 
@@ -471,7 +469,12 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
     [nodepack],
   );
 
-  const apiKey = aiProvider === 'anthropic' ? anthropicApiKey : openaiApiKey;
+  const apiKey =
+    aiProvider === 'anthropic'
+      ? anthropicApiKey || null
+      : aiProvider === 'openai'
+        ? openaiApiKey || null
+        : null;
 
   // AI Chat transport
   const transport = useMemo(
