@@ -9,7 +9,7 @@ import { createTools } from './tools';
 import { APIConfig } from './api-config';
 import clsx from 'clsx';
 import { VscArrowRight } from 'react-icons/vsc';
-import { RiLoader4Line } from 'react-icons/ri';
+import { RiCircleFill, RiLoader4Line } from 'react-icons/ri';
 
 interface AIChatProps {
   nodepack: Nodepack | null;
@@ -20,19 +20,22 @@ interface AIChatProps {
   terminalRef: React.RefObject<TerminalHandle>;
 }
 
-interface ToolInvocation {
-  toolCallId: string;
-  toolName: string;
-  state: 'call' | 'result';
-  args?: unknown;
-  result?: unknown;
-}
+type MessagePart =
+  | { type: 'text'; content: string }
+  | {
+      type: 'tool';
+      toolCallId: string;
+      toolName: string;
+      state: 'call' | 'result';
+      args?: unknown;
+      result?: unknown;
+    };
 
 interface Message {
   id: string;
   role: 'user' | 'assistant';
   content: string;
-  toolInvocations?: ToolInvocation[];
+  parts?: MessagePart[];
 }
 
 export function AIChat({
@@ -105,13 +108,14 @@ export function AIChat({
         id: (Date.now() + 1).toString(),
         role: 'assistant',
         content: '',
-        toolInvocations: [],
+        parts: [],
       };
 
       // Add assistant message placeholder
       setMessages((prev) => [...prev, assistantMessage]);
 
-      // Stream the response
+      // Stream the response using immutable updates to avoid
+      // duplicate entries from React strict mode double-invocation.
       for await (const chunk of result.fullStream) {
         if (chunk.type === 'text-delta') {
           assistantContent += chunk.text;
@@ -119,7 +123,21 @@ export function AIChat({
             const updated = [...prev];
             const lastMsg = updated[updated.length - 1];
             if (lastMsg.role === 'assistant') {
-              lastMsg.content = assistantContent;
+              const parts = [...(lastMsg.parts ?? [])];
+              const lastPart = parts[parts.length - 1];
+              if (lastPart && lastPart.type === 'text') {
+                parts[parts.length - 1] = {
+                  ...lastPart,
+                  content: lastPart.content + chunk.text,
+                };
+              } else {
+                parts.push({ type: 'text', content: chunk.text });
+              }
+              updated[updated.length - 1] = {
+                ...lastMsg,
+                content: assistantContent,
+                parts,
+              };
             }
             return updated;
           });
@@ -128,16 +146,19 @@ export function AIChat({
             const updated = [...prev];
             const lastMsg = updated[updated.length - 1];
             if (lastMsg.role === 'assistant') {
-              if (!lastMsg.toolInvocations) {
-                lastMsg.toolInvocations = [];
-              }
-
-              lastMsg.toolInvocations.push({
-                toolCallId: chunk.toolCallId,
-                toolName: chunk.toolName,
-                state: 'call',
-                args: chunk.input,
-              });
+              updated[updated.length - 1] = {
+                ...lastMsg,
+                parts: [
+                  ...(lastMsg.parts ?? []),
+                  {
+                    type: 'tool' as const,
+                    toolCallId: chunk.toolCallId,
+                    toolName: chunk.toolName,
+                    state: 'call' as const,
+                    args: chunk.input,
+                  },
+                ],
+              };
             }
             return updated;
           });
@@ -145,15 +166,19 @@ export function AIChat({
           setMessages((prev) => {
             const updated = [...prev];
             const lastMsg = updated[updated.length - 1];
-            if (lastMsg.role === 'assistant' && lastMsg.toolInvocations) {
-              const toolInvocation = lastMsg.toolInvocations.find(
-                (tool) => tool.toolCallId === chunk.toolCallId,
-              );
-
-              if (toolInvocation) {
-                toolInvocation.state = 'result';
-                toolInvocation.result = chunk.output;
-              }
+            if (lastMsg.role === 'assistant') {
+              updated[updated.length - 1] = {
+                ...lastMsg,
+                parts: (lastMsg.parts ?? []).map((part) =>
+                  part.type === 'tool' && part.toolCallId === chunk.toolCallId
+                    ? {
+                        ...part,
+                        state: 'result' as const,
+                        result: chunk.output,
+                      }
+                    : part,
+                ),
+              };
             }
             return updated;
           });
@@ -215,22 +240,42 @@ export function AIChat({
           <div
             key={message.id}
             className={clsx(
-              'p-2 rounded whitespace-pre-wrap',
-              message.role === 'user'
-                ? 'bg-dark-hover ml-8'
-                : 'bg-dark-bg border border-dark-border mr-8',
+              'rounded whitespace-pre-wrap',
+              message.role === 'user' ? 'bg-dark-hover ml-8 p-2' : 'bg-dark-bg mr-8 py-2',
             )}
           >
-            <div className="text-xs text-gray-400 mb-1">
-              {message.role === 'user' ? 'You' : 'Assistant'}
-            </div>
-            <div className="text-xs">{message.content}</div>
-            {/* Show tool calls */}
-            {message.toolInvocations?.map((tool) => (
-              <div key={tool.toolCallId} className="text-xs text-gray-400 mt-2 italic">
-                {tool.state === 'result' ? `✓ ${tool.toolName}` : `⋯ ${tool.toolName}...`}
-              </div>
-            ))}
+            {message.parts && message.parts.length > 0 ? (
+              message.parts.map((part, index) => {
+                if (part.type === 'text') {
+                  return (
+                    <div key={`text-${index}`} className={clsx('text-xs', index > 0 && 'mt-2')}>
+                      {part.content}
+                    </div>
+                  );
+                }
+
+                return (
+                  <div
+                    key={part.toolCallId}
+                    className={clsx(
+                      'flex items-center gap-1',
+                      'text-xs text-gray-400',
+                      index > 0 && 'mt-2',
+                    )}
+                  >
+                    <RiCircleFill
+                      className={clsx(
+                        'size-1.5 inline-block',
+                        part.state === 'result' && 'text-green-300',
+                      )}
+                    />
+                    {part.toolName}
+                  </div>
+                );
+              })
+            ) : (
+              <div className="text-xs">{message.content}</div>
+            )}
           </div>
         ))}
         {isLoading && <div className="text-xs text-gray-400 italic">Thinking...</div>}
