@@ -1,5 +1,5 @@
 import type { ExampleDefinition } from '../types';
-import { hello } from './hello';
+import { helloWorld } from './hello-world';
 import { builtInModules } from './built-in-modules';
 import { multifile } from './multifile';
 import { lodash } from './lodash';
@@ -18,7 +18,7 @@ import { npmBin } from './npm-bin';
 import { assert } from './assert';
 
 export const examples: ExampleDefinition[] = [
-  hello,
+  helloWorld,
   builtInModules,
   assert,
   multifile,

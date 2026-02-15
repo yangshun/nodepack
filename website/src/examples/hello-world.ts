@@ -1,7 +1,7 @@
 import type { ExampleDefinition } from '../types';
 
-export const hello: ExampleDefinition = {
-  id: 'hello',
+export const helloWorld: ExampleDefinition = {
+  id: 'hello-world',
   label: 'Hello World',
   code: `console.log('Hello from Node.js in the browser!');
 console.log('This is a proof of concept');

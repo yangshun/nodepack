@@ -9,6 +9,7 @@ import { createTools } from './tools';
 import { APIConfig } from './api-config';
 import clsx from 'clsx';
 import { VscArrowRight } from 'react-icons/vsc';
+import { RiLoader4Line } from 'react-icons/ri';
 
 interface AIChatProps {
   nodepack: Nodepack | null;
@@ -130,6 +131,7 @@ export function AIChat({
               if (!lastMsg.toolInvocations) {
                 lastMsg.toolInvocations = [];
               }
+
               lastMsg.toolInvocations.push({
                 toolCallId: chunk.toolCallId,
                 toolName: chunk.toolName,
@@ -147,6 +149,7 @@ export function AIChat({
               const toolInvocation = lastMsg.toolInvocations.find(
                 (tool) => tool.toolCallId === chunk.toolCallId,
               );
+
               if (toolInvocation) {
                 toolInvocation.state = 'result';
                 toolInvocation.result = chunk.output;
@@ -255,7 +258,11 @@ export function AIChat({
           disabled={isLoading || !input.trim()}
           className="self-end p-1.5 rounded bg-gray-200 hover:bg-white text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
         >
-          {isLoading ? 'Thinking...' : <VscArrowRight className="size-4" />}
+          {isLoading ? (
+            <RiLoader4Line className="animate-spin size-4" />
+          ) : (
+            <VscArrowRight className="size-4" />
+          )}
         </button>
       </form>
     </div>

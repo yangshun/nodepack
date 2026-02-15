@@ -132,8 +132,7 @@ export function App() {
 
     // Load example from URL hash, or default to first example
     const hash = window.location.hash.slice(1);
-    const exampleId =
-      hash && examples.some((ex) => ex.id === hash) ? hash : examples[0].id;
+    const exampleId = hash && examples.some((ex) => ex.id === hash) ? hash : examples[0].id;
     handleSelectExample(exampleId);
   }, [nodepack]);
 
@@ -385,20 +384,6 @@ export function App() {
                 ? JSON.stringify(result.error, null, 2)
                 : String(result.error);
             terminalRef.current.writeOutput(`Error: ${errorMsg}`);
-          }
-
-          // Display any logs that occurred before the error
-          if (result.logs && result.logs.length > 0) {
-            if (terminalRef.current) {
-              terminalRef.current.writeOutput('');
-              terminalRef.current.writeOutput('Output before error:');
-            }
-
-            result.logs.forEach((log) => {
-              if (terminalRef.current) {
-                terminalRef.current.writeOutput(log);
-              }
-            });
           }
         }
       } catch (error: any) {
