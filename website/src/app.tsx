@@ -620,6 +620,7 @@ export function App() {
                     provider={aiProvider}
                     model={aiModel}
                     onFileUpdate={handleRefresh}
+                    onClose={() => setAiChatVisible(false)}
                     terminalRef={terminalRef}
                   />
                 </div>

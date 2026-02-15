@@ -9,7 +9,7 @@ import { createTools } from './tools';
 import { APIConfig } from './api-config';
 import clsx from 'clsx';
 import Markdown from 'react-markdown';
-import { VscArrowRight } from 'react-icons/vsc';
+import { VscArrowRight, VscClose } from 'react-icons/vsc';
 import { RiCircleFill, RiLoader4Line } from 'react-icons/ri';
 
 interface AIChatProps {
@@ -18,6 +18,7 @@ interface AIChatProps {
   provider: 'anthropic' | 'openai';
   model: string;
   onFileUpdate: () => void;
+  onClose: () => void;
   terminalRef: React.RefObject<TerminalHandle>;
 }
 
@@ -45,6 +46,7 @@ export function AIChat({
   provider,
   model,
   onFileUpdate,
+  onClose,
   terminalRef,
 }: AIChatProps) {
   const [showConfig, setShowConfig] = useState(!apiKey);
@@ -222,6 +224,9 @@ export function AIChat({
             title="Settings"
           >
             ⚙
+          </button>
+          <button onClick={onClose} className="btn-secondary" title="Close sidebar">
+            <VscClose className="size-4" />
           </button>
         </div>
       </div>

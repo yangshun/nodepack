@@ -14,7 +14,7 @@
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center text-gray-300 px-2 py-1.5 text-sm rounded hover:bg-dark-border transition-colors;
+    @apply inline-flex items-center justify-center text-gray-300 p-1 text-sm rounded hover:bg-dark-border transition-colors;
   }
 }
 
