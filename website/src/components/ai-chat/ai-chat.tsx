@@ -29,7 +29,7 @@ interface AIChatProps {
   model: string;
   onFileUpdate: () => void;
   onClose: () => void;
-  terminalRef: React.RefObject<TerminalHandle>;
+  terminalRef: React.RefObject<TerminalHandle | null>;
 }
 
 export function AIChat({

@@ -9,27 +9,27 @@ describe('Logger', () => {
   });
 
   afterEach(() => {
-    process.env.NODE_ENV = originalNodeEnv;
+    (process.env as any).NODE_ENV = originalNodeEnv;
   });
 
   describe('isLoggingEnabled', () => {
     test('return true in development environment', () => {
-      process.env.NODE_ENV = 'development';
+      (process.env as any).NODE_ENV = 'development';
       expect(isLoggingEnabled()).toBe(true);
     });
 
     test('return false in test environment', () => {
-      process.env.NODE_ENV = 'test';
+      (process.env as any).NODE_ENV = 'test';
       expect(isLoggingEnabled()).toBe(false);
     });
 
     test('return false in production environment', () => {
-      process.env.NODE_ENV = 'production';
+      (process.env as any).NODE_ENV = 'production';
       expect(isLoggingEnabled()).toBe(false);
     });
 
     test('return true when NODE_ENV is not set', () => {
-      delete process.env.NODE_ENV;
+      delete (process.env as any).NODE_ENV;
       expect(isLoggingEnabled()).toBe(true);
     });
   });
@@ -37,7 +37,7 @@ describe('Logger', () => {
   describe('createLogger', () => {
     describe('in development mode', () => {
       beforeEach(() => {
-        process.env.NODE_ENV = 'development';
+        (process.env as any).NODE_ENV = 'development';
       });
 
       test('log messages with prefix', () => {
@@ -96,7 +96,7 @@ describe('Logger', () => {
 
     describe('in test mode', () => {
       beforeEach(() => {
-        process.env.NODE_ENV = 'test';
+        (process.env as any).NODE_ENV = 'test';
       });
 
       test('suppress log messages', () => {
@@ -132,7 +132,7 @@ describe('Logger', () => {
 
     describe('in production mode', () => {
       beforeEach(() => {
-        process.env.NODE_ENV = 'production';
+        (process.env as any).NODE_ENV = 'production';
       });
 
       test('suppress log messages', () => {

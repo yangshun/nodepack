@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "predev": "cp ../packages/worker/dist/runtime-worker.js public/workers/runtime-worker.js 2>/dev/null || true",
-    "dev": "next dev",
+    "dev": "next dev --webpack",
     "prebuild": "cp ../packages/worker/dist/runtime-worker.js public/workers/runtime-worker.js 2>/dev/null || true",
-    "build": "next build",
+    "build": "next build --webpack",
     "start": "next start"
   },
   "dependencies": {
@@ -29,8 +29,8 @@
     "monaco-editor": "^0.55.1",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
-    "react": "^18.2.0",
-    "react-dom": "^18.2.0",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
     "react-icons": "^5.5.0",
     "react-markdown": "^10.1.0",
     "react-resizable-panels": "^4.6.3",
@@ -41,12 +41,12 @@
   },
   "devDependencies": {
     "@types/path-browserify": "^1.0.3",
-    "@types/react": "^18.2.48",
-    "@types/react-dom": "^18.2.18",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
     "autoprefixer": "^10.4.16",
-    "next": "^15.2.0",
+    "next": "^16.1.6",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1",
-    "typescript": "^5.3.3"
+    "typescript": "^5.9.3"
   }
 }
