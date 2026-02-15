@@ -225,7 +225,7 @@ export default function Page() {
     transport: new DefaultChatTransport({ api: '/api/chat' }),
   });
 
-  const handleSubmit = (e) => {
+  const handleSubmit = e => {
     e.preventDefault();
     sendMessage({ text: input });
     setInput('');
@@ -233,7 +233,7 @@ export default function Page() {
 
   return (
     <form onSubmit={handleSubmit}>
-      <input value={input} onChange={(e) => setInput(e.target.value)} />
+      <input value={input} onChange={e => setInput(e.target.value)} />
       <button type="submit">Send</button>
     </form>
   );
@@ -259,14 +259,18 @@ Typed tool parts also use different property names:
       case 'text':
         return <div key={`${message.id}-${i}`}>{part.text}</div>;
       case 'tool-invocation': // deprecated: use typed tool parts instead
-        return <pre key={`${message.id}-${i}`}>{JSON.stringify(part.toolInvocation, null, 2)}</pre>;
+        return (
+          <pre key={`${message.id}-${i}`}>
+            {JSON.stringify(part.toolInvocation, null, 2)}
+          </pre>
+        );
     }
   });
 }
 
 // ✅ Correct - using typed tool parts (recommended)
 {
-  message.parts.map((part) => {
+  message.parts.map(part => {
     switch (part.type) {
       case 'text':
         return part.text;
@@ -284,11 +288,10 @@ Typed tool parts also use different property names:
 import { isToolUIPart } from 'ai';
 
 {
-  message.parts.map((part) => {
+  message.parts.map(part => {
     if (part.type === 'text') {
       return part.text;
     }
-
     if (isToolUIPart(part)) {
       // handle any tool part generically
       return (
