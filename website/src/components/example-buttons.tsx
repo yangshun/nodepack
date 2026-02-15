@@ -6,8 +6,19 @@ interface ExampleButtonsProps {
   onSelectExample: (exampleId: string) => void;
 }
 
+function getInitialIndex(): number {
+  const hash = window.location.hash.slice(1);
+  if (hash) {
+    const index = examples.findIndex((ex) => ex.id === hash);
+    if (index !== -1) {
+      return index;
+    }
+  }
+  return 0;
+}
+
 export function ExampleButtons({ onSelectExample }: ExampleButtonsProps) {
-  const [currentIndex, setCurrentIndex] = useState(0);
+  const [currentIndex, setCurrentIndex] = useState(getInitialIndex);
 
   function handlePrevious() {
     const newIndex = currentIndex === 0 ? examples.length - 1 : currentIndex - 1;

@@ -130,8 +130,11 @@ export function App() {
       return;
     }
 
-    // Load the first example (hello) on initial mount
-    handleSelectExample(examples[0].id);
+    // Load example from URL hash, or default to first example
+    const hash = window.location.hash.slice(1);
+    const exampleId =
+      hash && examples.some((ex) => ex.id === hash) ? hash : examples[0].id;
+    handleSelectExample(exampleId);
   }, [nodepack]);
 
   function handleSelectExample(exampleId: string) {
@@ -139,6 +142,9 @@ export function App() {
     if (!example) {
       return;
     }
+
+    // Update URL hash to reflect the selected example
+    window.history.replaceState(null, '', `#${exampleId}`);
 
     const newFiles = example.files
       ? { 'main.js': example.code, ...example.files }
