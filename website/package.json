@@ -6,9 +6,9 @@
   "type": "module",
   "scripts": {
     "predev": "cp ../packages/worker/dist/runtime-worker.js public/workers/runtime-worker.js 2>/dev/null || true",
-    "dev": "next dev --webpack",
+    "dev": "next dev --turbo",
     "prebuild": "cp ../packages/worker/dist/runtime-worker.js public/workers/runtime-worker.js 2>/dev/null || true",
-    "build": "next build --webpack",
+    "build": "next build --turbo",
     "start": "next start"
   },
   "dependencies": {
