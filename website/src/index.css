@@ -21,3 +21,92 @@
 .xterm .xterm-viewport {
   overflow-y: auto;
 }
+
+.ai-chat-markdown {
+  font-size: 0.75rem;
+  line-height: 1.25rem;
+}
+
+.ai-chat-markdown h1,
+.ai-chat-markdown h2,
+.ai-chat-markdown h3,
+.ai-chat-markdown h4,
+.ai-chat-markdown h5,
+.ai-chat-markdown h6 {
+  font-weight: 600;
+  margin-top: 0.5rem;
+  margin-bottom: 0.25rem;
+}
+
+.ai-chat-markdown h1 {
+  font-size: 0.875rem;
+}
+
+.ai-chat-markdown h2 {
+  font-size: 0.8125rem;
+}
+
+.ai-chat-markdown h3,
+.ai-chat-markdown h4,
+.ai-chat-markdown h5,
+.ai-chat-markdown h6 {
+  font-size: 0.75rem;
+}
+
+.ai-chat-markdown p {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+}
+
+.ai-chat-markdown ul,
+.ai-chat-markdown ol {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding-left: 1rem;
+  list-style: revert;
+}
+
+.ai-chat-markdown li {
+  margin-top: 0.125rem;
+  margin-bottom: 0.125rem;
+}
+
+.ai-chat-markdown pre {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding: 0.375rem 0.5rem;
+  border-radius: 0.25rem;
+  background-color: #2d2d2d;
+  overflow-x: auto;
+}
+
+.ai-chat-markdown code {
+  font-size: 0.7rem;
+}
+
+.ai-chat-markdown :not(pre) > code {
+  padding: 0.1rem 0.25rem;
+  border-radius: 0.1875rem;
+  background-color: #2d2d2d;
+}
+
+.ai-chat-markdown blockquote {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  padding-left: 0.5rem;
+  border-left: 2px solid #4b5563;
+  color: #9ca3af;
+}
+
+.ai-chat-markdown a {
+  color: #f97316;
+  text-decoration: underline;
+}
+
+.ai-chat-markdown > :first-child {
+  margin-top: 0;
+}
+
+.ai-chat-markdown > :last-child {
+  margin-bottom: 0;
+}

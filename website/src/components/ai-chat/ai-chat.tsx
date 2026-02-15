@@ -8,6 +8,7 @@ import type { TerminalHandle } from '../terminal/terminal';
 import { createTools } from './tools';
 import { APIConfig } from './api-config';
 import clsx from 'clsx';
+import Markdown from 'react-markdown';
 import { VscArrowRight } from 'react-icons/vsc';
 import { RiCircleFill, RiLoader4Line } from 'react-icons/ri';
 
@@ -239,17 +240,22 @@ export function AIChat({
         {messages.map((message) => (
           <div
             key={message.id}
-            className={clsx(
-              'rounded whitespace-pre-wrap',
-              message.role === 'user' ? 'bg-dark-hover ml-8 p-2' : 'bg-dark-bg mr-8 py-2',
-            )}
+            className={clsx('rounded', message.role === 'user' ? 'pt-4' : 'bg-dark-bg pt-2 pb-4')}
           >
             {message.parts && message.parts.length > 0 ? (
               message.parts.map((part, index) => {
                 if (part.type === 'text') {
                   return (
                     <div key={`text-${index}`} className={clsx('text-xs', index > 0 && 'mt-2')}>
-                      {part.content}
+                      {message.role === 'assistant' ? (
+                        <div className="ai-chat-markdown">
+                          <Markdown>{part.content}</Markdown>
+                        </div>
+                      ) : (
+                        <p className="w-fit rounded-lg bg-dark-hover p-2 border border-dark-border">
+                          {part.content}
+                        </p>
+                      )}
                     </div>
                   );
                 }
@@ -274,7 +280,17 @@ export function AIChat({
                 );
               })
             ) : (
-              <div className="text-xs">{message.content}</div>
+              <div className="text-xs">
+                {message.role === 'assistant' ? (
+                  <div className="ai-chat-markdown">
+                    <Markdown>{message.content}</Markdown>
+                  </div>
+                ) : (
+                  <p className="w-fit rounded-lg bg-dark-hover p-2 border border-dark-border">
+                    {message.content}
+                  </p>
+                )}
+              </div>
             )}
           </div>
         ))}
