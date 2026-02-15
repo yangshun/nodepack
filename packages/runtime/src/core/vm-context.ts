@@ -22,6 +22,7 @@ import {
   createOsModule,
   createQuerystringModule,
   createStreamModule,
+  createHttpModule,
 } from '../builtins/index.js';
 import type { TimerTracker } from '../builtins/timers.js';
 import { NodepackModuleLoader } from '../module-system/loader.js';
@@ -122,6 +123,11 @@ export function setupVMContext(
   const streamHandle = createStreamModule(vm);
   vm.setProp(vm.global, '__nodepack_stream', streamHandle);
   streamHandle.dispose();
+
+  // Set up http builtin
+  const httpHandle = createHttpModule(vm);
+  vm.setProp(vm.global, '__nodepack_http', httpHandle);
+  httpHandle.dispose();
 
   // Set up CommonJS module executor function
   // This is called from require() to execute CommonJS modules

@@ -16,5 +16,6 @@ export { createCryptoModule } from './crypto.js';
 export { createOsModule } from './os.js';
 export { createQuerystringModule } from './querystring.js';
 export { createStreamModule } from './stream.js';
+export { createHttpModule } from './http.js';
 export { createGlobalModule, addModuleFunction } from './helpers.js';
 export type { ModuleFactory } from './helpers.js';

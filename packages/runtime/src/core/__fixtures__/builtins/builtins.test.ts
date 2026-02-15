@@ -642,4 +642,84 @@ describe('NodepackRuntime - Built-in modules', () => {
     // node: protocol test
     expect(result.data.nodeProtocolWorks).toBe(true);
   });
+
+  test('support http module (ESM)', async () => {
+    const fixture = loadFixture('builtins/http');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('HTTP ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Module availability
+    expect(result.data.hasHttp).toBe(true);
+    expect(result.data.hasRequest).toBe(true);
+    expect(result.data.hasGet).toBe(true);
+    expect(result.data.hasCreateServer).toBe(true);
+    expect(result.data.hasStatusCodes).toBe(true);
+    expect(result.data.hasMethods).toBe(true);
+
+    // STATUS_CODES tests
+    expect(result.data.status200Correct).toBe(true);
+    expect(result.data.status404Correct).toBe(true);
+    expect(result.data.status500Correct).toBe(true);
+
+    // METHODS tests
+    expect(result.data.hasGetMethod).toBe(true);
+    expect(result.data.hasPostMethod).toBe(true);
+    expect(result.data.hasDeleteMethod).toBe(true);
+    expect(result.data.methodsLengthCorrect).toBe(true);
+
+    // GET request tests
+    expect(result.data.getRequestCreated).toBe(true);
+
+    // POST request tests
+    expect(result.data.requestCreated).toBe(true);
+    expect(result.data.requestHasWrite).toBe(true);
+    expect(result.data.requestHasEnd).toBe(true);
+
+    // Server test (should fail in browser)
+    expect(result.data.serverErrorOccurred).toBe(true);
+    expect(result.data.serverErrorIsCorrect).toBe(true);
+
+    // Classes
+    expect(result.data.canCreateClientRequest).toBe(true);
+    expect(result.data.canCreateIncomingMessage).toBe(true);
+
+    // Request methods
+    expect(result.data.canWriteToRequest).toBe(true);
+    expect(result.data.canEndRequest).toBe(true);
+    expect(result.data.canAbortRequest).toBe(true);
+    expect(result.data.canSetTimeout).toBe(true);
+  });
+
+  test('support http module (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'http/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('HTTP CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Module availability
+    expect(result.data.hasHttp).toBe(true);
+    expect(result.data.hasRequest).toBe(true);
+    expect(result.data.hasGet).toBe(true);
+    expect(result.data.hasStatusCodes).toBe(true);
+
+    // STATUS_CODES
+    expect(result.data.status200Correct).toBe(true);
+
+    // Request object
+    expect(result.data.requestCreated).toBe(true);
+    expect(result.data.requestHasWrite).toBe(true);
+    expect(result.data.requestHasEnd).toBe(true);
+
+    // node: protocol test
+    expect(result.data.nodeProtocolWorks).toBe(true);
+  });
 });

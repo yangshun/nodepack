@@ -439,6 +439,25 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // http module
+    modules.set(
+      'http',
+      `
+      export const STATUS_CODES = globalThis.__nodepack_http.STATUS_CODES;
+      export const METHODS = globalThis.__nodepack_http.METHODS;
+      export const IncomingMessage = globalThis.__nodepack_http.IncomingMessage;
+      export const ClientRequest = globalThis.__nodepack_http.ClientRequest;
+      export const Server = globalThis.__nodepack_http.Server;
+      export const ServerResponse = globalThis.__nodepack_http.ServerResponse;
+      export const request = globalThis.__nodepack_http.request;
+      export const get = globalThis.__nodepack_http.get;
+      export const createServer = globalThis.__nodepack_http.createServer;
+      export const Agent = globalThis.__nodepack_http.Agent;
+      export const globalAgent = globalThis.__nodepack_http.globalAgent;
+      export default globalThis.__nodepack_http;
+    `,
+    );
+
     return modules;
   }
 
