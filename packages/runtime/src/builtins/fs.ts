@@ -383,5 +383,513 @@ export function createFsModule(vm: QuickJSContext, filesystem: any): QuickJSHand
   vm.setProp(fsObj, 'constants', constantsObj);
   constantsObj.dispose();
 
+  // Add async versions of fs functions using QuickJS code
+  // These wrap the sync versions in Promises or use callbacks
+  const asyncFsCode = `
+    // Get the fs object from the module
+    const fsSync = globalThis.__nodepack_fs_sync;
+
+    // readFile - async version of readFileSync
+    function readFile(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // Parse options
+      let encoding = 'utf8';
+      if (typeof options === 'string') {
+        encoding = options;
+      } else if (options && typeof options === 'object') {
+        encoding = options.encoding || 'utf8';
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.readFileSync(path, encoding);
+          callback(null, result);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          const result = fsSync.readFileSync(path, encoding);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // writeFile - async version of writeFileSync
+    function writeFile(path, content, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.writeFileSync(path, content, options);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.writeFileSync(path, content, options);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // appendFile - async version of appendFileSync
+    function appendFile(path, data, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.appendFileSync(path, data, options);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.appendFileSync(path, data, options);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // readdir - async version of readdirSync
+    function readdir(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.readdirSync(path, options);
+          callback(null, result);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          const result = fsSync.readdirSync(path, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // mkdir - async version of mkdirSync
+    function mkdir(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.mkdirSync(path, options);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.mkdirSync(path, options);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // unlink - async version of unlinkSync
+    function unlink(path, callback) {
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.unlinkSync(path);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.unlinkSync(path);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // stat - async version of statSync
+    function stat(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.statSync(path, options);
+          callback(null, result);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          const result = fsSync.statSync(path, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // lstat - async version of lstatSync
+    function lstat(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.lstatSync(path, options);
+          callback(null, result);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          const result = fsSync.lstatSync(path, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // copyFile - async version of copyFileSync
+    function copyFile(src, dest, flags, callback) {
+      // Handle argument variations
+      if (typeof flags === 'function') {
+        callback = flags;
+        flags = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.copyFileSync(src, dest, flags);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.copyFileSync(src, dest, flags);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // rename - async version of renameSync
+    function rename(oldPath, newPath, callback) {
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.renameSync(oldPath, newPath);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.renameSync(oldPath, newPath);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // rmdir - async version of rmdirSync
+    function rmdir(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.rmdirSync(path, options);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.rmdirSync(path, options);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // rm - async version of rmSync
+    function rm(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.rmSync(path, options);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.rmSync(path, options);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // access - async version of accessSync
+    function access(path, mode, callback) {
+      // Handle argument variations
+      if (typeof mode === 'function') {
+        callback = mode;
+        mode = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          fsSync.accessSync(path, mode);
+          callback(null);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          fsSync.accessSync(path, mode);
+          resolve();
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // realpath - async version of realpathSync
+    function realpath(path, options, callback) {
+      // Handle argument variations
+      if (typeof options === 'function') {
+        callback = options;
+        options = undefined;
+      }
+
+      // If callback provided, use callback-based API
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.realpathSync(path, options);
+          callback(null, result);
+        } catch (error) {
+          callback(error);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve, reject) => {
+        try {
+          const result = fsSync.realpathSync(path, options);
+          resolve(result);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    }
+
+    // exists - async version of existsSync
+    function exists(path, callback) {
+      // If callback provided, use callback-based API
+      // Note: exists is deprecated with callback, but we support it for compatibility
+      if (typeof callback === 'function') {
+        try {
+          const result = fsSync.existsSync(path);
+          callback(result);
+        } catch (error) {
+          callback(false);
+        }
+        return;
+      }
+
+      // Otherwise, return Promise
+      return new Promise((resolve) => {
+        try {
+          const result = fsSync.existsSync(path);
+          resolve(result);
+        } catch (error) {
+          resolve(false);
+        }
+      });
+    }
+
+    const asyncFs = {
+      readFile,
+      writeFile,
+      appendFile,
+      readdir,
+      mkdir,
+      unlink,
+      stat,
+      lstat,
+      copyFile,
+      rename,
+      rmdir,
+      rm,
+      access,
+      realpath,
+      exists,
+    };
+
+    asyncFs;
+  `;
+
+  // Store sync version globally for async wrappers to use
+  vm.setProp(vm.global, '__nodepack_fs_sync', fsObj);
+
+  // Evaluate async fs functions
+  const asyncResult = vm.evalCode(asyncFsCode);
+  if (asyncResult.error) {
+    const error = vm.dump(asyncResult.error);
+    asyncResult.error.dispose();
+    throw new Error(`Failed to create async fs functions: ${error}`);
+  }
+
+  const asyncFsHandle = asyncResult.value;
+
+  // Add async functions to the main fs object
+  const asyncFunctions = [
+    'readFile',
+    'writeFile',
+    'appendFile',
+    'readdir',
+    'mkdir',
+    'unlink',
+    'stat',
+    'lstat',
+    'copyFile',
+    'rename',
+    'rmdir',
+    'rm',
+    'access',
+    'realpath',
+    'exists',
+  ];
+
+  for (const funcName of asyncFunctions) {
+    const funcHandle = vm.getProp(asyncFsHandle, funcName);
+    vm.setProp(fsObj, funcName, funcHandle);
+    funcHandle.dispose();
+  }
+
+  asyncFsHandle.dispose();
+
   return fsObj;
 }

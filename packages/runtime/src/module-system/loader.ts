@@ -269,6 +269,21 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
       export const accessSync = globalThis.__nodepack_fs.accessSync;
       export const realpathSync = globalThis.__nodepack_fs.realpathSync;
       export const constants = globalThis.__nodepack_fs.constants;
+      export const readFile = globalThis.__nodepack_fs.readFile;
+      export const writeFile = globalThis.__nodepack_fs.writeFile;
+      export const appendFile = globalThis.__nodepack_fs.appendFile;
+      export const readdir = globalThis.__nodepack_fs.readdir;
+      export const mkdir = globalThis.__nodepack_fs.mkdir;
+      export const unlink = globalThis.__nodepack_fs.unlink;
+      export const stat = globalThis.__nodepack_fs.stat;
+      export const lstat = globalThis.__nodepack_fs.lstat;
+      export const copyFile = globalThis.__nodepack_fs.copyFile;
+      export const rename = globalThis.__nodepack_fs.rename;
+      export const rmdir = globalThis.__nodepack_fs.rmdir;
+      export const rm = globalThis.__nodepack_fs.rm;
+      export const access = globalThis.__nodepack_fs.access;
+      export const realpath = globalThis.__nodepack_fs.realpath;
+      export const exists = globalThis.__nodepack_fs.exists;
       export default globalThis.__nodepack_fs;
     `,
     );

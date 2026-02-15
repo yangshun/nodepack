@@ -87,6 +87,47 @@ describe('NodepackRuntime - Built-in modules', () => {
     expect(result.data.inspected).toContain('test');
   });
 
+  test('support fs async functions with import * syntax', async () => {
+    const code = readFileSync('/tmp/test-fs-import-star.js', 'utf8');
+    const result = await runtime.execute(code);
+
+    if (!result.ok) {
+      console.log('FS import * error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.hasReadFile).toBe(true);
+    expect(result.data.hasWriteFile).toBe(true);
+    expect(result.data.hasExists).toBe(true);
+    expect(result.data.hasMkdir).toBe(true);
+    expect(result.data.hasReaddir).toBe(true);
+    expect(result.data.hasStat).toBe(true);
+    expect(result.data.hasReadFileSync).toBe(true);
+    expect(result.data.hasWriteFileSync).toBe(true);
+    expect(result.data.contentMatches).toBe(true);
+    expect(result.data.allAsyncFunctionsExist).toBe(true);
+    expect(result.data.allSyncFunctionsExist).toBe(true);
+  });
+
+  test('support fs async functions with callback API', async () => {
+    const code = readFileSync('/tmp/test-fs-callbacks.js', 'utf8');
+    const result = await runtime.execute(code);
+
+    if (!result.ok) {
+      console.log('FS callback error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+    expect(result.data.readFileWorks).toBe(true);
+    expect(result.data.writeFileWorks).toBe(true);
+    expect(result.data.existsWorks).toBe(true);
+    expect(result.data.mkdirWorks).toBe(true);
+    expect(result.data.readdirWorks).toBe(true);
+    expect(result.data.statWorks).toBe(true);
+    expect(result.data.unlinkWorks).toBe(true);
+    expect(result.data.errorHandlingWorks).toBe(true);
+  });
+
   test('support buffer module (ESM)', async () => {
     const fixture = loadFixture('builtins/buffer');
     const result = await runtime.execute(fixture.mainFile);
