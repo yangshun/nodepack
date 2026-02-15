@@ -384,6 +384,31 @@ if (typeof import.meta === 'undefined' || !import.meta.url) {
     `,
     );
 
+    // os module
+    modules.set(
+      'os',
+      `
+      export const platform = globalThis.__nodepack_os.platform;
+      export const arch = globalThis.__nodepack_os.arch;
+      export const type = globalThis.__nodepack_os.type;
+      export const release = globalThis.__nodepack_os.release;
+      export const tmpdir = globalThis.__nodepack_os.tmpdir;
+      export const homedir = globalThis.__nodepack_os.homedir;
+      export const hostname = globalThis.__nodepack_os.hostname;
+      export const cpus = globalThis.__nodepack_os.cpus;
+      export const totalmem = globalThis.__nodepack_os.totalmem;
+      export const freemem = globalThis.__nodepack_os.freemem;
+      export const uptime = globalThis.__nodepack_os.uptime;
+      export const loadavg = globalThis.__nodepack_os.loadavg;
+      export const networkInterfaces = globalThis.__nodepack_os.networkInterfaces;
+      export const endianness = globalThis.__nodepack_os.endianness;
+      export const userInfo = globalThis.__nodepack_os.userInfo;
+      export const EOL = globalThis.__nodepack_os.EOL;
+      export const constants = globalThis.__nodepack_os.constants;
+      export default globalThis.__nodepack_os;
+    `,
+    );
+
     return modules;
   }
 

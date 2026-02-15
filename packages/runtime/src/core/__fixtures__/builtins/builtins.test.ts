@@ -389,4 +389,92 @@ describe('NodepackRuntime - Built-in modules', () => {
     // node: protocol test
     expect(result.data.nodeProtocolWorks).toBe(true);
   });
+
+  test('support os module (ESM)', async () => {
+    const fixture = loadFixture('builtins/os');
+    const result = await runtime.execute(fixture.mainFile);
+
+    if (!result.ok) {
+      console.log('OS ESM error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasPlatform).toBe(true);
+    expect(result.data.hasArch).toBe(true);
+    expect(result.data.hasType).toBe(true);
+    expect(result.data.hasRelease).toBe(true);
+    expect(result.data.hasTmpdir).toBe(true);
+    expect(result.data.hasHomedir).toBe(true);
+    expect(result.data.hasHostname).toBe(true);
+    expect(result.data.hasCpus).toBe(true);
+    expect(result.data.hasTotalmem).toBe(true);
+    expect(result.data.hasFreemem).toBe(true);
+    expect(result.data.hasUptime).toBe(true);
+    expect(result.data.hasLoadavg).toBe(true);
+    expect(result.data.hasNetworkInterfaces).toBe(true);
+    expect(result.data.hasEndianness).toBe(true);
+    expect(result.data.hasUserInfo).toBe(true);
+    expect(result.data.hasEOL).toBe(true);
+    expect(result.data.hasOsDefault).toBe(true);
+
+    // Return types
+    expect(result.data.platformIsString).toBe(true);
+    expect(result.data.archIsString).toBe(true);
+    expect(result.data.typeIsString).toBe(true);
+    expect(result.data.releaseIsString).toBe(true);
+    expect(result.data.tmpdirIsString).toBe(true);
+    expect(result.data.homedirIsString).toBe(true);
+    expect(result.data.hostnameIsString).toBe(true);
+    expect(result.data.cpusIsArray).toBe(true);
+    expect(result.data.totalmemIsNumber).toBe(true);
+    expect(result.data.freememIsNumber).toBe(true);
+    expect(result.data.uptimeIsNumber).toBe(true);
+    expect(result.data.loadavgIsArray).toBe(true);
+    expect(result.data.networkInterfacesIsObject).toBe(true);
+    expect(result.data.endiannessIsString).toBe(true);
+    expect(result.data.userInfoIsObject).toBe(true);
+
+    // Specific values
+    expect(result.data.platformValue).toBe('browser');
+    expect(result.data.archValue).toBe('x64');
+    expect(result.data.cpusLength).toBeGreaterThan(0);
+    expect(result.data.cpusHasTimes).toBe(true);
+    expect(result.data.loadavgLength).toBe(3);
+    expect(result.data.endiannessValid).toBe(true);
+    expect(result.data.userInfoHasUsername).toBe(true);
+    expect(result.data.eolIsNewline).toBe(true);
+    expect(result.data.hasConstants).toBe(true);
+  });
+
+  test('support os module (CJS)', async () => {
+    const cjsCode = readFileSync(join(__dirname, 'os/main-cjs.js'), 'utf8');
+    const result = await runtime.execute(cjsCode);
+
+    if (!result.ok) {
+      console.log('OS CJS error:', result.error);
+    }
+
+    expect(result.ok).toBe(true);
+
+    // Function availability
+    expect(result.data.hasPlatform).toBe(true);
+    expect(result.data.hasArch).toBe(true);
+    expect(result.data.hasEOL).toBe(true);
+    expect(result.data.hasOsDefault).toBe(true);
+
+    // Return types
+    expect(result.data.platformIsString).toBe(true);
+    expect(result.data.archIsString).toBe(true);
+    expect(result.data.cpusIsArray).toBe(true);
+
+    // Specific values
+    expect(result.data.platformValue).toBe('browser');
+    expect(result.data.archValue).toBe('x64');
+    expect(result.data.eolIsNewline).toBe(true);
+
+    // node: protocol test
+    expect(result.data.nodeProtocolWorks).toBe(true);
+  });
 });
