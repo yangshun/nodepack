@@ -27,6 +27,7 @@ interface AIChatProps {
   messages: ReturnType<typeof useChat>['messages'];
   sendMessage: ReturnType<typeof useChat>['sendMessage'];
   status: ReturnType<typeof useChat>['status'];
+  defaultChoices?: string[];
 }
 
 export function AIChat({
@@ -37,6 +38,11 @@ export function AIChat({
   messages,
   sendMessage,
   status,
+  defaultChoices = [
+    'Explain the code',
+    'How can I improve the code?',
+    'Run the code and show me the output',
+  ],
 }: AIChatProps) {
   const [showConfig, setShowConfig] = useState(!apiKey && !hasServerKeys);
   const [input, setInput] = useState('');
@@ -49,11 +55,21 @@ export function AIChat({
 
   function handleSubmit(event: React.FormEvent) {
     event.preventDefault();
+
     if (!input.trim() || status !== 'ready') {
       return;
     }
+
     sendMessage({ text: input });
     setInput('');
+  }
+
+  function handleChoiceClick(choice: string) {
+    if (status !== 'ready') {
+      return;
+    }
+
+    sendMessage({ text: choice });
   }
 
   if (showConfig || (!apiKey && !hasServerKeys)) {
@@ -87,15 +103,35 @@ export function AIChat({
         </div>
       </div>
       {/* Messages */}
-      <div className="flex-1 overflow-y-auto p-2 space-y-2">
+      <div
+        className={clsx(
+          'flex-1 overflow-y-auto p-2 space-y-2',
+          messages.length === 0 && 'flex items-center justify-center',
+        )}
+      >
         {messages.length === 0 && (
-          <div className="text-center p-8 text-gray-400">
-            <p className="mb-4">Ask me to help with your code</p>
-            <div className="text-xs space-y-1">
-              <p>I can read and edit files</p>
-              <p>Run code and install packages</p>
-              <p>Execute bash commands</p>
-            </div>
+          <div className="p-8">
+            <p className="text-center mb-4 text-gray-400">What can I do for you?</p>
+            {defaultChoices && defaultChoices.length > 0 ? (
+              <div className="space-y-2">
+                {defaultChoices.map((choice, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handleChoiceClick(choice)}
+                    disabled={status !== 'ready'}
+                    className="w-full text-left text-xs p-3 rounded-lg border border-dark-border hover:bg-dark-hover hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {choice}
+                  </button>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center text-xs space-y-1 text-gray-400">
+                <p>I can read and edit files</p>
+                <p>Run code and install packages</p>
+                <p>Execute bash commands</p>
+              </div>
+            )}
           </div>
         )}
         {messages.map((message) => (
