@@ -325,19 +325,18 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
           },
         });
 
-        if (!result.ok) {
-          if (terminalRef.current) {
-            const errorMsg =
-              typeof result.error === 'object'
-                ? JSON.stringify(result.error, null, 2)
-                : String(result.error);
-            terminalRef.current.writeOutput(`Error: ${errorMsg}`);
-          }
+        if (!result.ok && terminalRef.current) {
+          const errorMsg =
+            typeof result.error === 'object'
+              ? JSON.stringify(result.error, null, 2)
+              : String(result.error);
+          terminalRef.current.writeOutput(`Error: ${errorMsg}`);
         }
       } catch (error: any) {
         if (terminalRef.current) {
           terminalRef.current.writeOutput(`Execution failed: ${error.message}`);
         }
+
         console.error('Execution error:', error);
       } finally {
         setIsRunning(false);
@@ -467,6 +466,11 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
         }
 
         setFilesystemVersion((v) => v + 1);
+      }
+
+      // Refresh terminal bin commands to register newly installed bins
+      if (terminalRef.current) {
+        terminalRef.current.refreshBinCommands();
       }
     },
     [nodepack],

@@ -27,6 +27,13 @@ export class TerminalController {
   ) {}
 
   /**
+   * Update the bash instance (used when refreshing bin commands)
+   */
+  setBash(bash: Bash): void {
+    this.bash = bash;
+  }
+
+  /**
    * Initialize the terminal with welcome message and prompt
    */
   initialize(): void {

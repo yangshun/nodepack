@@ -65,8 +65,8 @@ export function createRequireFunction(): string {
     let resolvedPath;
 
     if (modulePath.startsWith('/')) {
-      // Absolute path
-      resolvedPath = modulePath;
+      // Absolute path - normalize to remove ./ and ../
+      resolvedPath = globalThis.__nodepack_path.normalize(modulePath);
     } else if (modulePath.startsWith('./') || modulePath.startsWith('../')) {
       // Relative path - resolve from current module directory
       resolvedPath = globalThis.__nodepack_path.resolve(
@@ -111,7 +111,14 @@ export function createRequireFunction(): string {
     }
 
     // 4. Add .js extension if missing (try multiple patterns)
-    if (!resolvedPath.endsWith('.js') && !resolvedPath.endsWith('.json')) {
+    // Skip this step if the path already has a recognized extension
+    const hasExtension =
+      resolvedPath.endsWith('.js') ||
+      resolvedPath.endsWith('.cjs') ||
+      resolvedPath.endsWith('.mjs') ||
+      resolvedPath.endsWith('.json');
+
+    if (!hasExtension) {
       // Try with .js
       if (globalThis.__nodepack_fs.existsSync(resolvedPath + '.js')) {
         resolvedPath = resolvedPath + '.js';

@@ -34,6 +34,7 @@ export interface TerminalHandle {
   writeOutput: (message: string) => void;
   clear: () => void;
   executeCommand: (command: string) => Promise<void>;
+  refreshBinCommands: () => void;
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
@@ -61,10 +62,87 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
           await controllerRef.current.runCommand(command);
         }
       },
+      refreshBinCommands: () => {
+        if (!controllerRef.current) {
+          return;
+        }
+
+        // Write notification to terminal
+        controllerRef.current.writeOutput(
+          '\x1b[33mℹ New bin commands installed. Use npx to run them (e.g., npx prettier --version)\x1b[0m',
+        );
+      },
     }));
 
+    // Helper function to generate bin custom commands
+    function generateBinCustomCommands(): Array<{ name: string; execute: any }> {
+      const binCommands: Array<{ name: string; execute: any }> = [];
+
+      if (!filesystem) {
+        return binCommands;
+      }
+
+      try {
+        const binDir = '/node_modules/.bin';
+        if (filesystem.existsSync(binDir)) {
+          const entries = filesystem.readdirSync(binDir);
+          const binFiles = entries.filter((entry) => typeof entry === 'string') as string[];
+
+          for (const binFile of binFiles) {
+            binCommands.push({
+              name: binFile,
+              execute: async (args: string[]) => {
+                const binPath = `/node_modules/.bin/${binFile}`;
+
+                if (!onExecuteFile) {
+                  return {
+                    stdout: '',
+                    stderr: 'Error: Command execution not available\n',
+                    exitCode: 1,
+                  };
+                }
+
+                try {
+                  const result = await onExecuteFile(binPath, {
+                    argv: ['node', binPath, ...args],
+                  });
+
+                  if (!result.ok) {
+                    return {
+                      stdout: '',
+                      stderr: result.error || 'Execution failed\n',
+                      exitCode: 1,
+                    };
+                  }
+
+                  return {
+                    stdout: '',
+                    stderr: '',
+                    exitCode: 0,
+                  };
+                } catch (error: any) {
+                  return {
+                    stdout: '',
+                    stderr: `Error executing ${binFile}: ${error.message}\n`,
+                    exitCode: 1,
+                  };
+                }
+              },
+            });
+          }
+        }
+      } catch (error) {
+        // Silently ignore errors during bin command generation
+        console.warn('Error generating bin commands:', error);
+      }
+
+      return binCommands;
+    }
+
     useEffect(() => {
-      if (!terminalRef.current || !filesystem) return;
+      if (!terminalRef.current || !filesystem) {
+        return;
+      }
 
       // Create xterm instance
       const term = new XTerm({
@@ -109,6 +187,10 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
 
       // Create just-bash instance with bridged filesystem
       const bridgedFs = new BridgedFilesystem(filesystem);
+
+      // Generate bin custom commands
+      const binCommands = generateBinCustomCommands();
+
       const bash = new Bash({
         fs: bridgedFs,
         cwd: '/', // Start at root directory
@@ -205,6 +287,7 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                     'Supported commands:\n' +
                     '  init               - Create a package.json file\n' +
                     '  install [package]  - Install packages from package.json or specific package\n' +
+                    '  bin [--list]       - Show bin directory path or list bin commands\n' +
                     '  run <script>       - Run a package.json script\n' +
                     '  start              - Alias for npm run start\n' +
                     '  test               - Alias for npm run test\n' +
@@ -270,6 +353,55 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
                     exitCode: 1,
                   };
                 }
+              }
+
+              // Handle bin subcommand
+              if (subcommand === 'bin') {
+                // Check for --list flag
+                if (args.includes('--list') || args.includes('-l') || args[1] === 'ls') {
+                  try {
+                    const binDir = '/node_modules/.bin';
+                    const exists = await context.fs.exists(binDir);
+
+                    if (!exists) {
+                      return {
+                        stdout: 'No bin commands installed\n',
+                        stderr: '',
+                        exitCode: 0,
+                      };
+                    }
+
+                    const entries = await context.fs.readdir(binDir);
+                    const commands = entries.filter((entry: any) => typeof entry === 'string');
+
+                    if (commands.length === 0) {
+                      return {
+                        stdout: 'No bin commands installed\n',
+                        stderr: '',
+                        exitCode: 0,
+                      };
+                    }
+
+                    return {
+                      stdout: commands.sort().join('\n') + '\n',
+                      stderr: '',
+                      exitCode: 0,
+                    };
+                  } catch (error: any) {
+                    return {
+                      stdout: '',
+                      stderr: `Error listing bin commands: ${error.message}\n`,
+                      exitCode: 1,
+                    };
+                  }
+                }
+
+                // Default: show bin directory path
+                return {
+                  stdout: '/node_modules/.bin\n',
+                  stderr: '',
+                  exitCode: 0,
+                };
               }
 
               // Handle install subcommand
@@ -393,7 +525,70 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
               };
             },
           },
-        ],
+          {
+            name: 'npx',
+            execute: async (args: string[], context: any) => {
+              if (args.length === 0) {
+                return {
+                  stdout: '',
+                  stderr: 'Usage: npx <command> [args...]\n',
+                  exitCode: 1,
+                };
+              }
+
+              const commandName = args[0];
+              const commandArgs = args.slice(1);
+              const binPath = `/node_modules/.bin/${commandName}`;
+
+              try {
+                const exists = await context.fs.exists(binPath);
+
+                if (!exists) {
+                  return {
+                    stdout: '',
+                    stderr:
+                      `Command '${commandName}' not found in /node_modules/.bin/\n` +
+                      `Try installing it first: npm install ${commandName}\n`,
+                    exitCode: 1,
+                  };
+                }
+
+                // Execute using the node command
+                if (!onExecuteFile) {
+                  return {
+                    stdout: '',
+                    stderr: 'Error: Command execution not available\n',
+                    exitCode: 1,
+                  };
+                }
+
+                const result = await onExecuteFile(binPath, {
+                  argv: ['node', binPath, ...commandArgs],
+                });
+
+                if (!result.ok) {
+                  return {
+                    stdout: '',
+                    stderr: result.error || 'Execution failed\n',
+                    exitCode: 1,
+                  };
+                }
+
+                return {
+                  stdout: '',
+                  stderr: '',
+                  exitCode: 0,
+                };
+              } catch (error: any) {
+                return {
+                  stdout: '',
+                  stderr: `Error executing ${commandName}: ${error.message}\n`,
+                  exitCode: 1,
+                };
+              }
+            },
+          },
+        ].concat(binCommands),
       });
 
       // Create terminal controller

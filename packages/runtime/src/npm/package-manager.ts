@@ -227,7 +227,9 @@ export class NpmPackageManager {
 
     // Create symlinks for each bin entry
     for (const [cmdName, binPath] of Object.entries(binEntries)) {
-      const targetPath = `${packageDir}/${binPath}`;
+      // Normalize the bin path to remove ./ and ../ segments
+      const normalizedBinPath = binPath.replace(/^\.\//, '').replace(/\/\.\//g, '/');
+      const targetPath = `${packageDir}/${normalizedBinPath}`;
       const linkPath = `${binDir}/${cmdName}`;
 
       this.logger.log(`Processing bin entry: ${cmdName} -> ${binPath}`);
