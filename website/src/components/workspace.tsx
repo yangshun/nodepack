@@ -34,9 +34,10 @@ import { RiChatAiLine } from 'react-icons/ri';
 interface WorkspaceProps {
   title?: string;
   initialFiles: FileMap;
+  ai?: boolean; // Whether to show AI chat panel
 }
 
-export function Workspace({ title, initialFiles }: WorkspaceProps) {
+export function Workspace({ title, initialFiles, ai = false }: WorkspaceProps) {
   const [nodepack, setNodepack] = useState<Nodepack | null>(null);
   const [status, setStatus] = useState<RuntimeStatus>('initializing');
   const [isRunning, setIsRunning] = useState(false);
@@ -52,7 +53,7 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
   const [openFiles, setOpenFiles] = useState<string[]>(['main.js']);
 
   // AI Chat config state (messages and input are managed by useChat inside AIChat)
-  const [aiChatVisible, setAiChatVisible] = useState(true);
+  const [aiChatVisible, setAiChatVisible] = useState(ai);
   const [anthropicApiKey] = useAnthropicApiKey();
   const [openaiApiKey] = useOpenaiApiKey();
   const [aiProvider] = useAiProvider();

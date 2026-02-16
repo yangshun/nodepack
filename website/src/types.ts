@@ -8,6 +8,7 @@ export interface ExampleDefinition {
   id: string;
   label: string;
   files: FileMap;
+  ai?: boolean;
 }
 
 export interface FileTreeNode {

@@ -3,6 +3,7 @@ import type { ExampleDefinition } from '../types';
 export const usingNpmPackages: ExampleDefinition = {
   id: 'using-npm-packages',
   label: 'Using npm packages',
+  ai: true,
   files: {
     'main.js': `// Example using npm package – Zod
 //

@@ -3,6 +3,7 @@ import type { ExampleDefinition } from '../types';
 export const asyncPatterns: ExampleDefinition = {
   id: 'async-patterns',
   label: 'Async patterns',
+  ai: true,
   files: {
     'main.js': `// Async patterns demo
 //

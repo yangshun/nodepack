@@ -3,6 +3,7 @@ import type { ExampleDefinition } from '../types';
 export const npmBin: ExampleDefinition = {
   id: 'npm-bin',
   label: 'npm bin executables',
+  ai: true,
   files: {
     'main.js': `// Cowsay usage example, installed as a dependency in package.json
 

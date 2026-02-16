@@ -52,6 +52,7 @@ export function App() {
       <div className="h-0 grow">
         <Workspace
           key={selectedExampleId}
+          ai={!!selectedExample?.ai}
           title={selectedExample?.label}
           initialFiles={initialFiles}
         />
