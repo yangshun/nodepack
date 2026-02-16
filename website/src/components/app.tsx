@@ -2,7 +2,7 @@
 
 import { useState, useMemo } from 'react';
 
-import { Workspace } from '../workspace';
+import { Workspace } from './workspace';
 import { ExampleButtons } from './example-buttons';
 import { examples } from '../examples';
 import type { FileMap } from '../types';

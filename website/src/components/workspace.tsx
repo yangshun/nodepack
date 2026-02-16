@@ -8,20 +8,20 @@ import type { ExecutionResult, RuntimeOptions } from '@nodepack/client';
 import { useChat } from '@ai-sdk/react';
 import { DefaultChatTransport, lastAssistantMessageIsCompleteWithToolCalls } from 'ai';
 
-import { StatusBar } from './components/status-bar';
-import { Explorer } from './components/explorer';
-import { CodeEditor } from './components/code-editor';
-import { FileTabs } from './components/file-tabs';
-import { Terminal, type TerminalHandle } from './components/terminal/terminal';
-import { AIChat } from './components/ai-chat/ai-chat';
+import { StatusBar } from './status-bar';
+import { Explorer } from './explorer';
+import { CodeEditor } from './code-editor';
+import { FileTabs } from './file-tabs';
+import { Terminal, type TerminalHandle } from './terminal/terminal';
+import { AIChat } from './ai-chat/ai-chat';
 import {
   useAnthropicApiKey,
   useOpenaiApiKey,
   useAiProvider,
   useAiModel,
-} from './components/ai-chat/use-ai-config';
+} from './ai-chat/use-ai-config';
 import { Group, Panel, Separator } from 'react-resizable-panels';
-import type { FileMap, RuntimeStatus } from './types';
+import type { FileMap, RuntimeStatus } from '../types';
 
 // Worker URL from public directory
 const nodepackWorkerUrl = '/workers/runtime-worker.js';
