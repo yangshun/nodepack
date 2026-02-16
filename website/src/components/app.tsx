@@ -27,7 +27,7 @@ export function App() {
 
   const initialFiles = useMemo<FileMap>(() => {
     if (!selectedExample) {
-      return { 'main.js': '' };
+      return { 'main.js': "console.log('Hello, world!');" };
     }
 
     return selectedExample.files;
