@@ -6,6 +6,10 @@ Run a Node.js coding environment (with AI coding agent) directly in the browser 
 
 Try it out: https://nodepack.vercel.app
 
+<a href="https://nodepack.vercel.app" target="_blank" rel="noopener noreferrer">
+  <img src="./assets/nodepack-cover.png" alt="Nodepack">
+</a>
+
 ## Motivations
 
 Traditionally, Node.js is meant to be run on the server. With some clever hacks (e.g. shimming of Node.js APIs, transforming CJS code, using workers to intercept requests), we managed to achieve good support for running basic Node.js apps in the browser, which unlocks many exciting new use cases, such as:
