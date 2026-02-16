@@ -75,14 +75,7 @@ export function Explorer({
     const newTree = buildFileTree(filesystem, '/');
     setTree(newTree);
 
-    // Only auto-expand root level on initial load (when there are no expanded paths)
-    setExpandedPaths((prev) => {
-      if (prev.size === 0) {
-        const rootPaths = newTree.filter((node) => node.isDirectory).map((node) => node.path);
-        return new Set(rootPaths);
-      }
-      return prev;
-    });
+    // Preserve expanded state during re-renders, no auto-expansion
   }, [filesystem, version]);
 
   // Read package.json and extract npm scripts
