@@ -32,146 +32,164 @@ function md5(data: Uint8Array): Uint8Array {
   x[data.length >> 2] |= 0x80 << ((data.length % 4) * 8);
   x[(((data.length + 8) >>> 6) << 4) + 14] = data.length * 8;
 
-  const S11 = 7, S12 = 12, S13 = 17, S14 = 22;
-  const S21 = 5, S22 = 9, S23 = 14, S24 = 20;
-  const S31 = 4, S32 = 11, S33 = 16, S34 = 23;
-  const S41 = 6, S42 = 10, S43 = 15, S44 = 21;
+  const S11 = 7,
+    S12 = 12,
+    S13 = 17,
+    S14 = 22;
+  const S21 = 5,
+    S22 = 9,
+    S23 = 14,
+    S24 = 20;
+  const S31 = 4,
+    S32 = 11,
+    S33 = 16,
+    S34 = 23;
+  const S41 = 6,
+    S42 = 10,
+    S43 = 15,
+    S44 = 21;
 
-  let a = 0x67452301, b = 0xefcdab89, c = 0x98badcfe, d = 0x10325476;
+  let a = 0x67452301,
+    b = 0xefcdab89,
+    c = 0x98badcfe,
+    d = 0x10325476;
 
   for (let k = 0; k < x.length; k += 16) {
-    const AA = a, BB = b, CC = c, DD = d;
+    const AA = a,
+      BB = b,
+      CC = c,
+      DD = d;
 
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & c) | (~b & d)), x[k + 0]), 0xd76aa478));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & c) | (~b & d), x[k + 0]), 0xd76aa478));
     a = addUnsigned(rotateLeft(a, S11), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & b) | (~a & c)), x[k + 1]), 0xe8c7b756));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & b) | (~a & c), x[k + 1]), 0xe8c7b756));
     d = addUnsigned(rotateLeft(d, S12), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & a) | (~d & b)), x[k + 2]), 0x242070db));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & a) | (~d & b), x[k + 2]), 0x242070db));
     c = addUnsigned(rotateLeft(c, S13), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & d) | (~c & a)), x[k + 3]), 0xc1bdceee));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & d) | (~c & a), x[k + 3]), 0xc1bdceee));
     b = addUnsigned(rotateLeft(b, S14), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & c) | (~b & d)), x[k + 4]), 0xf57c0faf));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & c) | (~b & d), x[k + 4]), 0xf57c0faf));
     a = addUnsigned(rotateLeft(a, S11), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & b) | (~a & c)), x[k + 5]), 0x4787c62a));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & b) | (~a & c), x[k + 5]), 0x4787c62a));
     d = addUnsigned(rotateLeft(d, S12), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & a) | (~d & b)), x[k + 6]), 0xa8304613));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & a) | (~d & b), x[k + 6]), 0xa8304613));
     c = addUnsigned(rotateLeft(c, S13), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & d) | (~c & a)), x[k + 7]), 0xfd469501));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & d) | (~c & a), x[k + 7]), 0xfd469501));
     b = addUnsigned(rotateLeft(b, S14), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & c) | (~b & d)), x[k + 8]), 0x698098d8));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & c) | (~b & d), x[k + 8]), 0x698098d8));
     a = addUnsigned(rotateLeft(a, S11), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & b) | (~a & c)), x[k + 9]), 0x8b44f7af));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & b) | (~a & c), x[k + 9]), 0x8b44f7af));
     d = addUnsigned(rotateLeft(d, S12), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & a) | (~d & b)), x[k + 10]), 0xffff5bb1));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & a) | (~d & b), x[k + 10]), 0xffff5bb1));
     c = addUnsigned(rotateLeft(c, S13), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & d) | (~c & a)), x[k + 11]), 0x895cd7be));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & d) | (~c & a), x[k + 11]), 0x895cd7be));
     b = addUnsigned(rotateLeft(b, S14), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & c) | (~b & d)), x[k + 12]), 0x6b901122));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & c) | (~b & d), x[k + 12]), 0x6b901122));
     a = addUnsigned(rotateLeft(a, S11), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & b) | (~a & c)), x[k + 13]), 0xfd987193));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & b) | (~a & c), x[k + 13]), 0xfd987193));
     d = addUnsigned(rotateLeft(d, S12), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & a) | (~d & b)), x[k + 14]), 0xa679438e));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & a) | (~d & b), x[k + 14]), 0xa679438e));
     c = addUnsigned(rotateLeft(c, S13), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & d) | (~c & a)), x[k + 15]), 0x49b40821));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & d) | (~c & a), x[k + 15]), 0x49b40821));
     b = addUnsigned(rotateLeft(b, S14), c);
 
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & d) | (c & ~d)), x[k + 1]), 0xf61e2562));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & d) | (c & ~d), x[k + 1]), 0xf61e2562));
     a = addUnsigned(rotateLeft(a, S21), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & c) | (b & ~c)), x[k + 6]), 0xc040b340));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & c) | (b & ~c), x[k + 6]), 0xc040b340));
     d = addUnsigned(rotateLeft(d, S22), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & b) | (a & ~b)), x[k + 11]), 0x265e5a51));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & b) | (a & ~b), x[k + 11]), 0x265e5a51));
     c = addUnsigned(rotateLeft(c, S23), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & a) | (d & ~a)), x[k + 0]), 0xe9b6c7aa));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & a) | (d & ~a), x[k + 0]), 0xe9b6c7aa));
     b = addUnsigned(rotateLeft(b, S24), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & d) | (c & ~d)), x[k + 5]), 0xd62f105d));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & d) | (c & ~d), x[k + 5]), 0xd62f105d));
     a = addUnsigned(rotateLeft(a, S21), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & c) | (b & ~c)), x[k + 10]), 0x2441453));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & c) | (b & ~c), x[k + 10]), 0x2441453));
     d = addUnsigned(rotateLeft(d, S22), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & b) | (a & ~b)), x[k + 15]), 0xd8a1e681));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & b) | (a & ~b), x[k + 15]), 0xd8a1e681));
     c = addUnsigned(rotateLeft(c, S23), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & a) | (d & ~a)), x[k + 4]), 0xe7d3fbc8));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & a) | (d & ~a), x[k + 4]), 0xe7d3fbc8));
     b = addUnsigned(rotateLeft(b, S24), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & d) | (c & ~d)), x[k + 9]), 0x21e1cde6));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & d) | (c & ~d), x[k + 9]), 0x21e1cde6));
     a = addUnsigned(rotateLeft(a, S21), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & c) | (b & ~c)), x[k + 14]), 0xc33707d6));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & c) | (b & ~c), x[k + 14]), 0xc33707d6));
     d = addUnsigned(rotateLeft(d, S22), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & b) | (a & ~b)), x[k + 3]), 0xf4d50d87));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & b) | (a & ~b), x[k + 3]), 0xf4d50d87));
     c = addUnsigned(rotateLeft(c, S23), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & a) | (d & ~a)), x[k + 8]), 0x455a14ed));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & a) | (d & ~a), x[k + 8]), 0x455a14ed));
     b = addUnsigned(rotateLeft(b, S24), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned(((b & d) | (c & ~d)), x[k + 13]), 0xa9e3e905));
+    a = addUnsigned(a, addUnsigned(addUnsigned((b & d) | (c & ~d), x[k + 13]), 0xa9e3e905));
     a = addUnsigned(rotateLeft(a, S21), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned(((a & c) | (b & ~c)), x[k + 2]), 0xfcefa3f8));
+    d = addUnsigned(d, addUnsigned(addUnsigned((a & c) | (b & ~c), x[k + 2]), 0xfcefa3f8));
     d = addUnsigned(rotateLeft(d, S22), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned(((d & b) | (a & ~b)), x[k + 7]), 0x676f02d9));
+    c = addUnsigned(c, addUnsigned(addUnsigned((d & b) | (a & ~b), x[k + 7]), 0x676f02d9));
     c = addUnsigned(rotateLeft(c, S23), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned(((c & a) | (d & ~a)), x[k + 12]), 0x8d2a4c8a));
+    b = addUnsigned(b, addUnsigned(addUnsigned((c & a) | (d & ~a), x[k + 12]), 0x8d2a4c8a));
     b = addUnsigned(rotateLeft(b, S24), c);
 
-    a = addUnsigned(a, addUnsigned(addUnsigned((b ^ c ^ d), x[k + 5]), 0xfffa3942));
+    a = addUnsigned(a, addUnsigned(addUnsigned(b ^ c ^ d, x[k + 5]), 0xfffa3942));
     a = addUnsigned(rotateLeft(a, S31), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((a ^ b ^ c), x[k + 8]), 0x8771f681));
+    d = addUnsigned(d, addUnsigned(addUnsigned(a ^ b ^ c, x[k + 8]), 0x8771f681));
     d = addUnsigned(rotateLeft(d, S32), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((d ^ a ^ b), x[k + 11]), 0x6d9d6122));
+    c = addUnsigned(c, addUnsigned(addUnsigned(d ^ a ^ b, x[k + 11]), 0x6d9d6122));
     c = addUnsigned(rotateLeft(c, S33), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((c ^ d ^ a), x[k + 14]), 0xfde5380c));
+    b = addUnsigned(b, addUnsigned(addUnsigned(c ^ d ^ a, x[k + 14]), 0xfde5380c));
     b = addUnsigned(rotateLeft(b, S34), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((b ^ c ^ d), x[k + 1]), 0xa4beea44));
+    a = addUnsigned(a, addUnsigned(addUnsigned(b ^ c ^ d, x[k + 1]), 0xa4beea44));
     a = addUnsigned(rotateLeft(a, S31), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((a ^ b ^ c), x[k + 4]), 0x4bdecfa9));
+    d = addUnsigned(d, addUnsigned(addUnsigned(a ^ b ^ c, x[k + 4]), 0x4bdecfa9));
     d = addUnsigned(rotateLeft(d, S32), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((d ^ a ^ b), x[k + 7]), 0xf6bb4b60));
+    c = addUnsigned(c, addUnsigned(addUnsigned(d ^ a ^ b, x[k + 7]), 0xf6bb4b60));
     c = addUnsigned(rotateLeft(c, S33), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((c ^ d ^ a), x[k + 10]), 0xbebfbc70));
+    b = addUnsigned(b, addUnsigned(addUnsigned(c ^ d ^ a, x[k + 10]), 0xbebfbc70));
     b = addUnsigned(rotateLeft(b, S34), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((b ^ c ^ d), x[k + 13]), 0x289b7ec6));
+    a = addUnsigned(a, addUnsigned(addUnsigned(b ^ c ^ d, x[k + 13]), 0x289b7ec6));
     a = addUnsigned(rotateLeft(a, S31), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((a ^ b ^ c), x[k + 0]), 0xeaa127fa));
+    d = addUnsigned(d, addUnsigned(addUnsigned(a ^ b ^ c, x[k + 0]), 0xeaa127fa));
     d = addUnsigned(rotateLeft(d, S32), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((d ^ a ^ b), x[k + 3]), 0xd4ef3085));
+    c = addUnsigned(c, addUnsigned(addUnsigned(d ^ a ^ b, x[k + 3]), 0xd4ef3085));
     c = addUnsigned(rotateLeft(c, S33), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((c ^ d ^ a), x[k + 6]), 0x4881d05));
+    b = addUnsigned(b, addUnsigned(addUnsigned(c ^ d ^ a, x[k + 6]), 0x4881d05));
     b = addUnsigned(rotateLeft(b, S34), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((b ^ c ^ d), x[k + 9]), 0xd9d4d039));
+    a = addUnsigned(a, addUnsigned(addUnsigned(b ^ c ^ d, x[k + 9]), 0xd9d4d039));
     a = addUnsigned(rotateLeft(a, S31), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((a ^ b ^ c), x[k + 12]), 0xe6db99e5));
+    d = addUnsigned(d, addUnsigned(addUnsigned(a ^ b ^ c, x[k + 12]), 0xe6db99e5));
     d = addUnsigned(rotateLeft(d, S32), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((d ^ a ^ b), x[k + 15]), 0x1fa27cf8));
+    c = addUnsigned(c, addUnsigned(addUnsigned(d ^ a ^ b, x[k + 15]), 0x1fa27cf8));
     c = addUnsigned(rotateLeft(c, S33), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((c ^ d ^ a), x[k + 2]), 0xc4ac5665));
+    b = addUnsigned(b, addUnsigned(addUnsigned(c ^ d ^ a, x[k + 2]), 0xc4ac5665));
     b = addUnsigned(rotateLeft(b, S34), c);
 
-    a = addUnsigned(a, addUnsigned(addUnsigned((c ^ (b | ~d)), x[k + 0]), 0xf4292244));
+    a = addUnsigned(a, addUnsigned(addUnsigned(c ^ (b | ~d), x[k + 0]), 0xf4292244));
     a = addUnsigned(rotateLeft(a, S41), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((b ^ (a | ~c)), x[k + 7]), 0x432aff97));
+    d = addUnsigned(d, addUnsigned(addUnsigned(b ^ (a | ~c), x[k + 7]), 0x432aff97));
     d = addUnsigned(rotateLeft(d, S42), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((a ^ (d | ~b)), x[k + 14]), 0xab9423a7));
+    c = addUnsigned(c, addUnsigned(addUnsigned(a ^ (d | ~b), x[k + 14]), 0xab9423a7));
     c = addUnsigned(rotateLeft(c, S43), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((d ^ (c | ~a)), x[k + 5]), 0xfc93a039));
+    b = addUnsigned(b, addUnsigned(addUnsigned(d ^ (c | ~a), x[k + 5]), 0xfc93a039));
     b = addUnsigned(rotateLeft(b, S44), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((c ^ (b | ~d)), x[k + 12]), 0x655b59c3));
+    a = addUnsigned(a, addUnsigned(addUnsigned(c ^ (b | ~d), x[k + 12]), 0x655b59c3));
     a = addUnsigned(rotateLeft(a, S41), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((b ^ (a | ~c)), x[k + 3]), 0x8f0ccc92));
+    d = addUnsigned(d, addUnsigned(addUnsigned(b ^ (a | ~c), x[k + 3]), 0x8f0ccc92));
     d = addUnsigned(rotateLeft(d, S42), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((a ^ (d | ~b)), x[k + 10]), 0xffeff47d));
+    c = addUnsigned(c, addUnsigned(addUnsigned(a ^ (d | ~b), x[k + 10]), 0xffeff47d));
     c = addUnsigned(rotateLeft(c, S43), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((d ^ (c | ~a)), x[k + 1]), 0x85845dd1));
+    b = addUnsigned(b, addUnsigned(addUnsigned(d ^ (c | ~a), x[k + 1]), 0x85845dd1));
     b = addUnsigned(rotateLeft(b, S44), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((c ^ (b | ~d)), x[k + 8]), 0x6fa87e4f));
+    a = addUnsigned(a, addUnsigned(addUnsigned(c ^ (b | ~d), x[k + 8]), 0x6fa87e4f));
     a = addUnsigned(rotateLeft(a, S41), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((b ^ (a | ~c)), x[k + 15]), 0xfe2ce6e0));
+    d = addUnsigned(d, addUnsigned(addUnsigned(b ^ (a | ~c), x[k + 15]), 0xfe2ce6e0));
     d = addUnsigned(rotateLeft(d, S42), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((a ^ (d | ~b)), x[k + 6]), 0xa3014314));
+    c = addUnsigned(c, addUnsigned(addUnsigned(a ^ (d | ~b), x[k + 6]), 0xa3014314));
     c = addUnsigned(rotateLeft(c, S43), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((d ^ (c | ~a)), x[k + 13]), 0x4e0811a1));
+    b = addUnsigned(b, addUnsigned(addUnsigned(d ^ (c | ~a), x[k + 13]), 0x4e0811a1));
     b = addUnsigned(rotateLeft(b, S44), c);
-    a = addUnsigned(a, addUnsigned(addUnsigned((c ^ (b | ~d)), x[k + 4]), 0xf7537e82));
+    a = addUnsigned(a, addUnsigned(addUnsigned(c ^ (b | ~d), x[k + 4]), 0xf7537e82));
     a = addUnsigned(rotateLeft(a, S41), b);
-    d = addUnsigned(d, addUnsigned(addUnsigned((b ^ (a | ~c)), x[k + 11]), 0xbd3af235));
+    d = addUnsigned(d, addUnsigned(addUnsigned(b ^ (a | ~c), x[k + 11]), 0xbd3af235));
     d = addUnsigned(rotateLeft(d, S42), a);
-    c = addUnsigned(c, addUnsigned(addUnsigned((a ^ (d | ~b)), x[k + 2]), 0x2ad7d2bb));
+    c = addUnsigned(c, addUnsigned(addUnsigned(a ^ (d | ~b), x[k + 2]), 0x2ad7d2bb));
     c = addUnsigned(rotateLeft(c, S43), d);
-    b = addUnsigned(b, addUnsigned(addUnsigned((d ^ (c | ~a)), x[k + 9]), 0xeb86d391));
+    b = addUnsigned(b, addUnsigned(addUnsigned(d ^ (c | ~a), x[k + 9]), 0xeb86d391));
     b = addUnsigned(rotateLeft(b, S44), c);
 
     a = addUnsigned(a, AA);
@@ -202,7 +220,11 @@ function sha1(data: Uint8Array): Uint8Array {
   const view = new DataView(padded.buffer);
   view.setUint32(paddedLength - 4, msgLength, false);
 
-  let h0 = 0x67452301, h1 = 0xefcdab89, h2 = 0x98badcfe, h3 = 0x10325476, h4 = 0xc3d2e1f0;
+  let h0 = 0x67452301,
+    h1 = 0xefcdab89,
+    h2 = 0x98badcfe,
+    h3 = 0x10325476,
+    h4 = 0xc3d2e1f0;
 
   for (let chunk = 0; chunk < paddedLength; chunk += 64) {
     const w: number[] = new Array(80);
@@ -215,7 +237,11 @@ function sha1(data: Uint8Array): Uint8Array {
       w[i] = rotateLeft(w[i - 3] ^ w[i - 8] ^ w[i - 14] ^ w[i - 16], 1);
     }
 
-    let a = h0, b = h1, c = h2, d = h3, e = h4;
+    let a = h0,
+      b = h1,
+      c = h2,
+      d = h3,
+      e = h4;
 
     for (let i = 0; i < 80; i++) {
       let f, k;
@@ -269,7 +295,7 @@ function sha256(data: Uint8Array): Uint8Array {
     0x27b70a85, 0x2e1b2138, 0x4d2c6dfc, 0x53380d13, 0x650a7354, 0x766a0abb, 0x81c2c92e, 0x92722c85,
     0xa2bfe8a1, 0xa81a664b, 0xc24b8b70, 0xc76c51a3, 0xd192e819, 0xd6990624, 0xf40e3585, 0x106aa070,
     0x19a4c116, 0x1e376c08, 0x2748774c, 0x34b0bcb5, 0x391c0cb3, 0x4ed8aa4a, 0x5b9cca4f, 0x682e6ff3,
-    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2
+    0x748f82ee, 0x78a5636f, 0x84c87814, 0x8cc70208, 0x90befffa, 0xa4506ceb, 0xbef9a3f7, 0xc67178f2,
   ];
 
   function rightRotate(value: number, amount: number): number {
@@ -285,8 +311,14 @@ function sha256(data: Uint8Array): Uint8Array {
   const view = new DataView(padded.buffer);
   view.setUint32(paddedLength - 4, msgLength, false);
 
-  let h0 = 0x6a09e667, h1 = 0xbb67ae85, h2 = 0x3c6ef372, h3 = 0xa54ff53a;
-  let h4 = 0x510e527f, h5 = 0x9b05688c, h6 = 0x1f83d9ab, h7 = 0x5be0cd19;
+  let h0 = 0x6a09e667,
+    h1 = 0xbb67ae85,
+    h2 = 0x3c6ef372,
+    h3 = 0xa54ff53a;
+  let h4 = 0x510e527f,
+    h5 = 0x9b05688c,
+    h6 = 0x1f83d9ab,
+    h7 = 0x5be0cd19;
 
   for (let chunk = 0; chunk < paddedLength; chunk += 64) {
     const w: number[] = new Array(64);
@@ -301,7 +333,14 @@ function sha256(data: Uint8Array): Uint8Array {
       w[i] = (w[i - 16] + s0 + w[i - 7] + s1) | 0;
     }
 
-    let a = h0, b = h1, c = h2, d = h3, e = h4, f = h5, g = h6, h = h7;
+    let a = h0,
+      b = h1,
+      c = h2,
+      d = h3,
+      e = h4,
+      f = h5,
+      g = h6,
+      h = h7;
 
     for (let i = 0; i < 64; i++) {
       const S1 = rightRotate(e, 6) ^ rightRotate(e, 11) ^ rightRotate(e, 25);
@@ -367,7 +406,7 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
     0xca273ece, 0xea26619c, 0xd186b8c7, 0x21c0c207, 0xeada7dd6, 0xcde0eb1e, 0xf57d4f7f, 0xee6ed178,
     0x06f067aa, 0x72176fba, 0x0a637dc5, 0xa2c898a6, 0x113f9804, 0xbef90dae, 0x1b710b35, 0x131c471b,
     0x28db77f5, 0x23047d84, 0x32caab7b, 0x40c72493, 0x3c9ebe0a, 0x15c9bebc, 0x431d67c4, 0x9c100d4c,
-    0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817
+    0x4cc5d4be, 0xcb3e42b6, 0x597f299c, 0xfc657e2a, 0x5fcb6fab, 0x3ad6faec, 0x6c44198c, 0x4a475817,
   ];
 
   // Simple 64-bit arithmetic using two 32-bit integers [high, low]
@@ -379,16 +418,10 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
 
   function rotr64(n: number, x: [number, number]): [number, number] {
     if (n < 32) {
-      return [
-        (x[0] >>> n) | (x[1] << (32 - n)),
-        (x[1] >>> n) | (x[0] << (32 - n))
-      ];
+      return [(x[0] >>> n) | (x[1] << (32 - n)), (x[1] >>> n) | (x[0] << (32 - n))];
     } else {
       const m = n - 32;
-      return [
-        (x[1] >>> m) | (x[0] << (32 - m)),
-        (x[0] >>> m) | (x[1] << (32 - m))
-      ];
+      return [(x[1] >>> m) | (x[0] << (32 - m)), (x[0] >>> m) | (x[1] << (32 - m))];
     }
   }
 
@@ -416,13 +449,25 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
   let h: [number, number][];
   if (outputBits === 384) {
     h = [
-      [0xcbbb9d5d, 0xc1059ed8], [0x629a292a, 0x367cd507], [0x9159015a, 0x3070dd17], [0x152fecd8, 0xf70e5939],
-      [0x67332667, 0xffc00b31], [0x8eb44a87, 0x68581511], [0xdb0c2e0d, 0x64f98fa7], [0x47b5481d, 0xbefa4fa4]
+      [0xcbbb9d5d, 0xc1059ed8],
+      [0x629a292a, 0x367cd507],
+      [0x9159015a, 0x3070dd17],
+      [0x152fecd8, 0xf70e5939],
+      [0x67332667, 0xffc00b31],
+      [0x8eb44a87, 0x68581511],
+      [0xdb0c2e0d, 0x64f98fa7],
+      [0x47b5481d, 0xbefa4fa4],
     ];
   } else {
     h = [
-      [0x6a09e667, 0xf3bcc908], [0xbb67ae85, 0x84caa73b], [0x3c6ef372, 0xfe94f82b], [0xa54ff53a, 0x5f1d36f1],
-      [0x510e527f, 0xade682d1], [0x9b05688c, 0x2b3e6c1f], [0x1f83d9ab, 0xfb41bd6b], [0x5be0cd19, 0x137e2179]
+      [0x6a09e667, 0xf3bcc908],
+      [0xbb67ae85, 0x84caa73b],
+      [0x3c6ef372, 0xfe94f82b],
+      [0xa54ff53a, 0x5f1d36f1],
+      [0x510e527f, 0xade682d1],
+      [0x9b05688c, 0x2b3e6c1f],
+      [0x1f83d9ab, 0xfb41bd6b],
+      [0x5be0cd19, 0x137e2179],
     ];
   }
 
@@ -465,7 +510,7 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
 
       const maj: [number, number] = [
         (a[0] & b[0]) ^ (a[0] & c[0]) ^ (b[0] & c[0]),
-        (a[1] & b[1]) ^ (a[1] & c[1]) ^ (b[1] & c[1])
+        (a[1] & b[1]) ^ (a[1] & c[1]) ^ (b[1] & c[1]),
       ];
       const temp2 = add64(S0, maj);
 
@@ -479,8 +524,16 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
       a = add64(temp1, temp2);
     }
 
-    h = [add64(h[0], a), add64(h[1], b), add64(h[2], c), add64(h[3], d),
-         add64(h[4], e), add64(h[5], f), add64(h[6], g), add64(h[7], hh)];
+    h = [
+      add64(h[0], a),
+      add64(h[1], b),
+      add64(h[2], c),
+      add64(h[3], d),
+      add64(h[4], e),
+      add64(h[5], f),
+      add64(h[6], g),
+      add64(h[7], hh),
+    ];
   }
 
   // Convert to byte array
@@ -489,9 +542,10 @@ function sha512base(data: Uint8Array, outputBits: 384 | 512): Uint8Array {
   for (let i = 0; i < resultSize; i++) {
     const wordIdx = i >> 3;
     const byteInWord = i % 8;
-    result[i] = byteInWord < 4
-      ? (h[wordIdx][0] >>> (24 - (byteInWord % 4) * 8)) & 0xff
-      : (h[wordIdx][1] >>> (24 - (byteInWord % 4) * 8)) & 0xff;
+    result[i] =
+      byteInWord < 4
+        ? (h[wordIdx][0] >>> (24 - (byteInWord % 4) * 8)) & 0xff
+        : (h[wordIdx][1] >>> (24 - (byteInWord % 4) * 8)) & 0xff;
   }
   return result;
 }
@@ -529,12 +583,11 @@ function computeHashSync(algorithm: string, data: Uint8Array): Uint8Array {
 /**
  * Compute HMAC synchronously using pure JS
  */
-function computeHmacSync(
-  algorithm: string,
-  key: Uint8Array,
-  data: Uint8Array,
-): Uint8Array {
-  const blockSize = algorithm.toLowerCase().includes('sha512') || algorithm.toLowerCase().includes('sha384') ? 128 : 64;
+function computeHmacSync(algorithm: string, key: Uint8Array, data: Uint8Array): Uint8Array {
+  const blockSize =
+    algorithm.toLowerCase().includes('sha512') || algorithm.toLowerCase().includes('sha384')
+      ? 128
+      : 64;
 
   // Pad or hash the key if necessary
   let keyPadded = new Uint8Array(blockSize);
@@ -569,101 +622,91 @@ export function createCryptoModule(vm: QuickJSContext): QuickJSHandle {
   const cryptoObj = vm.newObject();
 
   // Host function: __computeHashSync(algorithm, data) -> Uint8Array
-  addModuleFunction(
-    vm,
-    cryptoObj,
-    '__computeHashSync',
-    (algoHandle, dataHandle) => {
-      const algorithm = vm.dump(algoHandle);
-      const data = vm.dump(dataHandle);
+  addModuleFunction(vm, cryptoObj, '__computeHashSync', (algoHandle, dataHandle) => {
+    const algorithm = vm.dump(algoHandle);
+    const data = vm.dump(dataHandle);
 
-      if (typeof algorithm !== 'string') {
-        throw new Error('Algorithm must be a string');
-      }
+    if (typeof algorithm !== 'string') {
+      throw new Error('Algorithm must be a string');
+    }
 
-      // Convert data to Uint8Array
-      const encoder = new TextEncoder();
-      let dataBytes: Uint8Array;
+    // Convert data to Uint8Array
+    const encoder = new TextEncoder();
+    let dataBytes: Uint8Array;
 
-      if (typeof data === 'string') {
-        dataBytes = encoder.encode(data);
-      } else if (Array.isArray(data)) {
-        dataBytes = new Uint8Array(data);
-      } else if (data instanceof Uint8Array) {
-        dataBytes = data;
-      } else {
-        throw new Error('Data must be string or array');
-      }
+    if (typeof data === 'string') {
+      dataBytes = encoder.encode(data);
+    } else if (Array.isArray(data)) {
+      dataBytes = new Uint8Array(data);
+    } else if (data instanceof Uint8Array) {
+      dataBytes = data;
+    } else {
+      throw new Error('Data must be string or array');
+    }
 
-      // Compute hash
-      const resultBytes = computeHashSync(algorithm, dataBytes);
+    // Compute hash
+    const resultBytes = computeHashSync(algorithm, dataBytes);
 
-      // Convert to QuickJS array
-      const arrayHandle = vm.newArray();
-      for (let i = 0; i < resultBytes.length; i++) {
-        const numHandle = vm.newNumber(resultBytes[i]);
-        vm.setProp(arrayHandle, i, numHandle);
-        numHandle.dispose();
-      }
+    // Convert to QuickJS array
+    const arrayHandle = vm.newArray();
+    for (let i = 0; i < resultBytes.length; i++) {
+      const numHandle = vm.newNumber(resultBytes[i]);
+      vm.setProp(arrayHandle, i, numHandle);
+      numHandle.dispose();
+    }
 
-      return arrayHandle;
-    },
-  );
+    return arrayHandle;
+  });
 
   // Host function: __computeHmacSync(algorithm, key, data) -> Uint8Array
-  addModuleFunction(
-    vm,
-    cryptoObj,
-    '__computeHmacSync',
-    (algoHandle, keyHandle, dataHandle) => {
-      const algorithm = vm.dump(algoHandle);
-      const key = vm.dump(keyHandle);
-      const data = vm.dump(dataHandle);
+  addModuleFunction(vm, cryptoObj, '__computeHmacSync', (algoHandle, keyHandle, dataHandle) => {
+    const algorithm = vm.dump(algoHandle);
+    const key = vm.dump(keyHandle);
+    const data = vm.dump(dataHandle);
 
-      if (typeof algorithm !== 'string') {
-        throw new Error('Algorithm must be a string');
-      }
+    if (typeof algorithm !== 'string') {
+      throw new Error('Algorithm must be a string');
+    }
 
-      const encoder = new TextEncoder();
+    const encoder = new TextEncoder();
 
-      // Convert key to Uint8Array
-      let keyBytes: Uint8Array;
-      if (typeof key === 'string') {
-        keyBytes = encoder.encode(key);
-      } else if (Array.isArray(key)) {
-        keyBytes = new Uint8Array(key);
-      } else if (key instanceof Uint8Array) {
-        keyBytes = key;
-      } else {
-        throw new Error('Key must be string or array');
-      }
+    // Convert key to Uint8Array
+    let keyBytes: Uint8Array;
+    if (typeof key === 'string') {
+      keyBytes = encoder.encode(key);
+    } else if (Array.isArray(key)) {
+      keyBytes = new Uint8Array(key);
+    } else if (key instanceof Uint8Array) {
+      keyBytes = key;
+    } else {
+      throw new Error('Key must be string or array');
+    }
 
-      // Convert data to Uint8Array
-      let dataBytes: Uint8Array;
-      if (typeof data === 'string') {
-        dataBytes = encoder.encode(data);
-      } else if (Array.isArray(data)) {
-        dataBytes = new Uint8Array(data);
-      } else if (data instanceof Uint8Array) {
-        dataBytes = data;
-      } else {
-        throw new Error('Data must be string or array');
-      }
+    // Convert data to Uint8Array
+    let dataBytes: Uint8Array;
+    if (typeof data === 'string') {
+      dataBytes = encoder.encode(data);
+    } else if (Array.isArray(data)) {
+      dataBytes = new Uint8Array(data);
+    } else if (data instanceof Uint8Array) {
+      dataBytes = data;
+    } else {
+      throw new Error('Data must be string or array');
+    }
 
-      // Compute HMAC
-      const resultBytes = computeHmacSync(algorithm, keyBytes, dataBytes);
+    // Compute HMAC
+    const resultBytes = computeHmacSync(algorithm, keyBytes, dataBytes);
 
-      // Convert to QuickJS array
-      const arrayHandle = vm.newArray();
-      for (let i = 0; i < resultBytes.length; i++) {
-        const numHandle = vm.newNumber(resultBytes[i]);
-        vm.setProp(arrayHandle, i, numHandle);
-        numHandle.dispose();
-      }
+    // Convert to QuickJS array
+    const arrayHandle = vm.newArray();
+    for (let i = 0; i < resultBytes.length; i++) {
+      const numHandle = vm.newNumber(resultBytes[i]);
+      vm.setProp(arrayHandle, i, numHandle);
+      numHandle.dispose();
+    }
 
-      return arrayHandle;
-    },
-  );
+    return arrayHandle;
+  });
 
   // Host function: __randomBytes(size) -> Uint8Array
   addModuleFunction(vm, cryptoObj, '__randomBytes', (sizeHandle) => {
@@ -909,12 +952,7 @@ export function createCryptoModule(vm: QuickJSContext): QuickJSHandle {
   // Merge host functions into the crypto object
   const cryptoHandle = result.value;
 
-  const hostFunctions = [
-    '__computeHashSync',
-    '__computeHmacSync',
-    '__randomBytes',
-    '__randomUUID',
-  ];
+  const hostFunctions = ['__computeHashSync', '__computeHmacSync', '__randomBytes', '__randomUUID'];
 
   for (const funcName of hostFunctions) {
     const funcHandle = vm.getProp(cryptoObj, funcName);

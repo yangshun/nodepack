@@ -69,7 +69,10 @@ export default {
   parseBasicCorrect: parseResult.foo === 'bar' && parseResult.baz === 'qux',
   duplicateKeysIsArray: Array.isArray(duplicateKeys.foo),
   duplicateKeysLength: duplicateKeys.foo?.length,
-  duplicateKeysValues: duplicateKeys.foo?.[0] === 'bar' && duplicateKeys.foo?.[1] === 'baz' && duplicateKeys.foo?.[2] === 'qux',
+  duplicateKeysValues:
+    duplicateKeys.foo?.[0] === 'bar' &&
+    duplicateKeys.foo?.[1] === 'baz' &&
+    duplicateKeys.foo?.[2] === 'qux',
   customSepCorrect: customSep.foo === 'bar' && customSep.baz === 'qux',
   maxKeysRespected: Object.keys(maxKeysResult).length,
   emptyParseIsObject: typeof emptyParse === 'object' && Object.keys(emptyParse).length === 0,
@@ -79,9 +82,18 @@ export default {
 
   // Stringify tests
   stringifyBasicCorrect: stringifyResult.includes('foo=bar') && stringifyResult.includes('baz=qux'),
-  arrayStringifyCorrect: arrayStringify.includes('foo=bar') && arrayStringify.includes('foo=baz') && arrayStringify.includes('foo=qux'),
-  customStringifyCorrect: customStringify.includes('foo:bar') && customStringify.includes('baz:qux') && customStringify.includes(';'),
-  nullUndefinedCorrect: nullUndefinedStringify.includes('foo=bar') && nullUndefinedStringify.includes('baz=') && nullUndefinedStringify.includes('qux='),
+  arrayStringifyCorrect:
+    arrayStringify.includes('foo=bar') &&
+    arrayStringify.includes('foo=baz') &&
+    arrayStringify.includes('foo=qux'),
+  customStringifyCorrect:
+    customStringify.includes('foo:bar') &&
+    customStringify.includes('baz:qux') &&
+    customStringify.includes(';'),
+  nullUndefinedCorrect:
+    nullUndefinedStringify.includes('foo=bar') &&
+    nullUndefinedStringify.includes('baz=') &&
+    nullUndefinedStringify.includes('qux='),
   emptyStringifyCorrect: emptyStringify === '',
 
   // Escape/Unescape tests

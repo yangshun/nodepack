@@ -13,7 +13,7 @@ const writable = new Writable({
   write(chunk, encoding, callback) {
     writableData.push(chunk);
     callback();
-  }
+  },
 });
 
 writable.write('hello');
@@ -32,7 +32,12 @@ module.exports = {
   // Test that classes can be instantiated
   canCreateReadable: typeof new Readable({ read() {} }) === 'object',
   canCreateWritable: typeof writable === 'object',
-  canCreateTransform: typeof new Transform({ transform(chunk, enc, cb) { cb(); } }) === 'object',
+  canCreateTransform:
+    typeof new Transform({
+      transform(chunk, enc, cb) {
+        cb();
+      },
+    }) === 'object',
 
   // node: protocol test
   nodeProtocolWorks: typeof streamNode.Readable === 'function',

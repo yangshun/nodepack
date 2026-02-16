@@ -56,9 +56,10 @@ export function createOsModule(vm: QuickJSContext): QuickJSHandle {
     const cpusArray = vm.newArray();
 
     // Return info based on navigator.hardwareConcurrency if available
-    const cores = typeof navigator !== 'undefined' && navigator.hardwareConcurrency
-      ? navigator.hardwareConcurrency
-      : 4;
+    const cores =
+      typeof navigator !== 'undefined' && navigator.hardwareConcurrency
+        ? navigator.hardwareConcurrency
+        : 4;
 
     for (let i = 0; i < cores; i++) {
       const cpuObj = vm.newObject();
@@ -104,9 +105,11 @@ export function createOsModule(vm: QuickJSContext): QuickJSHandle {
   // totalmem() - Returns total memory in bytes
   addModuleFunction(vm, osObj, 'totalmem', () => {
     // Try to get memory info if available
-    if (typeof performance !== 'undefined' &&
-        (performance as any).memory &&
-        (performance as any).memory.jsHeapSizeLimit) {
+    if (
+      typeof performance !== 'undefined' &&
+      (performance as any).memory &&
+      (performance as any).memory.jsHeapSizeLimit
+    ) {
       return vm.newNumber((performance as any).memory.jsHeapSizeLimit);
     }
     // Default to 2GB
@@ -116,10 +119,12 @@ export function createOsModule(vm: QuickJSContext): QuickJSHandle {
   // freemem() - Returns free memory in bytes
   addModuleFunction(vm, osObj, 'freemem', () => {
     // Try to get memory info if available
-    if (typeof performance !== 'undefined' &&
-        (performance as any).memory &&
-        (performance as any).memory.jsHeapSizeLimit &&
-        (performance as any).memory.usedJSHeapSize) {
+    if (
+      typeof performance !== 'undefined' &&
+      (performance as any).memory &&
+      (performance as any).memory.jsHeapSizeLimit &&
+      (performance as any).memory.usedJSHeapSize
+    ) {
       const total = (performance as any).memory.jsHeapSizeLimit;
       const used = (performance as any).memory.usedJSHeapSize;
       return vm.newNumber(total - used);

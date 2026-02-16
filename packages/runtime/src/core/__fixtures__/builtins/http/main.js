@@ -2,7 +2,15 @@
  * ESM http module tests
  */
 import http from 'http';
-import { request, get, createServer, STATUS_CODES, METHODS, ClientRequest, IncomingMessage } from 'http';
+import {
+  request,
+  get,
+  createServer,
+  STATUS_CODES,
+  METHODS,
+  ClientRequest,
+  IncomingMessage,
+} from 'http';
 
 // Test 1: http.get() - create a GET request (don't send it)
 const getReq = get('http://example.com/test', (res) => {
@@ -13,18 +21,21 @@ const getReq = get('http://example.com/test', (res) => {
 const getRequestCreated = typeof getReq === 'object';
 
 // Test 2: http.request() - create a POST request (don't send it)
-const postReq = request({
-  protocol: 'http:',
-  hostname: 'example.com',
-  port: 80,
-  path: '/post',
-  method: 'POST',
-  headers: {
-    'Content-Type': 'application/json',
+const postReq = request(
+  {
+    protocol: 'http:',
+    hostname: 'example.com',
+    port: 80,
+    path: '/post',
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
   },
-}, (res) => {
-  // Response handler
-});
+  (res) => {
+    // Response handler
+  },
+);
 
 const requestCreated = typeof postReq === 'object';
 const requestHasWrite = typeof postReq.write === 'function';
@@ -62,7 +73,7 @@ try {
 }
 
 // Wait a bit for server error to be emitted
-await new Promise(resolve => setTimeout(resolve, 100));
+await new Promise((resolve) => setTimeout(resolve, 100));
 
 // Test 6: Classes are available
 const canCreateClientRequest = typeof ClientRequest === 'function';
@@ -104,7 +115,8 @@ export default {
 
   // Server test (should fail in browser)
   serverErrorOccurred: serverError !== null,
-  serverErrorIsCorrect: serverErrorMessage.includes('not supported') || serverErrorMessage.includes('browser'),
+  serverErrorIsCorrect:
+    serverErrorMessage.includes('not supported') || serverErrorMessage.includes('browser'),
 
   // Classes
   canCreateClientRequest: canCreateClientRequest,

@@ -128,7 +128,8 @@ export default {
 
   // Algorithm-specific tests
   sha256TestHash,
-  sha256TestCorrect: sha256TestHash === '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
+  sha256TestCorrect:
+    sha256TestHash === '9f86d081884c7d659a2feaa0c55ad015a3bf4f1b2b0b822cd15d6c15b0f00a08',
 
   md5TestHash,
   md5TestCorrect: md5TestHash === '098f6bcd4621d373cade4e832627b4f6',

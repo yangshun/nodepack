@@ -6,7 +6,7 @@ import { Readable, Writable, Duplex, Transform, PassThrough, pipeline, finished 
 
 // Test 1: Readable stream - manually trigger read
 const readable = new Readable({
-  read() {}
+  read() {},
 });
 
 let readableChunks = [];
@@ -40,7 +40,7 @@ const writable = new Writable({
   },
   final(callback) {
     callback();
-  }
+  },
 });
 
 writable.on('finish', () => {
@@ -60,7 +60,7 @@ const transform = new Transform({
     const upperChunk = chunk.toString().toUpperCase();
     transformData.push(upperChunk);
     callback(null, upperChunk);
-  }
+  },
 });
 
 transform.on('data', (chunk) => {
@@ -87,7 +87,7 @@ passthrough.end();
 
 // Test 5: Pipe
 const source = new Readable({
-  read() {}
+  read() {},
 });
 
 let pipeData = [];
@@ -95,7 +95,7 @@ const dest = new Writable({
   write(chunk, encoding, callback) {
     pipeData.push(chunk);
     callback();
-  }
+  },
 });
 
 source.pipe(dest);
@@ -111,7 +111,7 @@ const duplex = new Duplex({
   write(chunk, encoding, callback) {
     duplexWriteData.push(chunk);
     callback();
-  }
+  },
 });
 
 duplex.on('data', (chunk) => {
@@ -126,7 +126,7 @@ duplex.end();
 
 // Test 7: Pause and resume
 const pausable = new Readable({
-  read() {}
+  read() {},
 });
 
 let pausedChunks = [];
@@ -153,7 +153,7 @@ pausable.push('c');
 pausable.push(null);
 
 // Give streams time to process
-await new Promise(resolve => setTimeout(resolve, 100));
+await new Promise((resolve) => setTimeout(resolve, 100));
 
 export default {
   // Module availability
