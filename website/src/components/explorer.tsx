@@ -5,7 +5,14 @@ import clsx from 'clsx';
 import { HiChevronRight, HiChevronDown } from 'react-icons/hi2';
 import type { FileTreeNode } from '../types';
 import { buildFileTree } from '../utils/filesystem-tree';
-import { VscNewFile, VscRefresh, VscFile, VscJson, VscMarkdown } from 'react-icons/vsc';
+import {
+  VscNewFile,
+  VscRefresh,
+  VscFile,
+  VscJson,
+  VscMarkdown,
+  VscCollapseAll,
+} from 'react-icons/vsc';
 import type { IconType } from 'react-icons';
 import { DiJavascript1 } from 'react-icons/di';
 import { BiLogoTypescript } from 'react-icons/bi';
@@ -70,7 +77,9 @@ export function Explorer({
 
   // Build tree when filesystem changes or version updates
   useEffect(() => {
-    if (!filesystem) return;
+    if (!filesystem) {
+      return;
+    }
 
     const newTree = buildFileTree(filesystem, '/');
     setTree(newTree);
@@ -104,7 +113,7 @@ export function Explorer({
     }
   }, [filesystem, version]);
 
-  const handleToggle = (path: string) => {
+  function handleToggle(path: string) {
     setExpandedPaths((prev) => {
       const next = new Set(prev);
       if (next.has(path)) {
@@ -114,7 +123,7 @@ export function Explorer({
       }
       return next;
     });
-  };
+  }
 
   return (
     <div className="h-full flex flex-col">
@@ -124,12 +133,17 @@ export function Explorer({
           <button onClick={onAddFile} className="btn-tertiary text-xs p-1" title="Add new file">
             <VscNewFile className="size-4" />
           </button>
-          <button
-            onClick={onRefresh}
-            className="btn-tertiary text-xs p-1"
-            title="Refresh filesystem"
-          >
+          <button onClick={onRefresh} className="btn-tertiary text-xs p-1" title="Refresh explorer">
             <VscRefresh className="size-4" />
+          </button>
+          <button
+            onClick={() => {
+              setExpandedPaths(new Set()); // Collapse all folders on refresh to reflect any structural changes
+            }}
+            className="btn-tertiary text-xs p-1"
+            title="Collapse folders in explorer"
+          >
+            <VscCollapseAll className="size-4" />
           </button>
         </div>
       </div>

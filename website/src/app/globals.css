@@ -10,11 +10,11 @@
 
 @layer components {
   .btn-primary {
-    @apply inline-flex items-center justify-center bg-orange-500 text-white text-xs px-4 py-1 rounded-full hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-orange-500 text-white text-xs px-4 py-1 rounded hover:bg-orange-600 transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center bg-gray-100 text-gray-900 text-xs px-4 py-1 rounded-full hover:bg-white transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
+    @apply inline-flex items-center justify-center bg-gray-100 text-gray-900 text-xs px-4 py-1 rounded hover:bg-white transition-colors disabled:bg-gray-600 disabled:cursor-not-allowed;
   }
 
   .btn-tertiary {
