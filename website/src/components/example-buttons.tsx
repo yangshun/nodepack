@@ -50,7 +50,7 @@ export function ExampleButtons({
       <select
         value={examples[currentIndex].id}
         onChange={handleSelectChange}
-        className="btn-tertiary text-xs border-y border-dark-border bg-transparent h-8 px-2 cursor-pointer rounded-none appearance-none"
+        className="btn-tertiary text-xs border-y border-dark-border bg-transparent h-8 px-2 cursor-pointer rounded-none appearance-none btn-focus"
       >
         {examples.map((example) => (
           <option key={example.id} value={example.id}>

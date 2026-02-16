@@ -199,7 +199,7 @@ export function Explorer({
                     console.error('Failed to execute script:', error);
                   });
                 }}
-                className="w-full text-left px-1 py-0.5 text-xs rounded hover:bg-dark-hover transition-colors text-gray-300 hover:text-orange-400 truncate"
+                className="btn-focus w-full text-left px-1 py-0.5 text-xs rounded hover:bg-dark-hover transition-colors text-gray-300 hover:text-orange-400 truncate"
                 title={`Run: ${command}`}
               >
                 {name} <span className="ml-2 text-gray-500">{command}</span>

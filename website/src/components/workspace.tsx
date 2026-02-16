@@ -467,11 +467,6 @@ export function Workspace({ title, initialFiles }: WorkspaceProps) {
 
         setFilesystemVersion((v) => v + 1);
       }
-
-      // Refresh terminal bin commands to register newly installed bins
-      if (terminalRef.current) {
-        terminalRef.current.refreshBinCommands();
-      }
     },
     [nodepack],
   );

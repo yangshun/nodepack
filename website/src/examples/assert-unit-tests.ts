@@ -1,7 +1,7 @@
 import type { ExampleDefinition } from '../types';
 
-export const assert: ExampleDefinition = {
-  id: 'assert',
+export const assertUnitTests: ExampleDefinition = {
+  id: 'assert-unit-tests',
   label: 'Assert (unit tests)',
   files: {
     'main.js': `// Basic unit testing with Node.js assert module

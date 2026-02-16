@@ -34,7 +34,6 @@ export interface TerminalHandle {
   writeOutput: (message: string) => void;
   clear: () => void;
   executeCommand: (command: string) => Promise<void>;
-  refreshBinCommands: () => void;
 }
 
 export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
@@ -61,16 +60,6 @@ export const Terminal = forwardRef<TerminalHandle, TerminalProps>(
         if (controllerRef.current) {
           await controllerRef.current.runCommand(command);
         }
-      },
-      refreshBinCommands: () => {
-        if (!controllerRef.current) {
-          return;
-        }
-
-        // Write notification to terminal
-        controllerRef.current.writeOutput(
-          '\x1b[33mℹ New bin commands installed. Use npx to run them (e.g., npx prettier --version)\x1b[0m',
-        );
       },
     }));
 

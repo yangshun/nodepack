@@ -119,7 +119,7 @@ export function AIChat({
                     key={index}
                     onClick={() => handleChoiceClick(choice)}
                     disabled={status !== 'ready'}
-                    className="w-full text-left text-xs p-3 rounded-lg border border-dark-border hover:bg-dark-hover hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="btn-focus w-full text-left text-xs p-3 rounded-lg border border-dark-border hover:bg-dark-hover hover:border-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {choice}
                   </button>
@@ -206,6 +206,7 @@ export function AIChat({
         className="flex flex-col gap-2 border border-dark-border p-2 m-2 rounded focus-within:ring-1 focus-within:ring-orange-500 "
       >
         <textarea
+          autoFocus={true}
           value={input}
           onChange={(event) => setInput(event.target.value)}
           placeholder="Ask me anything about your code..."
@@ -220,7 +221,7 @@ export function AIChat({
         <button
           type="submit"
           disabled={status !== 'ready' || !input.trim()}
-          className="self-end p-1.5 rounded bg-gray-200 hover:bg-white text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium"
+          className="self-end p-1.5 rounded bg-gray-200 hover:bg-white text-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors text-sm font-medium btn-focus"
         >
           {status !== 'ready' ? (
             <RiLoader4Line className="animate-spin size-4" />
