@@ -6,6 +6,7 @@ import { AIConfig } from './ai-config';
 import { AILoadingIndicator } from './ai-loading-indicator';
 import clsx from 'clsx';
 import Markdown from 'react-markdown';
+import remarkGfm from 'remark-gfm';
 import { VscArrowRight, VscClose } from 'react-icons/vsc';
 import { RiCircleFill, RiLoader4Line } from 'react-icons/ri';
 
@@ -108,7 +109,7 @@ export function AIChat({
                   <div key={`text-${index}`} className={clsx('text-xs', index > 0 && 'mt-2')}>
                     {message.role === 'assistant' ? (
                       <div className="ai-chat-markdown">
-                        <Markdown>{part.text}</Markdown>
+                        <Markdown remarkPlugins={[remarkGfm]}>{part.text}</Markdown>
                       </div>
                     ) : (
                       <p className="w-fit rounded-lg bg-dark-hover p-2 border border-dark-border">

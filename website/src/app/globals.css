@@ -80,6 +80,10 @@ strong {
   margin-bottom: 0.125rem;
 }
 
+.ai-chat-markdown hr {
+  border: 1px solid #4b5563;
+}
+
 .ai-chat-markdown pre {
   margin-top: 0.25rem;
   margin-bottom: 0.25rem;
@@ -110,6 +114,31 @@ strong {
 .ai-chat-markdown a {
   color: #f97316;
   text-decoration: underline;
+}
+
+.ai-chat-markdown table {
+  margin-top: 0.25rem;
+  margin-bottom: 0.25rem;
+  border-collapse: collapse;
+  width: 100%;
+  font-size: 0.7rem;
+}
+
+.ai-chat-markdown th,
+.ai-chat-markdown td {
+  padding: 0.25rem 0.5rem;
+  border: 1px solid #4b5563;
+  text-align: left;
+}
+
+.ai-chat-markdown th {
+  background-color: #2d2d2d;
+  font-weight: 600;
+  color: #fff;
+}
+
+.ai-chat-markdown tr:nth-child(even) {
+  background-color: #1a1a1a;
 }
 
 .ai-chat-markdown > :first-child {
